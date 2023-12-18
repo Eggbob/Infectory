@@ -39,8 +39,13 @@ void UIFAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		bIsJumping = bIsFalling & (CurVelocity.Z > JumpingThreshould);
 		CurRotation = FMath::Lerp(CurRotation,FVector::DotProduct(Movement->Velocity, AnimOwner->GetActorRightVector()), 0.05f);
 		CurMoveType = DefineTypePawn->GetMoveType();
-		//LeftHandPosition = 
+		
 		//UKismetMathLibrary::InverseTransformDirection(AnimOwner->GetActorTransform(), CurVelocity);
+	}
+
+	if (OnLeftIKChange.IsBound())
+	{
+		LeftHandPosition = OnLeftIKChange.Execute();
 	}
 }
 

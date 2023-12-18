@@ -24,6 +24,10 @@ protected:
 	void SetCharacterControlData(const class UIFCharacterControlData* CharacterControlData);
 	void SetCharacterControl(ECharacterControlType NewCharacterControlType);
 
+
+private:
+	FVector GetGunHandPosition();
+
 public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	FORCEINLINE virtual ECharacterMoveType GetMoveType() override { return CurMoveType; }
@@ -78,6 +82,9 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<class AIFGunBase> Gun;
+
+	UPROPERTY()
+	TObjectPtr<class UIFAnimInstance> AnimInstance;
 
 	UPROPERTY()
 	ECharacterMoveType CurMoveType;

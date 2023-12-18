@@ -11,6 +11,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Character/IFCharacterMovementData.h"
 #include "Item/IFGunBase.h"
+#include "Animation/IFAnimInstance.h"
 
 AIFCharacterPlayer::AIFCharacterPlayer()
 {
@@ -92,6 +93,10 @@ void AIFCharacterPlayer::BeginPlay()
 	Gun = GetWorld()->SpawnActor<AIFGunBase>(GunClass);
 	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 	Gun->SetOwner(this);
+
+	AnimInstance = Cast<UIFAnimInstance>(GetMesh()->GetAnimInstance());
+
+	AnimInstance->OnLeftIKChange.BindUObject(this, &AIFCharacterPlayer::GetGunHandPosition);
 }
 
 /// <summary>
@@ -162,6 +167,11 @@ void AIFCharacterPlayer::SetCharacterControlData(const UIFCharacterControlData* 
 
 
 
+FVector AIFCharacterPlayer::GetGunHandPosition()
+{
+	return Gun->GetWeaponSocket();
+}
+
 void AIFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -215,6 +225,7 @@ void AIFCharacterPlayer::PerformRun()
 		break;
 	case ECharacterMoveType::Running:
 	case ECharacterMoveType::Sprinting:
+		CurMoveType = ECharacterMoveType::Walking;
 		break;
 	case ECharacterMoveType::Crouching:
 		CurMoveType = ECharacterMoveType::Crouching;

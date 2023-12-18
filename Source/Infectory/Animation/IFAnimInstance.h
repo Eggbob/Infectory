@@ -8,8 +8,7 @@
 
 enum class ECharacterMoveType : uint8;
 
-DECLARE_DELEGATE_OneParam(FOnLeftIKChangeDelegate ,FVector)
-
+DECLARE_DELEGATE_RetVal(FVector, FOnLeftIKChangeDelegate)
 /**
  * 
  */
@@ -24,7 +23,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	ECharacterMoveType CurMoveType;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	FVector LeftHandPosition;
 	
 	FOnLeftIKChangeDelegate OnLeftIKChange;
@@ -64,9 +63,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	float JumpingThreshould;
 
+	
+
 private:
-	UPROPERTY()
-	TObjectPtr<class IIFGetDefineTypeInterface> DefineTypePawn;
+	class IIFGetDefineTypeInterface * DefineTypePawn;
 
 
 };
