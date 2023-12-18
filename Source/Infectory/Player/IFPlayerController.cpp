@@ -2,6 +2,7 @@
 
 
 #include "IFPlayerController.h"
+#include "Blueprint/UserWidget.h"
 
 void AIFPlayerController::BeginPlay()
 {
@@ -9,4 +10,11 @@ void AIFPlayerController::BeginPlay()
 
 	FInputModeGameOnly GameOnlyInputMode;
 	SetInputMode(GameOnlyInputMode);
+
+	HUDWidget = CreateWidget(this, CrossHeadClass);
+
+	if (HUDWidget)
+	{
+		HUDWidget->AddToViewport();
+	}
 }
