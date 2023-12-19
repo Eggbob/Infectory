@@ -11,10 +11,10 @@ void AIFPlayerController::BeginPlay()
 	FInputModeGameOnly GameOnlyInputMode;
 	SetInputMode(GameOnlyInputMode);
 
-	HUDWidget = CreateWidget(this, CrossHeadClass);
+	//HUDWidget = CreateWidget(this, CrossHeadClass);
 
-	if (HUDWidget)
-	{
-		HUDWidget->AddToViewport();
-	}
+	//if (HUDWidget)
+	//{
+	//	HUDWidget->AddToViewport();
+	//}
 }
