@@ -67,6 +67,4 @@ protected:
 
 private:
 	class IIFGetDefineTypeInterface * DefineTypePawn;
-
-
 };

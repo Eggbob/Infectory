@@ -20,7 +20,8 @@ enum class ECharacterMoveType : uint8
 	Running,
 	Sprinting,
 	Crouching,
-	Proning
+	Proning,
+	Zooming
 };
 
 
