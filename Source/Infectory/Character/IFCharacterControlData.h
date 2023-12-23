@@ -52,4 +52,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = SpringArm)
 	bool bCollisionTest = 1;
+
+	UPROPERTY(EditAnywhere, Category = Camera)
+	float Fov;
 };

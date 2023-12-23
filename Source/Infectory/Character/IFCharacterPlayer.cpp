@@ -69,10 +69,22 @@ AIFCharacterPlayer::AIFCharacterPlayer()
 		AttackAction = InputActionAttackRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionToggleAimRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Assets/Input/Actions/IA_ToggleAim.IA_ToggleAim'"));
+	if (nullptr != InputActionToggleAimRef.Object)
+	{
+		ToggleAimAction = InputActionToggleAimRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UIFCharacterControlData> ShoulderDataRef(TEXT("/Script/Infectory.IFCharacterControlData'/Game/Assets/CharacterControl/ABC_Shoulder.ABC_Shoulder'"));
 	if (ShoulderDataRef.Object)
 	{
 		CharacterControlManager.Add(ECharacterControlType::Shoulder, ShoulderDataRef.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder<UIFCharacterControlData> ZoomDataRef(TEXT("/Script/Infectory.IFCharacterControlData'/Game/Assets/CharacterControl/ABC_Zoom.ABC_Zoom'"));
+	if (ZoomDataRef.Object)
+	{
+		CharacterControlManager.Add(ECharacterControlType::Zoom, ZoomDataRef.Object);
 	}
 
 	static ConstructorHelpers::FObjectFinder<UIFCharacterMovementData> MovementDataRef(TEXT("/Script/Infectory.IFCharacterMovementData'/Game/Assets/CharacterControl/ABC_CharacterMovement.ABC_CharacterMovement'"));
@@ -81,14 +93,14 @@ AIFCharacterPlayer::AIFCharacterPlayer()
 		CharacterMovemntData = MovementDataRef.Object;
 	}
 
-	CurrentCharacterControlType = ECharacterControlType::Shoulder;
+	CurControlType = ECharacterControlType::Shoulder;
 	CurMoveType = ECharacterMoveType::Walking;
 }
 
 void AIFCharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-	SetCharacterControl(CurrentCharacterControlType);
+	SetCharacterControl(CurControlType);
 
 	Gun = GetWorld()->SpawnActor<AIFGunBase>(GunClass);
 	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
@@ -104,11 +116,15 @@ void AIFCharacterPlayer::BeginPlay()
 /// </summary>
 void AIFCharacterPlayer::ChangeCharacterControl()
 {
-	if (CurrentCharacterControlType == ECharacterControlType::Shoulder)
+	if (CurControlType == ECharacterControlType::Shoulder)
 	{
 		SetCharacterControl(ECharacterControlType::Zoom);
+		if (CurMoveType != ECharacterMoveType::Walking)
+		{
+			PerformRun();
+		}
 	}
-	else if (CurrentCharacterControlType == ECharacterControlType::Zoom)
+	else if (CurControlType == ECharacterControlType::Zoom)
 	{
 		SetCharacterControl(ECharacterControlType::Shoulder);
 	}
@@ -138,7 +154,7 @@ void AIFCharacterPlayer::SetCharacterControl(ECharacterControlType NewCharacterC
 	}
 
 	//현재 캐릭터 컨트롤 타입 갱신
-	CurrentCharacterControlType = NewCharacterControlType;
+	CurControlType = NewCharacterControlType;
 }
 
 /// <summary>
@@ -163,6 +179,7 @@ void AIFCharacterPlayer::SetCharacterControlData(const UIFCharacterControlData* 
 	CameraBoom->bInheritYaw = CharacterControlData->bInheritYaw;
 	CameraBoom->bInheritRoll = CharacterControlData->bInheritRoll;
 	CameraBoom->bDoCollisionTest = CharacterControlData->bCollisionTest;
+	FollowCamera->FieldOfView = CharacterControlData->Fov;
 }
 
 
@@ -183,6 +200,7 @@ void AIFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::PerformRun);
 	EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Completed, this, &AIFCharacterPlayer::PerformRun);
 	EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::PerformCrouch);
+	EnhancedInputComponent->BindAction(ToggleAimAction, ETriggerEvent::Triggered, this, &AIFCharacterPlayer::ChangeCharacterControl);
 }
 
 
@@ -190,6 +208,26 @@ void AIFCharacterPlayer::ShoulderMove(const FInputActionValue& Value)
 {
 	//입력값에서 이동 벡터를 추출
 	FVector2D MovementVector = Value.Get<FVector2D>();
+
+	// 이동 벡터의 방향을 구함
+	FVector MovementDirection = FVector(MovementVector.X, 0.f, 0.f).GetSafeNormal();
+
+	// 이동 방향이 존재하고, 전방으로 이동할 때만
+	if (!MovementDirection.IsNearlyZero() && MovementVector.Y < KINDA_SMALL_NUMBER )
+	{
+
+		// 이동 방향을 현재 카메라의 방향으로 회전
+		FRotator NewYawRotation = Controller->GetControlRotation();
+		NewYawRotation.Pitch = 0.0f;
+		NewYawRotation.Roll = 0.0f;
+
+		// 현재 캐릭터의 회전 값을 보간하여 새로운 회전 값을 얻음
+		FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), NewYawRotation, GetWorld()->GetDeltaSeconds(), 10.0f);
+
+		// 회전을 적용
+		SetActorRotation(NewRotation);
+	}
+
 
 	// 현재 컨트롤러의 회전값을 가져옴
 	const FRotator Rotation = Controller->GetControlRotation();

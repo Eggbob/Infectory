@@ -7,8 +7,10 @@
 #include "IFAnimInstance.generated.h"
 
 enum class ECharacterMoveType : uint8;
+enum class ECharacterControlType : uint8;
 
 DECLARE_DELEGATE_RetVal(FVector, FOnLeftIKChangeDelegate)
+
 /**
  * 
  */
@@ -26,6 +28,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	FVector LeftHandPosition;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+	ECharacterControlType CurControlType;
+
 	FOnLeftIKChangeDelegate OnLeftIKChange;
 
 protected:
@@ -48,6 +53,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	float GroundSpeed;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	float AimPitch;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	float AimYaw;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	uint8 bIsIdle : 1;
 
@@ -63,7 +74,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	float JumpingThreshould;
 
-	
+
 
 private:
 	class IIFGetDefineTypeInterface * DefineTypePawn;

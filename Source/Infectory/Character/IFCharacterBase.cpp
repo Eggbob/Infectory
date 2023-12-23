@@ -17,7 +17,7 @@ AIFCharacterBase::AIFCharacterBase()
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.f);
 
 	// Movement
-	GetCharacterMovement()->bOrientRotationToMovement = true;
+	//GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 500.f, 0.f);
 	GetCharacterMovement()->JumpZVelocity = 700.f;
 	GetCharacterMovement()->MaxWalkSpeed = 300.f;

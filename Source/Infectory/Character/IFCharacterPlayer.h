@@ -31,6 +31,7 @@ private:
 public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	FORCEINLINE virtual ECharacterMoveType GetMoveType() override { return CurMoveType; }
+	FORCEINLINE virtual ECharacterControlType GetControlType() override { return CurControlType; }
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class AIFGunBase* GetCurGun() { return Gun.Get(); }
@@ -53,6 +54,10 @@ protected:
 	TObjectPtr<class UInputAction> ShoulderLookAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
+	TObjectPtr<class UInputAction> ToggleAimAction;
+
+	//앉기 인풋 액션
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class UInputAction> CrouchAction;
 
 	//공격 인풋 액션
@@ -69,7 +74,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = CharacterControl, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UIFCharacterMovementData> CharacterMovemntData;
 
-	ECharacterControlType CurrentCharacterControlType;
+	ECharacterControlType CurControlType;
 
 	void ShoulderMove(const FInputActionValue& Value);
 	void ShoulderLook(const FInputActionValue& Value);
