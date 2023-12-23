@@ -39,9 +39,10 @@ void UIFAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		bIsFalling = Movement->IsFalling();
 		bIsJumping = bIsFalling & (CurVelocity.Z > JumpingThreshould);
 		CurRotation = FMath::Lerp(CurRotation,FVector::DotProduct(CurVelocity, AnimOwner->GetActorRightVector()), 0.05f);
-		//CurRotation = FMath::Lerp(CurRotation,FVector::DotProduct(Movement->Velocity, AnimOwner->GetActorRightVector()), 0.05f);
 		CurMoveType = DefineTypePawn->GetMoveType();
 		CurControlType = DefineTypePawn->GetControlType();
+
+		UE_LOG(LogTemp, Warning, TEXT("%f"), GroundSpeed);
 	}
 
 	if (OnLeftIKChange.IsBound())

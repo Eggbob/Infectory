@@ -18,6 +18,13 @@ class INFECTORY_API AIFCharacterPlayer : public AIFCharacterBase, public IIFGetD
 public:
 	AIFCharacterPlayer();
 
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	FORCEINLINE virtual ECharacterMoveType GetMoveType() override { return CurMoveType; }
+	FORCEINLINE virtual ECharacterControlType GetControlType() override { return CurControlType; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE class AIFGunBase* GetCurGun() { return Gun.Get(); }
+
 protected:
 	virtual void BeginPlay() override;
 	void ChangeCharacterControl();
@@ -27,14 +34,6 @@ protected:
 
 private:
 	FVector GetGunHandPosition();
-
-public:
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	FORCEINLINE virtual ECharacterMoveType GetMoveType() override { return CurMoveType; }
-	FORCEINLINE virtual ECharacterControlType GetControlType() override { return CurControlType; }
-
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE class AIFGunBase* GetCurGun() { return Gun.Get(); }
 
 protected:
 	//카메라 Arm
@@ -80,6 +79,7 @@ protected:
 	void ShoulderLook(const FInputActionValue& Value);
 	void PerformRun();
 	void PerformCrouch();
+	void Shoot();
 
 private:
 	UPROPERTY(EditDefaultsOnly)

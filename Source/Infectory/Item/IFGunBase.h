@@ -14,14 +14,36 @@ class INFECTORY_API AIFGunBase : public AActor
 public:	
 	AIFGunBase();
 
+	void PullTrigger();
+	void CachingOwner();
+
 	UFUNCTION(Blueprintcallable)
 	FVector GetWeaponSocket();
 
 private:
+	bool GunTrace(FHitResult& Hit, FVector& ShotDirection);
+
+protected:
+	UPROPERTY()
+	TObjectPtr<AController> OwnerController;
+
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* RootComp;
 
 	UPROPERTY(VisibleAnywhere)
 	USkeletalMeshComponent* Mesh;
+
+	UPROPERTY(EditAnyWhere)
+	float MaxRange = 1000;
+
+	UPROPERTY(EditAnyWhere)
+	float Damage = 10;
+
+	UPROPERTY(EditAnyWhere)
+	UParticleSystem* MuzzleFlash;
+
+	UPROPERTY(EditAnyWhere)
+	UParticleSystem* ImpactEffect;
+
 
 };

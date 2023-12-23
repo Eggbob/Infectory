@@ -105,6 +105,7 @@ void AIFCharacterPlayer::BeginPlay()
 	Gun = GetWorld()->SpawnActor<AIFGunBase>(GunClass);
 	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 	Gun->SetOwner(this);
+	Gun->CachingOwner();
 
 	AnimInstance = Cast<UIFAnimInstance>(GetMesh()->GetAnimInstance());
 
@@ -157,6 +158,14 @@ void AIFCharacterPlayer::SetCharacterControl(ECharacterControlType NewCharacterC
 	CurControlType = NewCharacterControlType;
 }
 
+void AIFCharacterPlayer::Shoot()
+{
+	if (CurControlType == ECharacterControlType::Zoom)
+	{
+		Gun->PullTrigger();
+	}
+}
+
 /// <summary>
 /// 캐릭터 컨트롤러 데이터 설정
 /// </summary>
@@ -184,10 +193,6 @@ void AIFCharacterPlayer::SetCharacterControlData(const UIFCharacterControlData* 
 
 
 
-FVector AIFCharacterPlayer::GetGunHandPosition()
-{
-	return Gun->GetWeaponSocket();
-}
 
 void AIFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -201,8 +206,13 @@ void AIFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Completed, this, &AIFCharacterPlayer::PerformRun);
 	EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::PerformCrouch);
 	EnhancedInputComponent->BindAction(ToggleAimAction, ETriggerEvent::Triggered, this, &AIFCharacterPlayer::ChangeCharacterControl);
+	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::Shoot);
 }
 
+FVector AIFCharacterPlayer::GetGunHandPosition()
+{
+	return Gun->GetWeaponSocket();
+}
 
 void AIFCharacterPlayer::ShoulderMove(const FInputActionValue& Value)
 {
@@ -220,6 +230,8 @@ void AIFCharacterPlayer::ShoulderMove(const FInputActionValue& Value)
 		FRotator NewYawRotation = Controller->GetControlRotation();
 		NewYawRotation.Pitch = 0.0f;
 		NewYawRotation.Roll = 0.0f;
+
+		//UE_LOG(LogTemp, Warning, TEXT("%s"), *MovementVector.ToString());
 
 		// 현재 캐릭터의 회전 값을 보간하여 새로운 회전 값을 얻음
 		FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), NewYawRotation, GetWorld()->GetDeltaSeconds(), 10.0f);
