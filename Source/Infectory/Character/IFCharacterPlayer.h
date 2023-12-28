@@ -19,8 +19,8 @@ public:
 	AIFCharacterPlayer();
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	FORCEINLINE virtual ECharacterMoveType GetMoveType() override { return CurMoveType; }
-	FORCEINLINE virtual ECharacterControlType GetControlType() override { return CurControlType; }
+	FORCEINLINE virtual ECharacterMoveType GetPlayerMoveType() override { return CurMoveType; }
+	FORCEINLINE virtual ECharacterControlType GetPlayerControlType() override { return CurControlType; }
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class AIFGunBase* GetCurGun() { return Gun.Get(); }
@@ -89,8 +89,11 @@ private:
 	TObjectPtr<class AIFGunBase> Gun;
 
 	UPROPERTY()
-	TObjectPtr<class UIFAnimInstance> AnimInstance;
+	TObjectPtr<class UIFPlayerAnimInstance> AnimInstance;
 
 	UPROPERTY()
 	ECharacterMoveType CurMoveType;
+
+	bool IsFiring = false;
+
 };

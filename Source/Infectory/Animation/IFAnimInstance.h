@@ -4,12 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "Interface/IFGetDefineTypeInterface.h"
 #include "IFAnimInstance.generated.h"
-
-enum class ECharacterMoveType : uint8;
-enum class ECharacterControlType : uint8;
-
-DECLARE_DELEGATE_RetVal(FVector, FOnLeftIKChangeDelegate)
 
 /**
  * 
@@ -21,17 +17,6 @@ class INFECTORY_API UIFAnimInstance : public UAnimInstance
 	
 public:
 	UIFAnimInstance();
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
-	ECharacterMoveType CurMoveType;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
-	FVector LeftHandPosition;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
-	ECharacterControlType CurControlType;
-
-	FOnLeftIKChangeDelegate OnLeftIKChange;
 
 protected:
 	virtual void NativeInitializeAnimation() override;
@@ -53,12 +38,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	float GroundSpeed;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
-	float AimPitch;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
-	float AimYaw;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	uint8 bIsIdle : 1;
 
@@ -74,8 +53,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	float JumpingThreshould;
 
+	UPROPERTY()
+	TScriptInterface<IIFGetDefineTypeInterface> DefineTypePawn;
 
-
-private:
-	class IIFGetDefineTypeInterface * DefineTypePawn;
 };

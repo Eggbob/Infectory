@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "IFGunBase.generated.h"
 
+DECLARE_DELEGATE(FOnFireGun);
+
 UCLASS()
 class INFECTORY_API AIFGunBase : public AActor
 {
@@ -14,11 +16,18 @@ class INFECTORY_API AIFGunBase : public AActor
 public:	
 	AIFGunBase();
 
-	void PullTrigger();
+	void Fire();
 	void CachingOwner();
+	void StartFire();
+	void StopFire();
 
 	UFUNCTION(Blueprintcallable)
 	FVector GetWeaponSocket();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BPFire(FVector HitLocation);
+
+	FOnFireGun FireGunDelegate;
 
 private:
 	bool GunTrace(FHitResult& Hit, FVector& ShotDirection);
@@ -28,10 +37,13 @@ protected:
 	TObjectPtr<AController> OwnerController;
 
 	UPROPERTY(VisibleAnywhere)
-	USceneComponent* RootComp;
+	TObjectPtr<USceneComponent> RootComp;
 
-	UPROPERTY(VisibleAnywhere)
-	USkeletalMeshComponent* Mesh;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<USkeletalMeshComponent> Mesh;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadOnly)
+	TObjectPtr<class UNiagaraComponent> NiagaraComp;
 
 	UPROPERTY(EditAnyWhere)
 	float MaxRange = 1000;
@@ -40,10 +52,15 @@ protected:
 	float Damage = 10;
 
 	UPROPERTY(EditAnyWhere)
-	UParticleSystem* MuzzleFlash;
+	float FireDelayTime = 0.2f; //발사 딜레이
+	
+	UPROPERTY(EditAnyWhere)
+	TObjectPtr<UParticleSystem> MuzzleFlash;
 
 	UPROPERTY(EditAnyWhere)
-	UParticleSystem* ImpactEffect;
+	TObjectPtr<UParticleSystem> ImpactEffect;
 
+	FTimerHandle FireTimerHandle;
 
+	bool IsAuto = true;
 };

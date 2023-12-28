@@ -3,18 +3,21 @@
 #include "Item/IFGunBase.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/DamageEvents.h"
 #include "DrawDebugHelpers.h"
+#include "NiagaraComponent.h"
 
 AIFGunBase::AIFGunBase()
 {
 	RootComp = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
+	NiagaraComp = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Niagara"));
 
 	SetRootComponent(RootComp);
 	Mesh->SetupAttachment(RootComp);
 }
 
-void AIFGunBase::PullTrigger()
+void AIFGunBase::Fire()
 {
 	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, Mesh, TEXT("MuzzleFlashSocket"));
 
@@ -27,15 +30,25 @@ void AIFGunBase::PullTrigger()
 		DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Red, true);
 
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.Location, ShotDirection.Rotation());
-
-
+		
 		AActor* HitActor = Hit.GetActor();
 		if (HitActor != nullptr)
 		{
+			FDamageEvent DamageEvent;
+			HitActor->TakeDamage(10.f, DamageEvent, OwnerController, GetOwner());
+
 	/*		FPointDamageEvent DmgeEvent(Damage, Hit, ShotDirection, nullptr);
 			AController* OwnerController = GetOwnerController();
 			HitActor->TakeDamage(Damage, DmgeEvent, OwnerController, this);*/
 		}
+
+	}
+
+	BPFire(Hit.ImpactPoint);
+
+	if (FireGunDelegate.IsBound())
+	{
+		FireGunDelegate.Execute();
 	}
 }
 
@@ -44,6 +57,22 @@ void AIFGunBase::CachingOwner()
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 	OwnerController = OwnerPawn->GetController();
 	ensure(OwnerController);
+}
+
+void AIFGunBase::StartFire()
+{
+	Fire();
+
+	if (IsAuto)
+	{
+		GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AIFGunBase::Fire, FireDelayTime, true);
+	}
+}
+
+void AIFGunBase::StopFire()
+{
+	GetWorldTimerManager().ClearTimer(FireTimerHandle);
+	FireGunDelegate.Unbind();
 }
 
 FVector AIFGunBase::GetWeaponSocket()

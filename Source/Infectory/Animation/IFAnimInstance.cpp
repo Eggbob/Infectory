@@ -4,7 +4,7 @@
 #include "IFAnimInstance.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Interface/IFGetDefineTypeInterface.h"
+
 #include "Kismet/KismetMathLibrary.h"
 
 UIFAnimInstance::UIFAnimInstance()
@@ -23,7 +23,7 @@ void UIFAnimInstance::NativeInitializeAnimation()
 		Movement = AnimOwner->GetCharacterMovement();
 	}
 
-	DefineTypePawn = Cast<IIFGetDefineTypeInterface>(AnimOwner);
+	DefineTypePawn = TScriptInterface<IIFGetDefineTypeInterface>(AnimOwner);
 }
 
 void UIFAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
@@ -39,15 +39,7 @@ void UIFAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		bIsFalling = Movement->IsFalling();
 		bIsJumping = bIsFalling & (CurVelocity.Z > JumpingThreshould);
 		CurRotation = FMath::Lerp(CurRotation,FVector::DotProduct(CurVelocity, AnimOwner->GetActorRightVector()), 0.05f);
-		CurMoveType = DefineTypePawn->GetMoveType();
-		CurControlType = DefineTypePawn->GetControlType();
-
-		UE_LOG(LogTemp, Warning, TEXT("%f"), GroundSpeed);
-	}
-
-	if (OnLeftIKChange.IsBound())
-	{
-		LeftHandPosition = OnLeftIKChange.Execute();
+		//UE_LOG(LogTemp, Warning, TEXT("%f"), GroundSpeed);
 	}
 }
 

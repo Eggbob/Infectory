@@ -3,6 +3,7 @@
 
 #include "IFCharacterBase.h"
 #include "Components/CapsuleComponent.h"
+#include "Stat/IFStatComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
@@ -27,16 +28,23 @@ AIFCharacterBase::AIFCharacterBase()
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -100.f), FRotator(0.f, -90.f, 0.f));
 	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
+
+	Stat = CreateDefaultSubobject<UIFStatComponent>(TEXT("Stat"));
 }
 
 void AIFCharacterBase::SetDead()
 {
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	SetActorEnableCollision(false);
 }
 
 float AIFCharacterBase::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
-	return 0.0f;
+	
+	Stat->ApplyDamage(Damage);
+
+	return Damage;
 }
 
 

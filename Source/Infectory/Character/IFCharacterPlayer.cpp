@@ -11,7 +11,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Character/IFCharacterMovementData.h"
 #include "Item/IFGunBase.h"
-#include "Animation/IFAnimInstance.h"
+#include "Animation/IFPlayerAnimInstance.h"
 
 AIFCharacterPlayer::AIFCharacterPlayer()
 {
@@ -107,7 +107,7 @@ void AIFCharacterPlayer::BeginPlay()
 	Gun->SetOwner(this);
 	Gun->CachingOwner();
 
-	AnimInstance = Cast<UIFAnimInstance>(GetMesh()->GetAnimInstance());
+	AnimInstance = Cast<UIFPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 
 	AnimInstance->OnLeftIKChange.BindUObject(this, &AIFCharacterPlayer::GetGunHandPosition);
 }
@@ -160,9 +160,18 @@ void AIFCharacterPlayer::SetCharacterControl(ECharacterControlType NewCharacterC
 
 void AIFCharacterPlayer::Shoot()
 {
-	if (CurControlType == ECharacterControlType::Zoom)
+	IsFiring = IsFiring ? false : true ;
+
+	UE_LOG(LogTemp, Warning, TEXT("Shoot"));
+
+	if (CurControlType == ECharacterControlType::Zoom && IsFiring)
 	{
-		Gun->PullTrigger();
+		Gun->FireGunDelegate.BindUObject(AnimInstance, &UIFPlayerAnimInstance::AddRecoil);
+		Gun->StartFire();
+	}
+	else if(CurControlType == ECharacterControlType::Zoom && !IsFiring)
+	{
+		Gun->StopFire();
 	}
 }
 
@@ -192,8 +201,6 @@ void AIFCharacterPlayer::SetCharacterControlData(const UIFCharacterControlData* 
 }
 
 
-
-
 void AIFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -207,6 +214,7 @@ void AIFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::PerformCrouch);
 	EnhancedInputComponent->BindAction(ToggleAimAction, ETriggerEvent::Triggered, this, &AIFCharacterPlayer::ChangeCharacterControl);
 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::Shoot);
+	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Completed, this, &AIFCharacterPlayer::Shoot);
 }
 
 FVector AIFCharacterPlayer::GetGunHandPosition()

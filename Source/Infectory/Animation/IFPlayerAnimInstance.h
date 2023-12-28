@@ -1,0 +1,52 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Animation/IFAnimInstance.h"
+#include "IFPlayerAnimInstance.generated.h"
+
+enum class ECharacterMoveType : uint8;
+enum class ECharacterControlType : uint8;
+
+DECLARE_DELEGATE_RetVal(FVector, FOnLeftIKChangeDelegate)
+/**
+ * 
+ */
+UCLASS()
+class INFECTORY_API UIFPlayerAnimInstance : public UIFAnimInstance
+{
+	GENERATED_BODY()
+	
+public:
+	UIFPlayerAnimInstance();
+	void AddRecoil();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+	ECharacterMoveType CurMoveType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+	ECharacterControlType CurControlType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+	FVector LeftHandPosition;
+
+	FOnLeftIKChangeDelegate OnLeftIKChange;
+
+protected:
+	virtual void NativeInitializeAnimation() override;
+
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	float AimPitch;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	float AimYaw;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+	float RecoilAlpha;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	FRotator RecoilRotation = FRotator(-5.0f, 0.0f, 0.0f);
+};
