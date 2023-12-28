@@ -22,6 +22,7 @@ enum class ECharacterMoveType : uint8
 	Crouching,
 	Proning,
 	Zooming
+
 };
 
 

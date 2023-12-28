@@ -127,6 +127,7 @@ void AIFCharacterPlayer::ChangeCharacterControl()
 	}
 	else if (CurControlType == ECharacterControlType::Zoom)
 	{
+		Gun->StopFire();
 		SetCharacterControl(ECharacterControlType::Shoulder);
 	}
 }
@@ -162,7 +163,7 @@ void AIFCharacterPlayer::Shoot()
 {
 	IsFiring = IsFiring ? false : true ;
 
-	UE_LOG(LogTemp, Warning, TEXT("Shoot"));
+	//UE_LOG(LogTemp, Warning, TEXT("Shoot"));
 
 	if (CurControlType == ECharacterControlType::Zoom && IsFiring)
 	{

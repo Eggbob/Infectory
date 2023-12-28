@@ -53,6 +53,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	float JumpingThreshould;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> DeadMontage;
+
 	UPROPERTY()
 	TScriptInterface<IIFGetDefineTypeInterface> DefineTypePawn;
 
