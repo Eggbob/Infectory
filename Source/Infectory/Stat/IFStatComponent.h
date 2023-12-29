@@ -8,6 +8,7 @@
 
 
 DECLARE_MULTICAST_DELEGATE(FOnHpZeroDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnHitDelegate);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnHpChangedDelegate, float /*CurrentHp*/);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -27,6 +28,7 @@ public:
 
 public:
 	FOnHpZeroDelegate OnHpZero;
+	FOnHitDelegate OnHit;
 	FOnHpChangedDelegate OnHpChanged;
 
 protected:

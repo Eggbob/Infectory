@@ -32,10 +32,12 @@ void AIFGunBase::Fire()
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.Location, ShotDirection.Rotation());
 		
 		AActor* HitActor = Hit.GetActor();
+
 		if (HitActor != nullptr)
 		{
 			FDamageEvent DamageEvent;
 			HitActor->TakeDamage(10.f, DamageEvent, OwnerController, GetOwner());
+
 
 	/*		FPointDamageEvent DmgeEvent(Damage, Hit, ShotDirection, nullptr);
 			AController* OwnerController = GetOwnerController();

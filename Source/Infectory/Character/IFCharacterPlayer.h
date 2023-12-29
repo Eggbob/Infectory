@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "IFCharacterBase.h"
 #include "InputActionValue.h"
-#include "Data/IFEnumDefine.h"
 #include "Interface/IFGetDefineTypeInterface.h"
 #include "IFCharacterPlayer.generated.h"
 

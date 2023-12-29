@@ -17,6 +17,11 @@ class INFECTORY_API UIFNonPlayerAnimInstance : public UIFAnimInstance
 public:
 	UIFNonPlayerAnimInstance();
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+	ENPCState CurNpcState;
+
+
+
 protected:
 	virtual void NativeInitializeAnimation() override;
 

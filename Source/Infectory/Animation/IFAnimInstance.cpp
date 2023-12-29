@@ -13,6 +13,17 @@ UIFAnimInstance::UIFAnimInstance()
 	JumpingThreshould = 100.0f;
 }
 
+void UIFAnimInstance::PlayHitAnim()
+{
+	Montage_Play(HitAnimation, 1.0f);
+}
+
+void UIFAnimInstance::PlayDeadAnim()
+{
+	StopAllMontages(0.f);
+	Montage_Play(DeadAnimaton, 1.0f);
+}
+
 void UIFAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();

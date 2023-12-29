@@ -18,6 +18,9 @@ class INFECTORY_API UIFAnimInstance : public UAnimInstance
 public:
 	UIFAnimInstance();
 
+	virtual void PlayHitAnim();
+	virtual void PlayDeadAnim();
+
 protected:
 	virtual void NativeInitializeAnimation() override;
 
@@ -54,7 +57,10 @@ protected:
 	float JumpingThreshould;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UAnimMontage> DeadMontage;
+	TObjectPtr<class UAnimMontage> HitAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> DeadAnimaton;
 
 	UPROPERTY()
 	TScriptInterface<IIFGetDefineTypeInterface> DefineTypePawn;

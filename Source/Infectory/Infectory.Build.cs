@@ -11,7 +11,7 @@ public class Infectory : ModuleRules
 
         PublicIncludePaths.AddRange(new string[] { "Infectory" });
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "EnhancedInput", "UMG", "Niagara" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "EnhancedInput", "UMG", "Niagara", "NavigationSystem", "AIModule", "GameplayTasks" });
 
         PrivateDependencyModuleNames.AddRange(new string[] { });
     }

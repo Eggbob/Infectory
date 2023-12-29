@@ -10,6 +10,7 @@
 #include "IFCharacterControlData.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Character/IFCharacterMovementData.h"
+#include "Stat/IFStatComponent.h"
 #include "Item/IFGunBase.h"
 #include "Animation/IFPlayerAnimInstance.h"
 
@@ -108,8 +109,10 @@ void AIFCharacterPlayer::BeginPlay()
 	Gun->CachingOwner();
 
 	AnimInstance = Cast<UIFPlayerAnimInstance>(GetMesh()->GetAnimInstance());
-
 	AnimInstance->OnLeftIKChange.BindUObject(this, &AIFCharacterPlayer::GetGunHandPosition);
+
+	Stat->OnHit.AddUObject(AnimInstance, &UIFPlayerAnimInstance::PlayHitAnim);
+	Stat->OnHpZero.AddUObject(AnimInstance, &UIFPlayerAnimInstance::PlayDeadAnim);
 }
 
 /// <summary>

@@ -1,0 +1,1 @@
+#define BBKEY_TARGET TEXT("Target")

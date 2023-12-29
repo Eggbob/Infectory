@@ -23,6 +23,7 @@ class INFECTORY_API IIFGetDefineTypeInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual ECharacterMoveType GetPlayerMoveType() = 0;
-	virtual ECharacterControlType GetPlayerControlType() = 0;
+	virtual ECharacterMoveType GetPlayerMoveType() { return ECharacterMoveType::Walking; }
+	virtual ECharacterControlType GetPlayerControlType() { return ECharacterControlType::Zoom; }
+	virtual ENPCState GetNPCState() { return ENPCState::Idle; }
 };

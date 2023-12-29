@@ -23,11 +23,20 @@ void UIFStatComponent::HealHp(float InHealAmount)
 
 float UIFStatComponent::ApplyDamage(float InDamage)
 {
+	if (CurrentHp <= KINDA_SMALL_NUMBER)
+	{
+		return 0.0f;
+	}
+
 	const float PrevHp = CurrentHp;
 	const float ActualDamage = FMath::Clamp<float>(InDamage, 0, InDamage);
 
+
+	OnHit.Broadcast();
+
 	SetHp(PrevHp - ActualDamage);
 	
+
 	if (CurrentHp <= KINDA_SMALL_NUMBER)
 	{
 		OnHpZero.Broadcast();

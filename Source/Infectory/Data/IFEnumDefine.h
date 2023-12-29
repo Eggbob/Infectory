@@ -22,7 +22,22 @@ enum class ECharacterMoveType : uint8
 	Crouching,
 	Proning,
 	Zooming
+};
 
+
+UENUM()
+enum class ENPCState : uint8
+{
+	Idle,
+	Walking,
+	Running,
+	Dead
+};
+
+UENUM()
+enum class EDamageType : uint8
+{
+	Light
 };
 
 

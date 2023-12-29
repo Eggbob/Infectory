@@ -6,7 +6,9 @@
 
 UIFNonPlayerAnimInstance::UIFNonPlayerAnimInstance()
 {
+
 }
+
 
 void UIFNonPlayerAnimInstance::NativeInitializeAnimation()
 {
@@ -19,7 +21,7 @@ void UIFNonPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	if (Movement)
 	{
-	
+		CurNpcState = DefineTypePawn.GetInterface()->GetNPCState();
 	}
 }
 
