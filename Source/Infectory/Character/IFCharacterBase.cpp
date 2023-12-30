@@ -15,7 +15,7 @@ AIFCharacterBase::AIFCharacterBase()
 	bUseControllerRotationRoll = false;
 
 	// Capsule
-	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.f);
+	GetCapsuleComponent()->InitCapsuleSize(42.f, 70.f);
 
 	// Movement
 	//GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -26,7 +26,7 @@ AIFCharacterBase::AIFCharacterBase()
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
-	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -100.f), FRotator(0.f, -90.f, 0.f));
+	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -65.f), FRotator(0.f, -90.f, 0.f));
 	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
 
 	Stat = CreateDefaultSubobject<UIFStatComponent>(TEXT("Stat"));
