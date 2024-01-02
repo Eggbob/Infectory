@@ -6,6 +6,9 @@
 #include "Animation/IFAnimInstance.h"
 #include "IFNonPlayerAnimInstance.generated.h"
 
+
+DECLARE_DELEGATE(FOnAttackEndDelegate);
+
 /**
  * 
  */
@@ -17,13 +20,21 @@ class INFECTORY_API UIFNonPlayerAnimInstance : public UIFAnimInstance
 public:
 	UIFNonPlayerAnimInstance();
 
+	void PlayAttackAnimation();
+
+	FOnAttackEndDelegate OnAttackEnd;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	ENPCState CurNpcState;
-
-
 
 protected:
 	virtual void NativeInitializeAnimation() override;
 
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+	
+	void AttckEnd(class UAnimMontage* TargetMontage, bool IsProperlyEnded);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> AttackAnimation;
+
 };
