@@ -9,10 +9,19 @@ UIFNonPlayerAnimInstance::UIFNonPlayerAnimInstance()
 
 }
 
+void UIFNonPlayerAnimInstance::PlayAttackAnimation()
+{
+	Montage_Play(AttackAnimation, 1.0f);
+}
 
 void UIFNonPlayerAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
+
+	FOnMontageEnded EndDelegate;
+	EndDelegate.BindUObject(this, &UIFNonPlayerAnimInstance::AttckEnd);
+	Montage_SetEndDelegate(EndDelegate, AttackAnimation);
+
 }
 
 void UIFNonPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
@@ -23,6 +32,11 @@ void UIFNonPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		CurNpcState = DefineTypePawn.GetInterface()->GetNPCState();
 	}
+}
+
+void UIFNonPlayerAnimInstance::AttckEnd(UAnimMontage* TargetMontage, bool IsProperlyEnded)
+{
+	OnAttackEnd.ExecuteIfBound();
 }
 
 

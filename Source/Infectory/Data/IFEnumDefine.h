@@ -31,6 +31,7 @@ enum class ENPCState : uint8
 	Idle,
 	Walking,
 	Running,
+	Attacking,
 	Dead
 };
 

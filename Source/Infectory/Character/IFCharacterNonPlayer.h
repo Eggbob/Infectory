@@ -18,7 +18,6 @@ class INFECTORY_API AIFCharacterNonPlayer : public AIFCharacterBase, public IIFC
 	
 public:
 	AIFCharacterNonPlayer();
-	virtual void BeginPlay() override;
 	FORCEINLINE virtual ENPCState GetNPCState() { return CurNpcState; }
 
 	virtual float GetAIPatrolRadius() override;
@@ -28,7 +27,15 @@ public:
 
 
 protected:
+	virtual void BeginPlay() override;
 	virtual void SetDead() override;
+
+	virtual void SetAIAttackDelegate(const FAICharacterAttackFinished& InOnAttackFinished) override;
+	virtual void AttackByAI() override;
+
+	FAICharacterAttackFinished OnAttackFinished;
+
+	void NotifyAttackActionEnd();
 
 private:
 	ENPCState CurNpcState;
