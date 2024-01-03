@@ -27,6 +27,8 @@ void AIFAIController::RunAI()
 	UBlackboardComponent* BlackboardPtr = Blackboard.Get();
 	if (UseBlackboard(BBAsset, BlackboardPtr))
 	{
+		Blackboard.Get()->SetValueAsVector("HomePos", GetPawn()->GetActorLocation());
+
 		bool RunResult = RunBehaviorTree(BTAsset);
 		ensure(RunResult);
 	}

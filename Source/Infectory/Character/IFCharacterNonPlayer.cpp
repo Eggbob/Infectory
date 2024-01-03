@@ -4,6 +4,7 @@
 #include "Character/IFCharacterNonPlayer.h"
 #include "Stat/IFStatComponent.h"
 #include "AI/IFAIController.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Animation/IFNonPlayerAnimInstance.h"
 
 AIFCharacterNonPlayer::AIFCharacterNonPlayer()
@@ -32,7 +33,12 @@ void AIFCharacterNonPlayer::BeginPlay()
 
 	AnimInstance = Cast<UIFNonPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 
-	Stat->OnHit.AddUObject(AnimInstance, &UIFNonPlayerAnimInstance::PlayHitAnim);
+	if (AnimInstance)
+	{
+		Stat->OnHit.AddUObject(AnimInstance, &UIFNonPlayerAnimInstance::PlayHitAnim);
+		AnimInstance->OnAttackEnd.BindUObject(this, &AIFCharacterNonPlayer::NotifyAttackActionEnd);
+
+	}
 	Stat->OnHpZero.AddUObject(this, &AIFCharacterNonPlayer::SetDead);
 }
 
@@ -41,13 +47,44 @@ void AIFCharacterNonPlayer::SetDead()
 	Super::SetDead();
 	CurNpcState = ENPCState::Dead;
 
-	AIFAIController* IFController = Cast<AIFAIController>(GetController());
+	TObjectPtr<AIFAIController> IFController = Cast<AIFAIController>(GetController());
 	if (IFController)
 	{
-		IFController->StopAI();
+		IFController.Get()->StopAI();
 	}
+}
 
-	//AnimInstance->PlayDeadAnim();
+void AIFCharacterNonPlayer::SetAIAttackDelegate(const FAICharacterAttackFinished& InOnAttackFinished)
+{
+	OnAttackFinished.Unbind();
+	OnAttackFinished = InOnAttackFinished;
+
+	FTimerHandle TimerHandle;
+
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda(
+		[&]()
+		{
+			NotifyAttackActionEnd();
+		}
+	), 1.3f, false);
+}
+
+/// <summary>
+/// 공격 시작
+/// </summary>
+void AIFCharacterNonPlayer::AttackByAI()
+{
+	CurNpcState = ENPCState::Attacking;
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	AnimInstance->PlayAttackAnimation();
+
+}
+
+void AIFCharacterNonPlayer::NotifyAttackActionEnd()
+{
+	CurNpcState = ENPCState::Idle;
+	OnAttackFinished.ExecuteIfBound();
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 }
 
 float AIFCharacterNonPlayer::GetAIPatrolRadius()
@@ -62,7 +99,7 @@ float AIFCharacterNonPlayer::GetAIDetectRange()
 
 float AIFCharacterNonPlayer::GetAIAttackRange()
 {
-	return 0.0f;
+	return 200.0f;
 }
 
 float AIFCharacterNonPlayer::GetAITurnSpeed()

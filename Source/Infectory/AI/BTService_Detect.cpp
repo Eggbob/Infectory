@@ -18,14 +18,14 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
-	APawn* ControllingPawn = OwnerComp.GetAIOwner()->GetPawn();
+	TObjectPtr<APawn>ControllingPawn = OwnerComp.GetAIOwner()->GetPawn();
 	if (nullptr == ControllingPawn)
 	{
 		return;
 	}
 
-	FVector Center = ControllingPawn->GetActorLocation();
-	UWorld* World = ControllingPawn->GetWorld();
+	FVector Center = ControllingPawn.Get()->GetActorLocation();
+	TObjectPtr<UWorld> World = ControllingPawn.Get()->GetWorld();
 	if (nullptr == World)
 	{
 		return;
@@ -39,7 +39,7 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 
 	float DetectRadius = AIPawn->GetAIDetectRange();
 	TArray<FOverlapResult> OverlapResults;
-	FCollisionQueryParams CollisionQueryParam(SCENE_QUERY_STAT(Detect), false, ControllingPawn);
+	FCollisionQueryParams CollisionQueryParam(SCENE_QUERY_STAT(Detect), false, ControllingPawn.Get());
 	bool bResult = World->OverlapMultiByChannel(
 		OverlapResults,
 		Center,
@@ -53,19 +53,19 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	{
 		for (auto const& OverlapResult : OverlapResults)
 		{
-			APawn* Pawn = Cast<APawn>(OverlapResult.GetActor());
-			if (Pawn && Pawn->GetController()->IsPlayerController())
+			TObjectPtr<APawn> Pawn = Cast<APawn>(OverlapResult.GetActor());
+			if (Pawn && Pawn.Get()->GetController()->IsPlayerController())
 			{
 				OwnerComp.GetBlackboardComponent()->SetValueAsObject(BBKEY_TARGET, Pawn);
 				DrawDebugSphere(World, Center, DetectRadius, 16, FColor::Green, false, 0.2f);
 
-				DrawDebugPoint(World, Pawn->GetActorLocation(), 10.0f, FColor::Green, false, 0.2f);
+				DrawDebugPoint(World, Pawn.Get()->GetActorLocation(), 10.0f, FColor::Green, false, 0.2f);
 				DrawDebugLine(World, ControllingPawn->GetActorLocation(), Pawn->GetActorLocation(), FColor::Green, false, 0.27f);
 				return;
 			}
 		}
 	}
-	OwnerComp.GetBlackboardComponent()->SetValueAsObject(BBKEY_TARGET, nullptr);
+	//OwnerComp.GetBlackboardComponent()->SetValueAsObject(BBKEY_TARGET, nullptr);
 	DrawDebugSphere(World, Center, DetectRadius, 16, FColor::Red, false, 0.2f);
 
 }
