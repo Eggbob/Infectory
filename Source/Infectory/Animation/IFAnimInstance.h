@@ -18,7 +18,7 @@ class INFECTORY_API UIFAnimInstance : public UAnimInstance
 public:
 	UIFAnimInstance();
 
-	virtual void PlayHitAnim();
+	virtual void PlayHitAnim() {};
 	virtual void PlayDeadAnim();
 
 protected:

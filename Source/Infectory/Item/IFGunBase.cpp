@@ -29,7 +29,7 @@ void AIFGunBase::Fire()
 	{
 		DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Red, true);
 
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.Location, ShotDirection.Rotation());
+		
 		
 		AActor* HitActor = Hit.GetActor();
 
@@ -37,11 +37,14 @@ void AIFGunBase::Fire()
 		{
 			FDamageEvent DamageEvent;
 			HitActor->TakeDamage(10.f, DamageEvent, OwnerController, GetOwner());
-
-
-	/*		FPointDamageEvent DmgeEvent(Damage, Hit, ShotDirection, nullptr);
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodImpactEffect, Hit.Location, ShotDirection.Rotation());
+			/*FPointDamageEvent DmgeEvent(Damage, Hit, ShotDirection, nullptr);
 			AController* OwnerController = GetOwnerController();
 			HitActor->TakeDamage(Damage, DmgeEvent, OwnerController, this);*/
+		}
+		else
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.Location, ShotDirection.Rotation());
 		}
 
 	}

@@ -29,8 +29,8 @@ UENUM()
 enum class ENPCState : uint8
 {
 	Idle,
-	Walking,
-	Running,
+	Moving,
+	Jumping,
 	Attacking,
 	Dead
 };

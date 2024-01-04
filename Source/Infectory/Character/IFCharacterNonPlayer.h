@@ -30,16 +30,26 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void SetDead() override;
 
+	virtual void FocusingTarget(TObjectPtr<AActor> TargetActor) override;
 	virtual void SetAIAttackDelegate(const FAICharacterAttackFinished& InOnAttackFinished) override;
+	virtual void SetAIBackJumpDelegate(const FAICharacterBackJumpFinished& InOnBackJumpFinished) override;
 	virtual void AttackByAI() override;
+	virtual void PeformBackMoveAI() override;
+	void StartBackJump();
+
 
 	FAICharacterAttackFinished OnAttackFinished;
+	FAICharacterBackJumpFinished OnBackJumpFinished;
 
 	void NotifyAttackActionEnd();
+	void NotifyBackJumpActionEnd();
 
 private:
 	ENPCState CurNpcState;
 	
 	UPROPERTY()
 	TObjectPtr<class UIFNonPlayerAnimInstance> AnimInstance;
+
+	UPROPERTY()
+	TObjectPtr<class AIFAIController> AIController;
 };
