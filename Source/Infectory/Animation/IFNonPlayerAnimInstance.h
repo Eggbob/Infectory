@@ -8,6 +8,8 @@
 
 
 DECLARE_DELEGATE(FOnAttackEndDelegate);
+DECLARE_DELEGATE(FOnBackJumpEndDelegate);
+DECLARE_DELEGATE(FOnBackJumpDelegate);
 
 /**
  * 
@@ -20,21 +22,28 @@ class INFECTORY_API UIFNonPlayerAnimInstance : public UIFAnimInstance
 public:
 	UIFNonPlayerAnimInstance();
 
+	virtual void PlayHitAnim() override;
 	void PlayAttackAnimation();
+	void PlayBackJumpAnimation();
 
 	FOnAttackEndDelegate OnAttackEnd;
+	FOnBackJumpEndDelegate OnBackJumpEnd;
+	FOnBackJumpDelegate OnBackJump;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	ENPCState CurNpcState;
 
 protected:
 	virtual void NativeInitializeAnimation() override;
-
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
-	
-	void AttckEnd(class UAnimMontage* TargetMontage, bool IsProperlyEnded);
+
+	UFUNCTION()
+	FORCEINLINE void AnimNotify_BackJump() { OnBackJump.ExecuteIfBound(); }
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> AttackAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> BackJumpAnimation;
 
 };

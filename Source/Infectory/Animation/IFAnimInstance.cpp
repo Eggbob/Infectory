@@ -4,18 +4,12 @@
 #include "IFAnimInstance.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-
 #include "Kismet/KismetMathLibrary.h"
 
 UIFAnimInstance::UIFAnimInstance()
 {
 	MovingThreshould = 3.0f;
 	JumpingThreshould = 100.0f;
-}
-
-void UIFAnimInstance::PlayHitAnim()
-{
-	Montage_Play(HitAnimation, 1.0f);
 }
 
 void UIFAnimInstance::PlayDeadAnim()

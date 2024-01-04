@@ -32,11 +32,14 @@ void AIFCharacterNonPlayer::BeginPlay()
 	Super::BeginPlay();
 
 	AnimInstance = Cast<UIFNonPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+	AIController = Cast<AIFAIController>(GetController());
 
 	if (AnimInstance)
 	{
 		Stat->OnHit.AddUObject(AnimInstance, &UIFNonPlayerAnimInstance::PlayHitAnim);
 		AnimInstance->OnAttackEnd.BindUObject(this, &AIFCharacterNonPlayer::NotifyAttackActionEnd);
+		AnimInstance->OnBackJump.BindUObject(this, &AIFCharacterNonPlayer::StartBackJump);
+		AnimInstance->OnBackJumpEnd.BindUObject(this, &AIFCharacterNonPlayer::NotifyBackJumpActionEnd);
 
 	}
 	Stat->OnHpZero.AddUObject(this, &AIFCharacterNonPlayer::SetDead);
@@ -47,26 +50,35 @@ void AIFCharacterNonPlayer::SetDead()
 	Super::SetDead();
 	CurNpcState = ENPCState::Dead;
 
-	TObjectPtr<AIFAIController> IFController = Cast<AIFAIController>(GetController());
-	if (IFController)
+	if (AIController)
 	{
-		IFController.Get()->StopAI();
+		AIController.Get()->StopAI();
 	}
 }
 
+/// <summary>
+/// AI가 Focus할 대상 지정
+/// </summary>
+/// <param name="TargetActor"></param>
+void AIFCharacterNonPlayer::FocusingTarget(TObjectPtr<AActor> TargetActor)
+{
+	AIController->SetFocus(TargetActor);
+}
+
+/// <summary>
+/// 공격 종료 후 실행할 이벤트 등록
+/// </summary>
+/// <param name="InOnAttackFinished"></param>
 void AIFCharacterNonPlayer::SetAIAttackDelegate(const FAICharacterAttackFinished& InOnAttackFinished)
 {
 	OnAttackFinished.Unbind();
 	OnAttackFinished = InOnAttackFinished;
+}
 
-	FTimerHandle TimerHandle;
-
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda(
-		[&]()
-		{
-			NotifyAttackActionEnd();
-		}
-	), 1.3f, false);
+void AIFCharacterNonPlayer::SetAIBackJumpDelegate(const FAICharacterBackJumpFinished& InOnBackJumpFinished)
+{
+	OnBackJumpFinished.Unbind();
+	OnBackJumpFinished = InOnBackJumpFinished;
 }
 
 /// <summary>
@@ -77,14 +89,41 @@ void AIFCharacterNonPlayer::AttackByAI()
 	CurNpcState = ENPCState::Attacking;
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	AnimInstance->PlayAttackAnimation();
-
 }
 
+/// <summary>
+/// 공격 종료후 delegate 실행
+/// </summary>
 void AIFCharacterNonPlayer::NotifyAttackActionEnd()
 {
 	CurNpcState = ENPCState::Idle;
 	OnAttackFinished.ExecuteIfBound();
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+}
+
+/// <summary>
+/// 백점프 애니메이션 재생
+/// </summary>
+void AIFCharacterNonPlayer::PeformBackMoveAI()
+{
+	CurNpcState = ENPCState::Jumping;
+	AnimInstance->PlayBackJumpAnimation();
+}
+
+/// <summary>
+/// BackJump 실행
+/// </summary>
+void AIFCharacterNonPlayer::StartBackJump()
+{
+	FVector JumpDirection = GetActorForwardVector() * -400.0f;
+	JumpDirection.Z = 400.f;
+	LaunchCharacter(JumpDirection, false, false);
+}
+
+void AIFCharacterNonPlayer::NotifyBackJumpActionEnd()
+{
+	CurNpcState = ENPCState::Idle;
+	OnBackJumpFinished.ExecuteIfBound();
 }
 
 float AIFCharacterNonPlayer::GetAIPatrolRadius()
@@ -99,7 +138,7 @@ float AIFCharacterNonPlayer::GetAIDetectRange()
 
 float AIFCharacterNonPlayer::GetAIAttackRange()
 {
-	return 200.0f;
+	return 150.0f;
 }
 
 float AIFCharacterNonPlayer::GetAITurnSpeed()

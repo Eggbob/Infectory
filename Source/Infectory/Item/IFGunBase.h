@@ -60,6 +60,9 @@ protected:
 	UPROPERTY(EditAnyWhere)
 	TObjectPtr<UParticleSystem> ImpactEffect;
 
+	UPROPERTY(EditAnyWhere)
+	TObjectPtr<UParticleSystem> BloodImpactEffect;
+
 	FTimerHandle FireTimerHandle;
 
 	bool IsAuto = true;

@@ -12,16 +12,34 @@ UIFNonPlayerAnimInstance::UIFNonPlayerAnimInstance()
 void UIFNonPlayerAnimInstance::PlayAttackAnimation()
 {
 	Montage_Play(AttackAnimation, 1.0f);
+
+	FTimerHandle TimerHandle;
+
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda(
+		[&]()
+		{
+			OnAttackEnd.ExecuteIfBound();
+		}
+	), AttackAnimation.Get()->GetPlayLength()-1.5f, false);
+}
+
+void UIFNonPlayerAnimInstance::PlayBackJumpAnimation()
+{
+	Montage_Play(BackJumpAnimation, 1.0f);
+
+	FTimerHandle TimerHandle;
+
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda(
+		[&]()
+		{
+			OnBackJumpEnd.ExecuteIfBound();
+		}
+	), BackJumpAnimation.Get()->GetPlayLength() - 1.0f, false);
 }
 
 void UIFNonPlayerAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
-
-	FOnMontageEnded EndDelegate;
-	EndDelegate.BindUObject(this, &UIFNonPlayerAnimInstance::AttckEnd);
-	Montage_SetEndDelegate(EndDelegate, AttackAnimation);
-
 }
 
 void UIFNonPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
@@ -34,9 +52,12 @@ void UIFNonPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	}
 }
 
-void UIFNonPlayerAnimInstance::AttckEnd(UAnimMontage* TargetMontage, bool IsProperlyEnded)
+void UIFNonPlayerAnimInstance::PlayHitAnim()
 {
-	OnAttackEnd.ExecuteIfBound();
+	if (CurNpcState == ENPCState::Idle || CurNpcState == ENPCState::Moving)
+	{
+		Montage_Play(HitAnimation, 1.0f);
+	}
 }
 
 

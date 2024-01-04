@@ -15,6 +15,7 @@ class UIFCharacterAIInterface : public UInterface
 
 
 DECLARE_DELEGATE(FAICharacterAttackFinished);
+DECLARE_DELEGATE(FAICharacterBackJumpFinished);
 /**
  * 
  */
@@ -28,6 +29,9 @@ public:
 	virtual float GetAIAttackRange() = 0;
 	virtual float GetAITurnSpeed() = 0;
 
+	virtual void FocusingTarget(TObjectPtr<AActor> TargetActor) = 0;
 	virtual void SetAIAttackDelegate(const FAICharacterAttackFinished& InOnAttackFinished) = 0;
+	virtual void SetAIBackJumpDelegate(const FAICharacterBackJumpFinished& InOnBackJumpFinished) = 0;
 	virtual void AttackByAI() = 0;
+	virtual void PeformBackMoveAI() = 0;
 };
