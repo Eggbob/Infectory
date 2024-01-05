@@ -28,9 +28,6 @@ void AIFGunBase::Fire()
 	if (bSuccess)
 	{
 		DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Red, true);
-
-		
-		
 		AActor* HitActor = Hit.GetActor();
 
 		if (HitActor != nullptr)
