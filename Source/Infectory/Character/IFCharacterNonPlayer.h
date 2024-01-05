@@ -6,13 +6,14 @@
 #include "Character/IFCharacterBase.h"
 #include "Interface/IFGetDefineTypeInterface.h"
 #include "Interface/IFCharacterAIInterface.h"
+#include "Interface/IFAnimationAttackInterface.h"
 #include "IFCharacterNonPlayer.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class INFECTORY_API AIFCharacterNonPlayer : public AIFCharacterBase, public IIFCharacterAIInterface, public IIFGetDefineTypeInterface
+class INFECTORY_API AIFCharacterNonPlayer : public AIFCharacterBase, public IIFCharacterAIInterface, public IIFGetDefineTypeInterface, public IIFAnimationAttackInterface
 {
 	GENERATED_BODY()
 	
@@ -52,4 +53,6 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<class AIFAIController> AIController;
+
+	void AttackHitCheck() override;
 };

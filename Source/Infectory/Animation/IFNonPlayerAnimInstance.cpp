@@ -20,7 +20,7 @@ void UIFNonPlayerAnimInstance::PlayAttackAnimation()
 		{
 			OnAttackEnd.ExecuteIfBound();
 		}
-	), AttackAnimation.Get()->GetPlayLength()-1.5f, false);
+	), AttackAnimation.Get()->GetPlayLength(), false);
 }
 
 void UIFNonPlayerAnimInstance::PlayBackJumpAnimation()

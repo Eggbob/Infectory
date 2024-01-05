@@ -3,6 +3,7 @@
 
 #include "Character/IFCharacterNonPlayer.h"
 #include "Stat/IFStatComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "AI/IFAIController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Animation/IFNonPlayerAnimInstance.h"
@@ -124,6 +125,37 @@ void AIFCharacterNonPlayer::NotifyBackJumpActionEnd()
 {
 	CurNpcState = ENPCState::Idle;
 	OnBackJumpFinished.ExecuteIfBound();
+}
+
+void AIFCharacterNonPlayer::AttackHitCheck()
+{
+	FHitResult OutHitResult;
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
+
+	const float AttackRange = 100.f;//Stat->GetTotalStat().AttackRange;
+	const float AttackRadius = 100.f;//Stat->GetAttackRadius();
+	//const float AttackDamage = Stat->GetTotalStat().Attack;
+	const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();
+	const FVector End = Start + GetActorForwardVector() * AttackRange;
+
+	bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, Start, End, FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel1, FCollisionShape::MakeSphere(AttackRadius), Params);
+	if (HitDetected)
+	{
+		//TODO Check Damage
+
+		//FDamageEvent DamageEvent;
+		//OutHitResult.GetActor()->TakeDamage(AttackDamage, DamageEvent, GetController(), this);
+	}
+
+#if ENABLE_DRAW_DEBUG
+
+	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
+	float CapsuleHalfHeight = AttackRange * 0.5f;
+	FColor DrawColor = HitDetected ? FColor::Green : FColor::Red;
+
+	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 5.0f);
+
+#endif
 }
 
 float AIFCharacterNonPlayer::GetAIPatrolRadius()
