@@ -117,12 +117,8 @@ void AIFCharacterPlayer::BeginPlay()
 
 
 	TWeakObjectPtr<APlayerCameraManager> CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
-
 	if (CameraManager != nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Max : %f"), MaxPitchValue);
-		UE_LOG(LogTemp, Warning, TEXT("Min : %f"), MinPitchValue);
-
 		CameraManager.Get()->ViewPitchMax = MaxPitchValue;
 		CameraManager.Get()->ViewPitchMin = MinPitchValue;
 	}
@@ -289,6 +285,17 @@ void AIFCharacterPlayer::ShoulderLook(const FInputActionValue& Value)
 	AddControllerYawInput(LookAxisVector.X);
 	// Pitch 회전값에 따라 Pitch 회전을 조절
 	AddControllerPitchInput(LookAxisVector.Y);
+
+	//if (GetController()->GetControlRotation().Pitch > 25.f)
+	//{
+	//	FollowCamera->FieldOfView = 45.f;
+	//}
+	//else
+	//{
+	//	FollowCamera->FieldOfView = 75.0f;
+	//}
+
+	//UE_LOG(LogTemp, Warning, TEXT("%f"), GetController()->GetControlRotation().Pitch);
 }
 
 void AIFCharacterPlayer::PerformRun()
