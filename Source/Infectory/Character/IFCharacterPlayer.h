@@ -72,6 +72,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = CharacterControl, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UIFCharacterMovementData> CharacterMovemntData;
 
+	UPROPERTY(EditAnywhere, Category = Camera, Meta = (AllowPrivateAccess = "true"))
+	float MaxPitchValue;
+
+	UPROPERTY(EditAnywhere, Category = Camera, Meta = (AllowPrivateAccess = "true"))
+	float MinPitchValue;
+
 	ECharacterControlType CurControlType;
 
 	void ShoulderMove(const FInputActionValue& Value);

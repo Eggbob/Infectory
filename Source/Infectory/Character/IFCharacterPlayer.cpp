@@ -12,6 +12,7 @@
 #include "Character/IFCharacterMovementData.h"
 #include "Stat/IFStatComponent.h"
 #include "Item/IFGunBase.h"
+#include "Kismet/GameplayStatics.h"
 #include "Animation/IFPlayerAnimInstance.h"
 
 AIFCharacterPlayer::AIFCharacterPlayer()
@@ -113,6 +114,18 @@ void AIFCharacterPlayer::BeginPlay()
 
 	Stat->OnHit.AddUObject(AnimInstance, &UIFPlayerAnimInstance::PlayHitAnim);
 	Stat->OnHpZero.AddUObject(AnimInstance, &UIFPlayerAnimInstance::PlayDeadAnim);
+
+
+	TWeakObjectPtr<APlayerCameraManager> CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+
+	if (CameraManager != nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Max : %f"), MaxPitchValue);
+		UE_LOG(LogTemp, Warning, TEXT("Min : %f"), MinPitchValue);
+
+		CameraManager.Get()->ViewPitchMax = MaxPitchValue;
+		CameraManager.Get()->ViewPitchMin = MinPitchValue;
+	}
 }
 
 /// <summary>
