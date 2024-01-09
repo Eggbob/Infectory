@@ -221,9 +221,10 @@ void AIFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
 	
 	EnhancedInputComponent->BindAction(ShoulderMoveAction, ETriggerEvent::Triggered, this, &AIFCharacterPlayer::ShoulderMove);
+	EnhancedInputComponent->BindAction(ShoulderMoveAction, ETriggerEvent::Completed, this, &AIFCharacterPlayer::ShoulderMoveFinish);
 	EnhancedInputComponent->BindAction(ShoulderLookAction, ETriggerEvent::Triggered, this, &AIFCharacterPlayer::ShoulderLook);
 	EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::PerformRun);
-	EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Completed, this, &AIFCharacterPlayer::PerformRun);
+	//EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Completed, this, &AIFCharacterPlayer::PerformRun);
 	EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::PerformCrouch);
 	EnhancedInputComponent->BindAction(ToggleAimAction, ETriggerEvent::Triggered, this, &AIFCharacterPlayer::ChangeCharacterControl);
 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::Shoot);
@@ -298,6 +299,14 @@ void AIFCharacterPlayer::ShoulderLook(const FInputActionValue& Value)
 	//UE_LOG(LogTemp, Warning, TEXT("%f"), GetController()->GetControlRotation().Pitch);
 }
 
+void AIFCharacterPlayer::ShoulderMoveFinish()
+{
+	if (CurMoveType != ECharacterMoveType::Walking)
+	{
+		PerformRun();
+	}
+}
+
 void AIFCharacterPlayer::PerformRun()
 {
 	switch (CurMoveType)
@@ -319,6 +328,7 @@ void AIFCharacterPlayer::PerformRun()
 
 	GetCharacterMovement()->MaxWalkSpeed = CharacterMovemntData->MoveSpeed[CurMoveType]; //600.f;
 }
+
 
 void AIFCharacterPlayer::PerformCrouch()
 {
