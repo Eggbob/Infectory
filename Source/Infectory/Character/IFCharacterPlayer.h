@@ -82,6 +82,7 @@ protected:
 
 	void ShoulderMove(const FInputActionValue& Value);
 	void ShoulderLook(const FInputActionValue& Value);
+	void ShoulderMoveFinish();
 	void PerformRun();
 	void PerformCrouch();
 	void Shoot();
