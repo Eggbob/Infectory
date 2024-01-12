@@ -2,23 +2,38 @@
 
 
 #include "Stat/IFStatComponent.h"
+#include "Data/IFGameSingleton.h"
 
 UIFStatComponent::UIFStatComponent()
 {
 	bWantsInitializeComponent = true;
 }
 
+void UIFStatComponent::ForTest()
+{
+	MaxHp = 1000000000;
+	SetHp(MaxHp);
+}
+
 void UIFStatComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
-
-	MaxHp = 100;
-	SetHp(100);
 }
 
 void UIFStatComponent::HealHp(float InHealAmount)
 {
 	CurrentHp = FMath::Clamp(CurrentHp + InHealAmount, 0, MaxHp);
+}
+
+/// <summary>
+/// 캐릭터 스탯 지정
+/// </summary>
+/// <param name="NPCName"></param>
+void UIFStatComponent::SetStat(FName NPCName)
+{
+	BaseStat = UIFGameSingleton::Get().GetCharacterStat(NPCName);
+	MaxHp = BaseStat.MaxHp;
+	SetHp(MaxHp);
 }
 
 float UIFStatComponent::ApplyDamage(float InDamage)
@@ -31,12 +46,9 @@ float UIFStatComponent::ApplyDamage(float InDamage)
 	const float PrevHp = CurrentHp;
 	const float ActualDamage = FMath::Clamp<float>(InDamage, 0, InDamage);
 
-
 	OnHit.Broadcast();
-
 	SetHp(PrevHp - ActualDamage);
 	
-
 	if (CurrentHp <= KINDA_SMALL_NUMBER)
 	{
 		OnHpZero.Broadcast();

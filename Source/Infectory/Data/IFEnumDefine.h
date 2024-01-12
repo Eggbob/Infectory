@@ -41,6 +41,15 @@ enum class EDamageType : uint8
 	Light
 };
 
+UENUM()
+enum class ENPCType : uint8
+{
+	Test,
+	Parasite,
+	Hunter,
+	Boomer
+};
+
 
 /**
  * 
@@ -50,4 +59,15 @@ class INFECTORY_API UIFEnumDefine : public UUserDefinedEnum
 {
 	GENERATED_BODY()
 	
+public:
+
+	template<typename T>
+	static FString GetEnumName(T EnumName);
 };
+
+template<typename T>
+inline FString UIFEnumDefine::GetEnumName(T EnumName)
+{
+	FString Name = StaticEnum<T>()->GetNameStringByValue(static_cast<__underlying_type(T)>(EnumName));
+	return Name;
+}

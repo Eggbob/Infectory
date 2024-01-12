@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/DamageEvents.h"
 #include "DrawDebugHelpers.h"
+#include "GameFramework/Character.h"
 #include "NiagaraComponent.h"
 
 AIFGunBase::AIFGunBase()
@@ -30,7 +31,7 @@ void AIFGunBase::Fire()
 		DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Red, true);
 		AActor* HitActor = Hit.GetActor();
 
-		if (HitActor != nullptr)
+		if (HitActor != nullptr && HitActor->IsA(ACharacter::StaticClass()))
 		{
 			FDamageEvent DamageEvent;
 			HitActor->TakeDamage(10.f, DamageEvent, OwnerController, GetOwner());

@@ -5,45 +5,86 @@
 #include "Stat/IFStatComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "AI/IFAIController.h"
+#include "Data/IFEnumDefine.h"
+#include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Animation/IFNonPlayerAnimInstance.h"
 
+
 AIFCharacterNonPlayer::AIFCharacterNonPlayer()
 {
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Assets/Characters/Test/Parasite_L_Starkie.Parasite_L_Starkie'"));
-	if (CharacterMeshRef.Object)
+#pragma region MeshSet
+
+
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> TestMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Assets/Characters/Test/Parasite_L_Starkie.Parasite_L_Starkie'"));
+	if (TestMeshRef.Object)
 	{
-		GetMesh()->SetSkeletalMesh(CharacterMeshRef.Object);
+		//GetMesh()->SetSkeletalMesh(TestMeshRef.Object);
+		NPCSkeletalMeshes.Add(ENPCType::Test, TestMeshRef.Object);
 	}
 
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Game/Assets/Animation/Enemy/ABP_TestEnemy.ABP_TestEnemy_C"));
-	if (AnimInstanceClassRef.Class)
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> ParasiteMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/ParasiteZombieBundle01/ParasiteZombie02/ParasiteZombie02_Character/SK_ParasiteZombie02.SK_ParasiteZombie02'"));
+	if (ParasiteMeshRef.Object)
 	{
-		GetMesh()->SetAnimInstanceClass(AnimInstanceClassRef.Class);
+		//GetMesh()->SetSkeletalMesh(ParasiteMeshRef.Object);
+		NPCSkeletalMeshes.Add(ENPCType::Parasite, ParasiteMeshRef.Object);
 	}
 
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> HunterMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/ParasiteZombieBundle01/ParasiteZombie01/ParasiteZombie01_Character/SK_ParasiteZombie01.SK_ParasiteZombie01'"));
+	if (HunterMeshRef.Object)
+	{
+		NPCSkeletalMeshes.Add(ENPCType::Hunter, HunterMeshRef.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> BoomerMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/ParasiteZombieBundle01/ParasiteZombie03/ParasiteZombie03_Character/SK_ParasiteZombie03.SK_ParasiteZombie03'"));
+	if (BoomerMeshRef.Object)
+	{
+		NPCSkeletalMeshes.Add(ENPCType::Boomer, BoomerMeshRef.Object);
+	}
+
+#pragma endregion
+
+#pragma region AnimationSet
+
+	static ConstructorHelpers::FClassFinder<UAnimInstance> TestAnimInstanceClassRef(TEXT("/Game/Assets/Animation/Enemy/ABP_TestEnemy.ABP_TestEnemy_C"));
+	if (TestAnimInstanceClassRef.Class)
+	{
+		NPCAnimInstances.Add(ENPCType::Test, TestAnimInstanceClassRef.Class);
+	}
+
+	static ConstructorHelpers::FClassFinder<UAnimInstance> ParasiteAnimInstanceClassRef(TEXT("/Game/Assets/Animation/Enemy/ABP_Parasite.ABP_Parasite_C"));
+	if (ParasiteAnimInstanceClassRef.Class)
+	{
+		NPCAnimInstances.Add(ENPCType::Parasite, ParasiteAnimInstanceClassRef.Class);
+	}
+
+	static ConstructorHelpers::FClassFinder<UAnimInstance> HunterAnimInstanceClassRef(TEXT("/Game/Assets/Animation/Enemy/ABP_Hunter.ABP_Hunter_C"));
+	if (HunterAnimInstanceClassRef.Class)
+	{
+		NPCAnimInstances.Add(ENPCType::Hunter, HunterAnimInstanceClassRef.Class);
+	}
+
+	static ConstructorHelpers::FClassFinder<UAnimInstance> BoomerAnimInstanceClassRef(TEXT("/Game/Assets/Animation/Enemy/ABP_Boomer.ABP_Boomer_C"));
+	if (BoomerAnimInstanceClassRef.Class)
+	{
+		NPCAnimInstances.Add(ENPCType::Boomer, BoomerAnimInstanceClassRef.Class);
+	}
+
+
+#pragma endregion
 	AIControllerClass = AIFAIController::StaticClass();
+	
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-
 	CurNpcState = ENPCState::Idle;
 }
 
 void AIFCharacterNonPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-
-	AnimInstance = Cast<UIFNonPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	AIController = Cast<AIFAIController>(GetController());
+	StatComp->OnHpZero.AddUObject(this, &AIFCharacterNonPlayer::SetDead);
 
-	if (AnimInstance)
-	{
-		Stat->OnHit.AddUObject(AnimInstance, &UIFNonPlayerAnimInstance::PlayHitAnim);
-		AnimInstance->OnAttackEnd.BindUObject(this, &AIFCharacterNonPlayer::NotifyAttackActionEnd);
-		AnimInstance->OnBackJump.BindUObject(this, &AIFCharacterNonPlayer::StartBackJump);
-		AnimInstance->OnBackJumpEnd.BindUObject(this, &AIFCharacterNonPlayer::NotifyBackJumpActionEnd);
-
-	}
-	Stat->OnHpZero.AddUObject(this, &AIFCharacterNonPlayer::SetDead);
+	SetNPCType();
 }
 
 void AIFCharacterNonPlayer::SetDead()
@@ -57,13 +98,39 @@ void AIFCharacterNonPlayer::SetDead()
 	}
 }
 
+void AIFCharacterNonPlayer::SetNPCType()
+{
+
+	GetMesh()->SetSkeletalMesh(NPCSkeletalMeshes[CurNPCType].Get());
+	GetMesh()->SetAnimInstanceClass(NPCAnimInstances[CurNPCType].Get());
+
+	StatComp.Get()->SetStat(*UIFEnumDefine::GetEnumName(CurNPCType));
+	GetCharacterMovement()->MaxWalkSpeed = StatComp.Get()->GetBaseStat().MovementSpeed;
+	GetMesh()->SetRelativeLocation(StatComp.Get()->GetBaseStat().MeshLocation);
+
+	//UE_LOG(LogTemp, Warning, TEXT("MaxWalkSpeed : %f"), GetCharacterMovement()->MaxWalkSpeed);
+	//UE_LOG(LogTemp, Warning, TEXT("MovementSpeed : %f"), StatComp->GetBaseStat().MovementSpeed);
+	//UE_LOG(LogTemp, Warning, TEXT("MaxWalkSpeed2 : %f"), GetCharacterMovement()->MaxWalkSpeed);
+
+	AnimInstance = Cast<UIFNonPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+	if (AnimInstance)
+	{
+		StatComp.Get()->OnHit.AddUObject(AnimInstance, &UIFNonPlayerAnimInstance::PlayHitAnim);
+		AnimInstance->OnAttackEnd.BindUObject(this, &AIFCharacterNonPlayer::NotifyAttackActionEnd);
+		AnimInstance->OnBackJump.BindUObject(this, &AIFCharacterNonPlayer::StartBackJump);
+		AnimInstance->OnBackJumpEnd.BindUObject(this, &AIFCharacterNonPlayer::NotifyBackJumpActionEnd);
+		AnimInstance->OnBeforeMoving.BindUObject(this, &AIFCharacterNonPlayer::NotifyBeforeMovingActionEnd);
+
+	}
+}
+
 /// <summary>
 /// AI가 Focus할 대상 지정
 /// </summary>
 /// <param name="TargetActor"></param>
 void AIFCharacterNonPlayer::FocusingTarget(TObjectPtr<AActor> TargetActor)
 {
-	AIController->SetFocus(TargetActor);
+	AIController->SetFocus(TargetActor, EAIFocusPriority::Gameplay);
 }
 
 /// <summary>
@@ -82,6 +149,12 @@ void AIFCharacterNonPlayer::SetAIBackJumpDelegate(const FAICharacterBackJumpFini
 	OnBackJumpFinished = InOnBackJumpFinished;
 }
 
+void AIFCharacterNonPlayer::SetAIBeforeMovingDelegate(const FAICharacterBeforeMovingFinished& InOnBeforeMovingFinished)
+{
+	OnBeforeMovingFinished.Unbind();
+	OnBeforeMovingFinished = InOnBeforeMovingFinished;
+}
+
 /// <summary>
 /// 공격 시작
 /// </summary>
@@ -89,7 +162,7 @@ void AIFCharacterNonPlayer::AttackByAI()
 {
 	CurNpcState = ENPCState::Attacking;
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
-	AnimInstance->PlayAttackAnimation();
+	AnimInstance->PlayAttackAnimation(StatComp->GetBaseStat().AttackSpeed);
 }
 
 /// <summary>
@@ -111,12 +184,17 @@ void AIFCharacterNonPlayer::PeformBackMoveAI()
 	AnimInstance->PlayBackJumpAnimation();
 }
 
+void AIFCharacterNonPlayer::PerformMoving()
+{
+	AnimInstance->PlayRandomIdleAnimaiton();
+}
+
 /// <summary>
 /// BackJump 실행
 /// </summary>
 void AIFCharacterNonPlayer::StartBackJump()
 {
-	FVector JumpDirection = GetActorForwardVector() * -400.0f;
+	FVector JumpDirection = GetActorForwardVector() * -1.0f * StatComp->GetBaseStat().JumpVelocity;// -300.0f;
 	JumpDirection.Z = 400.f;
 	LaunchCharacter(JumpDirection, false, false);
 }
@@ -127,13 +205,19 @@ void AIFCharacterNonPlayer::NotifyBackJumpActionEnd()
 	OnBackJumpFinished.ExecuteIfBound();
 }
 
+void AIFCharacterNonPlayer::NotifyBeforeMovingActionEnd()
+{
+	CurNpcState = ENPCState::Moving;
+	OnBeforeMovingFinished.ExecuteIfBound();
+}
+
 void AIFCharacterNonPlayer::AttackHitCheck()
 {
 	FHitResult OutHitResult;
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
 
-	const float AttackRange = 100.f;//Stat->GetTotalStat().AttackRange;
-	const float AttackRadius = 100.f;//Stat->GetAttackRadius();
+	const float AttackRange = StatComp->GetBaseStat().AttackRange;
+	const float AttackRadius = 100.f;//StatComp->GetRadi;
 	//const float AttackDamage = Stat->GetTotalStat().Attack;
 	const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();
 	const FVector End = Start + GetActorForwardVector() * AttackRange;
@@ -142,9 +226,8 @@ void AIFCharacterNonPlayer::AttackHitCheck()
 	if (HitDetected)
 	{
 		//TODO Check Damage
-
-		//FDamageEvent DamageEvent;
-		//OutHitResult.GetActor()->TakeDamage(AttackDamage, DamageEvent, GetController(), this);
+		FDamageEvent DamageEvent;
+		OutHitResult.GetActor()->TakeDamage(StatComp->GetBaseStat().Attack, DamageEvent, GetController(), this);
 	}
 
 #if ENABLE_DRAW_DEBUG
@@ -170,7 +253,7 @@ float AIFCharacterNonPlayer::GetAIDetectRange()
 
 float AIFCharacterNonPlayer::GetAIAttackRange()
 {
-	return 150.0f;
+	return StatComp->GetBaseStat().AttackRange; //150.0f;
 }
 
 float AIFCharacterNonPlayer::GetAITurnSpeed()

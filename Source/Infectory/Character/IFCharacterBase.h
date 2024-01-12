@@ -21,6 +21,6 @@ protected:
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UIFStatComponent> Stat;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = StatComp, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UIFStatComponent> StatComp;
 };

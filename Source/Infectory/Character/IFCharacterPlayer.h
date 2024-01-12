@@ -29,7 +29,7 @@ protected:
 	void ChangeCharacterControl();
 	void SetCharacterControlData(const class UIFCharacterControlData* CharacterControlData);
 	void SetCharacterControl(ECharacterControlType NewCharacterControlType);
-
+	void OnHitAction();
 
 private:
 	FVector GetGunHandPosition();

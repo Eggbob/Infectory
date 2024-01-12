@@ -112,8 +112,9 @@ void AIFCharacterPlayer::BeginPlay()
 	AnimInstance = Cast<UIFPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	AnimInstance->OnLeftIKChange.BindUObject(this, &AIFCharacterPlayer::GetGunHandPosition);
 
-	Stat->OnHit.AddUObject(AnimInstance, &UIFPlayerAnimInstance::PlayHitAnim);
-	Stat->OnHpZero.AddUObject(AnimInstance, &UIFPlayerAnimInstance::PlayDeadAnim);
+	StatComp->ForTest();
+	StatComp->OnHit.AddUObject(this, &AIFCharacterPlayer::OnHitAction);
+	StatComp->OnHpZero.AddUObject(AnimInstance, &UIFPlayerAnimInstance::PlayDeadAnim);
 
 
 	TWeakObjectPtr<APlayerCameraManager> CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
@@ -169,6 +170,16 @@ void AIFCharacterPlayer::SetCharacterControl(ECharacterControlType NewCharacterC
 
 	//현재 캐릭터 컨트롤 타입 갱신
 	CurControlType = NewCharacterControlType;
+}
+
+void AIFCharacterPlayer::OnHitAction()
+{
+	AnimInstance.Get()->PlayHitAnim();
+
+	if (CurControlType == ECharacterControlType::Zoom)
+	{
+		ChangeCharacterControl();
+	}
 }
 
 void AIFCharacterPlayer::Shoot()

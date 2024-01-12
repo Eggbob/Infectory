@@ -26,7 +26,6 @@ public:
 	virtual float GetAIAttackRange() override;
 	virtual float GetAITurnSpeed() override;
 
-
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetDead() override;
@@ -34,19 +33,36 @@ protected:
 	virtual void FocusingTarget(TObjectPtr<AActor> TargetActor) override;
 	virtual void SetAIAttackDelegate(const FAICharacterAttackFinished& InOnAttackFinished) override;
 	virtual void SetAIBackJumpDelegate(const FAICharacterBackJumpFinished& InOnBackJumpFinished) override;
+	virtual void SetAIBeforeMovingDelegate(const FAICharacterBeforeMovingFinished& InOnBeforeMovingFinished) override;
 	virtual void AttackByAI() override;
 	virtual void PeformBackMoveAI() override;
-	void StartBackJump();
+	virtual void PerformMoving() override;
 
+	void StartBackJump();
 
 	FAICharacterAttackFinished OnAttackFinished;
 	FAICharacterBackJumpFinished OnBackJumpFinished;
+	FAICharacterBeforeMovingFinished OnBeforeMovingFinished;
 
 	void NotifyAttackActionEnd();
 	void NotifyBackJumpActionEnd();
+	void NotifyBeforeMovingActionEnd();
+
+private:
+	void SetNPCType();
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = NPC)
+	ENPCType CurNPCType;
 
 private:
 	ENPCState CurNpcState;
+	
+	UPROPERTY()
+	TMap<ENPCType, TObjectPtr<class USkeletalMesh>> NPCSkeletalMeshes;
+	
+	UPROPERTY()
+	TMap<ENPCType, TSubclassOf<class UAnimInstance>> NPCAnimInstances;
 	
 	UPROPERTY()
 	TObjectPtr<class UIFNonPlayerAnimInstance> AnimInstance;

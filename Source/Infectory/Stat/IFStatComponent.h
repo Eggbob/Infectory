@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Data/IFCharacterStat.h"
 #include "IFStatComponent.generated.h"
 
 
@@ -19,12 +20,17 @@ class INFECTORY_API UIFStatComponent : public UActorComponent
 public:	
 	UIFStatComponent();
 
+	void ForTest();
+
 protected:
 	virtual void InitializeComponent() override;
 
 public:	
 	void HealHp(float InHealAmount);
+	void SetStat(FName NPCName);
 	float ApplyDamage(float InDamage);
+
+	FORCEINLINE const FIFCharacterStat& GetBaseStat() const { return BaseStat; }
 
 public:
 	FOnHpZeroDelegate OnHpZero;
@@ -39,4 +45,7 @@ protected:
 
 	//ForTest
 	float MaxHp;
+
+private:
+	FIFCharacterStat BaseStat;
 };

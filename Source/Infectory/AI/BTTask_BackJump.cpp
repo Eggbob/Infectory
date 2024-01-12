@@ -26,17 +26,29 @@ EBTNodeResult::Type UBTTask_BackJump::ExecuteTask(UBehaviorTreeComponent& OwnerC
 		return EBTNodeResult::Failed;
 	}
 
-	FAICharacterBackJumpFinished OnBackJumpFinished;
-	OnBackJumpFinished.BindLambda(
-		[&]()
-		{
-			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
-		}
-	);
+	float RandVal = FMath::FRand();
 	
-	AIPawn->SetAIBackJumpDelegate(OnBackJumpFinished);
-	AIPawn->PeformBackMoveAI();
+	if (RandVal < 0.5f)
+	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+		return EBTNodeResult::Succeeded;
+	}
+	else
+	{
+		FAICharacterBackJumpFinished OnBackJumpFinished;
+		OnBackJumpFinished.BindLambda(
+			[&]()
+			{
+				FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+			}
+		);
+
+		AIPawn->SetAIBackJumpDelegate(OnBackJumpFinished);
+		AIPawn->PeformBackMoveAI();
 
 
-	return EBTNodeResult::InProgress;
+		return EBTNodeResult::InProgress;
+	}
+
+	
 }
