@@ -13,6 +13,12 @@ void UIFPlayerAnimInstance::AddRecoil()
 	RecoilAlpha = 1.0f;
 }
 
+void UIFPlayerAnimInstance::PlayHitAnim()
+{
+	UE_LOG(LogTemp, Warning, TEXT("PlayHitAnim"));
+	Montage_Play(HitAnimation, 1.0f);
+}
+
 void UIFPlayerAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();

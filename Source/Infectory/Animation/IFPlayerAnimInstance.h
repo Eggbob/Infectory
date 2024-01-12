@@ -21,6 +21,8 @@ class INFECTORY_API UIFPlayerAnimInstance : public UIFAnimInstance
 public:
 	UIFPlayerAnimInstance();
 	void AddRecoil();
+	
+	virtual void PlayHitAnim() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	ECharacterMoveType CurMoveType;
@@ -49,4 +51,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	FRotator RecoilRotation = FRotator(-5.0f, 0.0f, 0.0f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> HitAnimation;
 };

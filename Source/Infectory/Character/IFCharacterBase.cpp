@@ -29,7 +29,7 @@ AIFCharacterBase::AIFCharacterBase()
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -65.f), FRotator(0.f, -90.f, 0.f));
 	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
 
-	Stat = CreateDefaultSubobject<UIFStatComponent>(TEXT("Stat"));
+	StatComp = CreateDefaultSubobject<UIFStatComponent>(TEXT("Stat"));
 }
 
 void AIFCharacterBase::SetDead()
@@ -42,7 +42,7 @@ float AIFCharacterBase::TakeDamage(float Damage, FDamageEvent const& DamageEvent
 {
 	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 	
-	Stat->ApplyDamage(Damage);
+	StatComp->ApplyDamage(Damage);
 
 	return Damage;
 }

@@ -57,7 +57,7 @@ protected:
 	float JumpingThreshould;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UAnimMontage> HitAnimation;
+	TArray<TObjectPtr<class UAnimMontage>> HitAnimations;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> DeadAnimaton;
