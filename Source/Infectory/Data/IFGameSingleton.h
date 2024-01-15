@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "IFCharacterStat.h"
+#include "Data/IFEnumDefine.h"
 #include "IFGameSingleton.generated.h"
 
 /**
@@ -20,9 +21,9 @@ public:
 	static UIFGameSingleton& Get();
 
 public:
-	FIFCharacterStat GetCharacterStat(FName NpcName) const;
+	FIFCharacterStat GetCharacterStat(FName NpcName, ENPCTier NPCTier) const;
 
 private:
-	TMap<FName, FIFCharacterStat> CharacterStatMap;
+	TMap<TPair<FName, ENPCTier>, FIFCharacterStat> CharacterStatMap;
 	TObjectPtr<class UDataTable> CharacterStatTable;
 };

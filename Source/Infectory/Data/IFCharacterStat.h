@@ -3,6 +3,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
+#include "Data/IFEnumDefine.h"
 #include "IFCharacterStat.generated.h"
 
 USTRUCT(BlueprintType)
@@ -20,6 +21,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	FString Name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	ENPCTier NPCTier;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	float MaxHp;

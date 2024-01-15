@@ -104,7 +104,7 @@ void AIFCharacterNonPlayer::SetNPCType()
 	GetMesh()->SetSkeletalMesh(NPCSkeletalMeshes[CurNPCType].Get());
 	GetMesh()->SetAnimInstanceClass(NPCAnimInstances[CurNPCType].Get());
 
-	StatComp.Get()->SetStat(*UIFEnumDefine::GetEnumName(CurNPCType));
+	StatComp.Get()->SetStat(*UIFEnumDefine::GetEnumName(CurNPCType), CurNPCTier);
 	GetCharacterMovement()->MaxWalkSpeed = StatComp.Get()->GetBaseStat().MovementSpeed;
 	GetMesh()->SetRelativeLocation(StatComp.Get()->GetBaseStat().MeshLocation);
 

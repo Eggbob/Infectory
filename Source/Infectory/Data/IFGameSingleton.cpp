@@ -15,9 +15,10 @@ UIFGameSingleton::UIFGameSingleton()
 		for (FName& RName : RowNames)
 		{
 			FIFCharacterStat* CharacterStat = CharacterStatTable->FindRow<FIFCharacterStat>(RName, TEXT(""));
+			
 			if (nullptr != CharacterStat)
 			{
-				CharacterStatMap.Add(RName, *CharacterStat);
+				CharacterStatMap.Add(TPair<FName, ENPCTier>(CharacterStat->Name, CharacterStat->NPCTier),*CharacterStat);
 			}
 		}
 	}
@@ -35,7 +36,17 @@ UIFGameSingleton& UIFGameSingleton::Get()
 	return *NewObject<UIFGameSingleton>();
 }
 
-FIFCharacterStat UIFGameSingleton::GetCharacterStat(FName NpcName) const
+FIFCharacterStat UIFGameSingleton::GetCharacterStat(FName NpcName, ENPCTier NPCTier) const
 {
-	return CharacterStatMap.Contains(NpcName) ? CharacterStatMap[NpcName] : FIFCharacterStat();
+	if(CharacterStatMap.Contains(TPair<FName, ENPCTier>(NpcName, NPCTier)))
+	{
+		return CharacterStatMap[TPair<FName, ENPCTier>(NpcName, NPCTier)];
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invalid Character Stat"));
+		return FIFCharacterStat();
+	}
+
+	//return CharacterStatMap.Contains(TPair<FName, ENPCTier>(NpcName, NPCTier)) ? CharacterStatMap[TPair<FName, ENPCTier>(NpcName, NPCTier)] : FIFCharacterStat();
 }

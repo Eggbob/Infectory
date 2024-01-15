@@ -55,6 +55,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = NPC)
 	ENPCType CurNPCType;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = NPC)
+	ENPCTier CurNPCTier;
+
 private:
 	ENPCState CurNpcState;
 	
