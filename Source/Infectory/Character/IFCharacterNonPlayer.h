@@ -56,7 +56,7 @@ public:
 	ENPCType CurNPCType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = NPC)
-	ENPCTier CurNPCTier;
+	FName CurNPCTier;
 
 private:
 	ENPCState CurNpcState;

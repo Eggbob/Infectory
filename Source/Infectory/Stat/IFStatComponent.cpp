@@ -29,7 +29,7 @@ void UIFStatComponent::HealHp(float InHealAmount)
 /// 캐릭터 스탯 지정
 /// </summary>
 /// <param name="NPCName"></param>
-void UIFStatComponent::SetStat(FName NPCName, ENPCTier NPCTier)
+void UIFStatComponent::SetStat(FName NPCName, FName NPCTier)
 {
 	BaseStat = UIFGameSingleton::Get().GetCharacterStat(NPCName, NPCTier);
 	MaxHp = BaseStat.MaxHp;

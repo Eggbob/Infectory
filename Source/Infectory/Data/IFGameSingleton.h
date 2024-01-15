@@ -21,9 +21,9 @@ public:
 	static UIFGameSingleton& Get();
 
 public:
-	FIFCharacterStat GetCharacterStat(FName NpcName, ENPCTier NPCTier) const;
+	FIFCharacterStat GetCharacterStat(FName NpcName, FName NPCTier) const;
 
 private:
-	TMap<TPair<FName, ENPCTier>, FIFCharacterStat> CharacterStatMap;
+	TMap<TPair<FName, FName>, FIFCharacterStat> CharacterStatMap;
 	TObjectPtr<class UDataTable> CharacterStatTable;
 };

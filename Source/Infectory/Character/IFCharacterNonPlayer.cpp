@@ -19,7 +19,7 @@ AIFCharacterNonPlayer::AIFCharacterNonPlayer()
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> TestMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Assets/Characters/Test/Parasite_L_Starkie.Parasite_L_Starkie'"));
 	if (TestMeshRef.Object)
 	{
-		//GetMesh()->SetSkeletalMesh(TestMeshRef.Object);
+		GetMesh()->SetSkeletalMesh(TestMeshRef.Object);
 		NPCSkeletalMeshes.Add(ENPCType::Test, TestMeshRef.Object);
 	}
 

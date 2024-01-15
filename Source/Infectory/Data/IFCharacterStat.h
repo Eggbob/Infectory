@@ -23,7 +23,10 @@ public:
 	FString Name;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
-	ENPCTier NPCTier;
+	FString NPCTier;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	//ENPCTier NPCTier;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	float MaxHp;

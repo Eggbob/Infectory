@@ -18,7 +18,7 @@ UIFGameSingleton::UIFGameSingleton()
 			
 			if (nullptr != CharacterStat)
 			{
-				CharacterStatMap.Add(TPair<FName, ENPCTier>(CharacterStat->Name, CharacterStat->NPCTier),*CharacterStat);
+				CharacterStatMap.Add(TPair<FName, FName>(CharacterStat->Name, CharacterStat->NPCTier),*CharacterStat);
 			}
 		}
 	}
@@ -36,11 +36,11 @@ UIFGameSingleton& UIFGameSingleton::Get()
 	return *NewObject<UIFGameSingleton>();
 }
 
-FIFCharacterStat UIFGameSingleton::GetCharacterStat(FName NpcName, ENPCTier NPCTier) const
+FIFCharacterStat UIFGameSingleton::GetCharacterStat(FName NpcName, FName NPCTier) const
 {
-	if(CharacterStatMap.Contains(TPair<FName, ENPCTier>(NpcName, NPCTier)))
+	if(CharacterStatMap.Contains(TPair<FName, FName>(NpcName, NPCTier)))
 	{
-		return CharacterStatMap[TPair<FName, ENPCTier>(NpcName, NPCTier)];
+		return CharacterStatMap[TPair<FName, FName>(NpcName, NPCTier)];
 	}
 	else
 	{
