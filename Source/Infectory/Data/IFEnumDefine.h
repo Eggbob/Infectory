@@ -50,6 +50,14 @@ enum class ENPCType : uint8
 	Boomer
 };
 
+UENUM()
+enum class ENPCTier : uint8
+{
+	Normal,
+	Elite,
+	Champion
+};
+
 
 /**
  * 

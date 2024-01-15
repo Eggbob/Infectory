@@ -27,7 +27,7 @@ protected:
 
 public:	
 	void HealHp(float InHealAmount);
-	void SetStat(FName NPCName);
+	void SetStat(FName NPCName, FName NPCTier);
 	float ApplyDamage(float InDamage);
 
 	FORCEINLINE const FIFCharacterStat& GetBaseStat() const { return BaseStat; }

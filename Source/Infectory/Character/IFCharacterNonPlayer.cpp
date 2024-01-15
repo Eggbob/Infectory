@@ -19,7 +19,7 @@ AIFCharacterNonPlayer::AIFCharacterNonPlayer()
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> TestMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Assets/Characters/Test/Parasite_L_Starkie.Parasite_L_Starkie'"));
 	if (TestMeshRef.Object)
 	{
-		//GetMesh()->SetSkeletalMesh(TestMeshRef.Object);
+		GetMesh()->SetSkeletalMesh(TestMeshRef.Object);
 		NPCSkeletalMeshes.Add(ENPCType::Test, TestMeshRef.Object);
 	}
 
@@ -104,7 +104,7 @@ void AIFCharacterNonPlayer::SetNPCType()
 	GetMesh()->SetSkeletalMesh(NPCSkeletalMeshes[CurNPCType].Get());
 	GetMesh()->SetAnimInstanceClass(NPCAnimInstances[CurNPCType].Get());
 
-	StatComp.Get()->SetStat(*UIFEnumDefine::GetEnumName(CurNPCType));
+	StatComp.Get()->SetStat(*UIFEnumDefine::GetEnumName(CurNPCType), CurNPCTier);
 	GetCharacterMovement()->MaxWalkSpeed = StatComp.Get()->GetBaseStat().MovementSpeed;
 	GetMesh()->SetRelativeLocation(StatComp.Get()->GetBaseStat().MeshLocation);
 
