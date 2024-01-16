@@ -17,6 +17,7 @@ class UIFCharacterAIInterface : public UInterface
 DECLARE_DELEGATE(FAICharacterAttackFinished);
 DECLARE_DELEGATE(FAICharacterBackJumpFinished);
 DECLARE_DELEGATE(FAICharacterBeforeMovingFinished);
+DECLARE_DELEGATE(FAICharacterWaitingFinished);
 /**
  * 
  */
@@ -34,7 +35,9 @@ public:
 	virtual void SetAIAttackDelegate(const FAICharacterAttackFinished& InOnAttackFinished) = 0;
 	virtual void SetAIBackJumpDelegate(const FAICharacterBackJumpFinished& InOnBackJumpFinished) = 0;
 	virtual void SetAIBeforeMovingDelegate(const FAICharacterBeforeMovingFinished& InOnBeforeMovingFinished) = 0;
+	virtual void SetAIWaitingDelegate(const FAICharacterWaitingFinished& InOnWaitingFinished) = 0;
 	virtual void AttackByAI() = 0;
+	virtual void PerformWaiting(bool bIsFirstContact) = 0;
 	virtual void PeformBackMoveAI() = 0;
 	virtual void PerformMoving() = 0;
 };

@@ -25,14 +25,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	FString NPCTier;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
-	//ENPCTier NPCTier;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	int MaxHp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
-	float MaxHp;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
-	float Attack;
+	int Attack;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	float AttackRange;
@@ -45,6 +42,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	float JumpVelocity;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,	Category = Stat)
+	float EncounterTime;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	float WaitTime;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	FVector MeshLocation;
