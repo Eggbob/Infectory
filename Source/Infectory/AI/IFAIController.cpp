@@ -28,6 +28,7 @@ void AIFAIController::RunAI()
 	if (UseBlackboard(BBAsset, BlackboardPtr))
 	{
 		Blackboard.Get()->SetValueAsVector("HomePos", GetPawn()->GetActorLocation());
+		Blackboard.Get()->SetValueAsBool("bIsFirstContact", true);
 
 		bool RunResult = RunBehaviorTree(BTAsset);
 		ensure(RunResult);

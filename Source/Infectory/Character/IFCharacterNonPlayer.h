@@ -21,6 +21,7 @@ public:
 	AIFCharacterNonPlayer();
 	FORCEINLINE virtual ENPCState GetNPCState() { return CurNpcState; }
 
+	void SetNPCType(ENPCType NpcName, FName NpcTier);
 	virtual float GetAIPatrolRadius() override;
 	virtual float GetAIDetectRange() override;
 	virtual float GetAIAttackRange() override;
@@ -34,22 +35,22 @@ protected:
 	virtual void SetAIAttackDelegate(const FAICharacterAttackFinished& InOnAttackFinished) override;
 	virtual void SetAIBackJumpDelegate(const FAICharacterBackJumpFinished& InOnBackJumpFinished) override;
 	virtual void SetAIBeforeMovingDelegate(const FAICharacterBeforeMovingFinished& InOnBeforeMovingFinished) override;
+	virtual void SetAIWaitingDelegate(const FAICharacterWaitingFinished& InOnWaitingFinished) override;
 	virtual void AttackByAI() override;
 	virtual void PeformBackMoveAI() override;
 	virtual void PerformMoving() override;
+	virtual void PerformWaiting(bool bIsFirstContact) override;
 
 	void StartBackJump();
 
 	FAICharacterAttackFinished OnAttackFinished;
 	FAICharacterBackJumpFinished OnBackJumpFinished;
 	FAICharacterBeforeMovingFinished OnBeforeMovingFinished;
+	FAICharacterWaitingFinished OnWaitingFinished;
 
 	void NotifyAttackActionEnd();
 	void NotifyBackJumpActionEnd();
 	void NotifyBeforeMovingActionEnd();
-
-private:
-	void SetNPCType();
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = NPC)

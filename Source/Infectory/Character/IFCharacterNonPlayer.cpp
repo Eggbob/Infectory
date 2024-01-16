@@ -84,7 +84,7 @@ void AIFCharacterNonPlayer::BeginPlay()
 	AIController = Cast<AIFAIController>(GetController());
 	StatComp->OnHpZero.AddUObject(this, &AIFCharacterNonPlayer::SetDead);
 
-	SetNPCType();
+	SetNPCType(CurNPCType, CurNPCTier);
 }
 
 void AIFCharacterNonPlayer::SetDead()
@@ -98,8 +98,10 @@ void AIFCharacterNonPlayer::SetDead()
 	}
 }
 
-void AIFCharacterNonPlayer::SetNPCType()
+void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 {
+	CurNPCType = NpcName;
+	CurNPCTier = NpcTier;
 
 	GetMesh()->SetSkeletalMesh(NPCSkeletalMeshes[CurNPCType].Get());
 	GetMesh()->SetAnimInstanceClass(NPCAnimInstances[CurNPCType].Get());
@@ -155,6 +157,12 @@ void AIFCharacterNonPlayer::SetAIBeforeMovingDelegate(const FAICharacterBeforeMo
 	OnBeforeMovingFinished = InOnBeforeMovingFinished;
 }
 
+void AIFCharacterNonPlayer::SetAIWaitingDelegate(const FAICharacterWaitingFinished& InOnWaitingFinished)
+{
+	OnWaitingFinished.Unbind();
+	OnWaitingFinished = InOnWaitingFinished;
+}
+
 /// <summary>
 /// 공격 시작
 /// </summary>
@@ -187,6 +195,18 @@ void AIFCharacterNonPlayer::PeformBackMoveAI()
 void AIFCharacterNonPlayer::PerformMoving()
 {
 	AnimInstance->PlayRandomIdleAnimaiton();
+}
+
+void AIFCharacterNonPlayer::PerformWaiting(bool bIsFirstContact)
+{
+	CurNpcState = ENPCState::Idle;
+	float WaitTime = bIsFirstContact ? StatComp->GetBaseStat().EncounterTime : StatComp->GetBaseStat().WaitTime;
+	
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]() 
+		{
+			OnWaitingFinished.ExecuteIfBound();
+		}), bIsFirstContact, false);
 }
 
 /// <summary>
