@@ -23,7 +23,7 @@ void AIFSpawnManager::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	GetComponents<AIFNPCSpawner>(Spawners);
+	//GetComponents<AIFNPCSpawner>(Spawners);
 
 }
 
