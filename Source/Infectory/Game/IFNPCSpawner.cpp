@@ -22,7 +22,7 @@ void AIFNPCSpawner::SpawnNPC()
 	{
 		SpawnedNPC->SetNPCType(CurNPCType, CurNPCTier);
 	}
-}
+}                                                                       
 
 
 

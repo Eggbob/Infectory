@@ -14,6 +14,7 @@ class INFECTORY_API AIFNPCSpawner : public AActor
 	
 public:	
 	AIFNPCSpawner();
+
 	void SpawnNPC();
 
 public:
