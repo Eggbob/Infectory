@@ -84,7 +84,7 @@ void AIFCharacterNonPlayer::BeginPlay()
 	AIController = Cast<AIFAIController>(GetController());
 	StatComp->OnHpZero.AddUObject(this, &AIFCharacterNonPlayer::SetDead);
 
-	SetNPCType(CurNPCType, CurNPCTier);
+	//SetNPCType(CurNPCType, CurNPCTier);
 }
 
 void AIFCharacterNonPlayer::SetDead()
@@ -109,6 +109,11 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 	StatComp.Get()->SetStat(*UIFEnumDefine::GetEnumName(CurNPCType), CurNPCTier);
 	GetCharacterMovement()->MaxWalkSpeed = StatComp.Get()->GetBaseStat().MovementSpeed;
 	GetMesh()->SetRelativeLocation(StatComp.Get()->GetBaseStat().MeshLocation);
+	GetMesh()->SetRelativeScale3D(StatComp.Get()->GetBaseStat().MeshScale);
+
+	FVector MeshExtent = GetMesh()->Bounds.BoxExtent;
+	GetCapsuleComponent()->SetCapsuleHalfHeight(MeshExtent.Z);
+	GetCapsuleComponent()->SetCapsuleRadius(FMath::Max(MeshExtent.X, MeshExtent.Y));
 
 	//UE_LOG(LogTemp, Warning, TEXT("MaxWalkSpeed : %f"), GetCharacterMovement()->MaxWalkSpeed);
 	//UE_LOG(LogTemp, Warning, TEXT("MovementSpeed : %f"), StatComp->GetBaseStat().MovementSpeed);
@@ -122,7 +127,6 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 		AnimInstance->OnBackJump.BindUObject(this, &AIFCharacterNonPlayer::StartBackJump);
 		AnimInstance->OnBackJumpEnd.BindUObject(this, &AIFCharacterNonPlayer::NotifyBackJumpActionEnd);
 		AnimInstance->OnBeforeMoving.BindUObject(this, &AIFCharacterNonPlayer::NotifyBeforeMovingActionEnd);
-
 	}
 }
 

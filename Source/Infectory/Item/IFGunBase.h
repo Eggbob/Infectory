@@ -45,8 +45,8 @@ protected:
 	UPROPERTY(EditAnyWhere, BlueprintReadOnly)
 	TObjectPtr<class UNiagaraComponent> NiagaraComp;
 
-	UPROPERTY(EditAnyWhere)
-	float MaxRange = 1000;
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	float MaxRange = 10000;
 
 	UPROPERTY(EditAnyWhere)
 	float Damage = 10;
