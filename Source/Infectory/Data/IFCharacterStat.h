@@ -52,4 +52,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	FVector MeshLocation;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	FVector MeshScale;
 };
