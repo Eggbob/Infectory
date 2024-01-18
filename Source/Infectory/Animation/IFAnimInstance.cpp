@@ -48,4 +48,14 @@ void UIFAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	}
 }
 
+void UIFAnimInstance::InitIKFootRef()
+{
+
+}
+
+void UIFAnimInstance::TickIKFoot()
+{
+
+}
+
 

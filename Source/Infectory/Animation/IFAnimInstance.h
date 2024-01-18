@@ -26,6 +26,11 @@ protected:
 
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
+private:
+	void InitIKFootRef();
+	void TickIKFoot();
+
+protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character)
 	TObjectPtr<class ACharacter> AnimOwner;
 

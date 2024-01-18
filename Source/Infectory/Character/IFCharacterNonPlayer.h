@@ -59,6 +59,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = NPC)
 	FName CurNPCTier;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = NPC)
+	bool bIsJustSpawn;
+
 private:
 	ENPCState CurNpcState;
 	

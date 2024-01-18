@@ -84,7 +84,10 @@ void AIFCharacterNonPlayer::BeginPlay()
 	AIController = Cast<AIFAIController>(GetController());
 	StatComp->OnHpZero.AddUObject(this, &AIFCharacterNonPlayer::SetDead);
 
-	//SetNPCType(CurNPCType, CurNPCTier);
+	if (bIsJustSpawn)
+	{
+		SetNPCType(CurNPCType, CurNPCTier);
+	}
 }
 
 void AIFCharacterNonPlayer::SetDead()
