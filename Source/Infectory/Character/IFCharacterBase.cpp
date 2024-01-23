@@ -35,14 +35,20 @@ AIFCharacterBase::AIFCharacterBase()
 void AIFCharacterBase::SetDead()
 {
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
-	SetActorEnableCollision(false);
+	//SetActorEnableCollision(false);
 }
 
 float AIFCharacterBase::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 	
-	StatComp->ApplyDamage(Damage);
+	if (const FCustomDamageEvent* CustomDamageEvent = static_cast<const FCustomDamageEvent*>(&DamageEvent))
+	{
+		StatComp->ApplyDamage(Damage, CustomDamageEvent->BoneName);
+	}
+
+
+
 
 	return Damage;
 }

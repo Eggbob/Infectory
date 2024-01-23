@@ -4,7 +4,6 @@
 #include "AI/BTService_Detect.h"
 #include "IFAI.h"
 #include "AIController.h"
-#include "BehaviorTree/BlackboardComponent.h"
 #include "Interface/IFCharacterAIInterface.h"
 #include "DrawDebugHelpers.h"
 
@@ -56,7 +55,7 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 			TObjectPtr<APawn> Pawn = Cast<APawn>(OverlapResult.GetActor());
 			if (Pawn && Pawn.Get()->GetController()->IsPlayerController())
 			{
-				OwnerComp.GetBlackboardComponent()->SetValueAsObject(BBKEY_TARGET, Pawn);
+				//OwnerComp.GetBlackboardComponent()->SetValueAsObject(BBKEY_TARGET, Pawn);
 				AIPawn->FocusingTarget(Pawn);
 				DrawDebugSphere(World, Center, DetectRadius, 16, FColor::Green, false, 0.2f);
 

@@ -6,6 +6,7 @@
 #include "Components/BoxComponent.h"
 #include "Character/IFCharacterNonPlayer.h"
 #include "Components/BillboardComponent.h"
+#include "Engine/DataTable.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 AIFSpawnManager::AIFSpawnManager()

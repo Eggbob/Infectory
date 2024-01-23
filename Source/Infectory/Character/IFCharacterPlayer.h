@@ -31,6 +31,14 @@ protected:
 	void SetCharacterControl(ECharacterControlType NewCharacterControlType);
 	void OnHitAction();
 
+	void ShoulderMove(const FInputActionValue& Value);
+	void ShoulderLook(const FInputActionValue& Value);
+	void ShoulderMoveFinish();
+	void PerformRun();
+	void PerformCrouch();
+	void Shoot();
+
+
 private:
 	FVector GetGunHandPosition();
 
@@ -80,13 +88,7 @@ protected:
 
 	ECharacterControlType CurControlType;
 
-	void ShoulderMove(const FInputActionValue& Value);
-	void ShoulderLook(const FInputActionValue& Value);
-	void ShoulderMoveFinish();
-	void PerformRun();
-	void PerformCrouch();
-	void Shoot();
-
+	
 private:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class AIFGunBase> GunClass;

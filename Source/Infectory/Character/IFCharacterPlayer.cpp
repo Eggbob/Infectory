@@ -113,6 +113,7 @@ void AIFCharacterPlayer::BeginPlay()
 	AnimInstance->OnLeftIKChange.BindUObject(this, &AIFCharacterPlayer::GetGunHandPosition);
 
 	StatComp->ForTest();
+	StatComp->bIsNPC = false;
 	StatComp->OnHit.AddUObject(this, &AIFCharacterPlayer::OnHitAction);
 	StatComp->OnHpZero.AddUObject(AnimInstance, &UIFPlayerAnimInstance::PlayDeadAnim);
 
@@ -123,6 +124,7 @@ void AIFCharacterPlayer::BeginPlay()
 		CameraManager.Get()->ViewPitchMax = MaxPitchValue;
 		CameraManager.Get()->ViewPitchMin = MinPitchValue;
 	}
+
 }
 
 /// <summary>

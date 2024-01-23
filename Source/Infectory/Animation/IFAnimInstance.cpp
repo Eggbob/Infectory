@@ -29,6 +29,8 @@ void UIFAnimInstance::NativeInitializeAnimation()
 	}
 
 	DefineTypePawn = TScriptInterface<IIFGetDefineTypeInterface>(AnimOwner);
+
+	InitIKFootRef();
 }
 
 void UIFAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
@@ -46,16 +48,33 @@ void UIFAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		CurRotation = FMath::Lerp(CurRotation,FVector::DotProduct(CurVelocity, AnimOwner->GetActorRightVector()), 0.05f);
 		//UE_LOG(LogTemp, Warning, TEXT("%f"), GroundSpeed);
 	}
+
+	TickIKFoot();
 }
 
 void UIFAnimInstance::InitIKFootRef()
 {
+	APawn* OwnerPawn = TryGetPawnOwner();
+	if (OwnerPawn)
+	{
+		UActorComponent* ActorComp = OwnerPawn->GetComponentByClass(UIFFootIkComponent::StaticClass());
+		if (ActorComp)
+		{
+			IkFootComp = Cast<UIFFootIkComponent>(ActorComp);
+			if (IkFootComp == nullptr)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("IKFootComp is NULL"));
+			}
+		}
+	}
 
 }
 
 void UIFAnimInstance::TickIKFoot()
 {
+	if (IkFootComp == nullptr) return;
 
+	IkAnimValue = IkFootComp->GetIKAnimValue();
 }
 
 

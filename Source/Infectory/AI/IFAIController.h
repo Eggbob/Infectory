@@ -20,6 +20,7 @@ public:
 	
 	void RunAI();
 	void StopAI();
+	void SetTarget(TObjectPtr<AActor> Target);
 
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
@@ -31,4 +32,5 @@ private:
 	UPROPERTY()
 	TObjectPtr<class UBehaviorTree> BTAsset;
 
+	bool bHasTarget = false;
 };

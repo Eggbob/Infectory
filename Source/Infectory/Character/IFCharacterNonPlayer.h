@@ -27,10 +27,17 @@ public:
 	virtual float GetAIAttackRange() override;
 	virtual float GetAITurnSpeed() override;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void InitPhysicsAnimation();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayHitReaction(FName BoneName, FHitResult HitResult);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetDead() override;
 
+	virtual void SetAITarget(TObjectPtr<AActor> TargetActor) override;
 	virtual void FocusingTarget(TObjectPtr<AActor> TargetActor) override;
 	virtual void SetAIAttackDelegate(const FAICharacterAttackFinished& InOnAttackFinished) override;
 	virtual void SetAIBackJumpDelegate(const FAICharacterBackJumpFinished& InOnBackJumpFinished) override;
@@ -51,6 +58,10 @@ protected:
 	void NotifyAttackActionEnd();
 	void NotifyBackJumpActionEnd();
 	void NotifyBeforeMovingActionEnd();
+	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+private:
+	void AttackHitCheck() override;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = NPC)
@@ -77,5 +88,7 @@ private:
 	UPROPERTY()
 	TObjectPtr<class AIFAIController> AIController;
 
-	void AttackHitCheck() override;
+
+
+	
 };

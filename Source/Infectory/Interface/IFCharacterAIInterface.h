@@ -30,7 +30,8 @@ public:
 	virtual float GetAIDetectRange() = 0;
 	virtual float GetAIAttackRange() = 0;
 	virtual float GetAITurnSpeed() = 0;
-
+	
+	virtual void SetAITarget(TObjectPtr<AActor> TargetActor) = 0;
 	virtual void FocusingTarget(TObjectPtr<AActor> TargetActor) = 0;
 	virtual void SetAIAttackDelegate(const FAICharacterAttackFinished& InOnAttackFinished) = 0;
 	virtual void SetAIBackJumpDelegate(const FAICharacterBackJumpFinished& InOnBackJumpFinished) = 0;

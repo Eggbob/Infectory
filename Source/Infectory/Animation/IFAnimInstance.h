@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
 #include "Interface/IFGetDefineTypeInterface.h"
+#include "Component/IFFootIkComponent.h"
 #include "IFAnimInstance.generated.h"
 
 /**
@@ -70,4 +71,9 @@ protected:
 	UPROPERTY()
 	TScriptInterface<IIFGetDefineTypeInterface> DefineTypePawn;
 
+	UPROPERTY()
+	TObjectPtr<UIFFootIkComponent> IkFootComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "IKFoot Value", meta = (AllowPrivateAccess = "true"))
+	FIKAnimValue IkAnimValue;
 };

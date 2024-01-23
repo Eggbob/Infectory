@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/UserDefinedEnum.h"
+#include "Engine/DamageEvents.h"
 #include "IFEnumDefine.generated.h"
 
 UENUM()
@@ -58,6 +59,43 @@ enum class ENPCTier : uint8
 	Champion
 };
 
+UENUM()
+enum class ENPCBoneName : uint8
+{
+	pelvis UMETA(DisplayName = "골반"),
+	thigh_l UMETA(DisplayName = "왼쪽 허벅지"),
+	calf_l UMETA(DisplayName = "왼쪽 무릎"),
+	foot_l UMETA(DisplayName = "왼쪽 발"),
+	thigh_r UMETA(DisplayName = "오른쪽 허벅지"),
+	calf_r UMETA(DisplayName = "오른쪽 무릎"),
+	foot_r UMETA(DisplayName = "오른쪽 발"),
+	spine_01 UMETA(DisplayName = "복부"),
+	spine_02 UMETA(DisplayName = "가슴"),
+	spine_03 UMETA(DisplayName = "쇄골"),
+	upperarm_l UMETA(DisplayName = "왼쪽 팔"),
+	hand_l UMETA(DisplayName = "왼쪽 손"),
+	upperarm_r UMETA(DisplayName = "오른쪽 팔"),
+	hand_r UMETA(DisplayName = "오른쪽 손"),
+	head UMETA(DisplayName = "머리")
+};
+
+
+
+USTRUCT(Atomic, BlueprintType)
+struct FCustomDamageEvent : public FDamageEvent
+{
+	GENERATED_BODY()
+	
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName BoneName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector HitLocation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FHitResult HitResult;
+};
 
 /**
  * 
@@ -71,6 +109,8 @@ public:
 
 	template<typename T>
 	static FString GetEnumName(T EnumName);
+
+	static ENPCBoneName StringToEnum(FString& StringValue);
 };
 
 template<typename T>
@@ -78,4 +118,12 @@ inline FString UIFEnumDefine::GetEnumName(T EnumName)
 {
 	FString Name = StaticEnum<T>()->GetNameStringByValue(static_cast<__underlying_type(T)>(EnumName));
 	return Name;
+}
+
+inline ENPCBoneName UIFEnumDefine::StringToEnum(FString& StringValue)
+{
+	UEnum* EnumPtr = StaticEnum<ENPCBoneName>();
+
+	int32 EnumValue = EnumPtr->GetValueByNameString(StringValue);
+	return (EnumValue != INDEX_NONE) ? static_cast<ENPCBoneName>(EnumValue) : ENPCBoneName::pelvis;
 }
