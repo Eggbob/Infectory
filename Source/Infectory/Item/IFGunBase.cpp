@@ -4,6 +4,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/DamageEvents.h"
+#include "Data/IFEnumDefine.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/Character.h"
 #include "NiagaraComponent.h"
@@ -28,13 +29,19 @@ void AIFGunBase::Fire()
 	bool bSuccess = GunTrace(Hit, ShotDirection);
 	if (bSuccess)
 	{
-		DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Red, true);
+	//	DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Red, true);
 		AActor* HitActor = Hit.GetActor();
-
+		
 		if (HitActor != nullptr && HitActor->IsA(ACharacter::StaticClass()))
 		{
-			FDamageEvent DamageEvent;
-			HitActor->TakeDamage(10.f, DamageEvent, OwnerController, GetOwner());
+			UE_LOG(LogTemp, Warning, TEXT("HitActor : %s"), *Hit.BoneName.ToString());
+
+			//FDamageEvent DamageEvent;
+			FCustomDamageEvent CustomDamageEvent;
+			CustomDamageEvent.BoneName = Hit.BoneName;
+			CustomDamageEvent.HitResult = Hit;
+
+			HitActor->TakeDamage(10.f, CustomDamageEvent, OwnerController, GetOwner());
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodImpactEffect, Hit.Location, ShotDirection.Rotation());
 			/*FPointDamageEvent DmgeEvent(Damage, Hit, ShotDirection, nullptr);
 			AController* OwnerController = GetOwnerController();
@@ -98,9 +105,9 @@ bool AIFGunBase::GunTrace(FHitResult& Hit, FVector& ShotDirection)
 	Params.AddIgnoredActor(this);
 	Params.AddIgnoredActor(GetOwner());
 
-	//DrawDebugLine(GetWorld(), OwnerLocation, End, FColor::Red, true);
+	DrawDebugLine(GetWorld(), OwnerLocation, End, FColor::Red, true);
 
-	return GetWorld()->LineTraceSingleByChannel(Hit, OwnerLocation, End, ECollisionChannel::ECC_GameTraceChannel1, Params);;
+	return GetWorld()->LineTraceSingleByChannel(Hit, OwnerLocation, End, ECollisionChannel::ECC_GameTraceChannel1, Params);
 }
 
 

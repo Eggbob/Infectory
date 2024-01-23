@@ -35,6 +35,9 @@ public:
 	float AttackRange;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	float DetectRange;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	float AttackSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)

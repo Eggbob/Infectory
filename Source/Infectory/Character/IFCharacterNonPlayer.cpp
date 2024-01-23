@@ -8,6 +8,7 @@
 #include "Data/IFEnumDefine.h"
 #include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "AI/IFAI.h"
 #include "Animation/IFNonPlayerAnimInstance.h"
 
 
@@ -72,6 +73,7 @@ AIFCharacterNonPlayer::AIFCharacterNonPlayer()
 
 
 #pragma endregion
+
 	AIControllerClass = AIFAIController::StaticClass();
 	
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -83,6 +85,7 @@ void AIFCharacterNonPlayer::BeginPlay()
 	Super::BeginPlay();
 	AIController = Cast<AIFAIController>(GetController());
 	StatComp->OnHpZero.AddUObject(this, &AIFCharacterNonPlayer::SetDead);
+	StatComp->bIsNPC = true;
 
 	if (bIsJustSpawn)
 	{
@@ -95,10 +98,17 @@ void AIFCharacterNonPlayer::SetDead()
 	Super::SetDead();
 	CurNpcState = ENPCState::Dead;
 
+	AnimInstance.Get()->StopAllMontages(0.f);
+	GetCapsuleComponent()->SetCollisionProfileName("NoCollision");
+	GetMesh()->SetCollisionProfileName("Ragdoll");
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+
 	if (AIController)
 	{
 		AIController.Get()->StopAI();
 	}
+	
 }
 
 void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
@@ -122,15 +132,22 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 	//UE_LOG(LogTemp, Warning, TEXT("MovementSpeed : %f"), StatComp->GetBaseStat().MovementSpeed);
 	//UE_LOG(LogTemp, Warning, TEXT("MaxWalkSpeed2 : %f"), GetCharacterMovement()->MaxWalkSpeed);
 
+
 	AnimInstance = Cast<UIFNonPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	if (AnimInstance)
 	{
-		StatComp.Get()->OnHit.AddUObject(AnimInstance, &UIFNonPlayerAnimInstance::PlayHitAnim);
+		//StatComp.Get()->OnHit.AddUObject(AnimInstance, &UIFNonPlayerAnimInstance::PlayHitAnim);
 		AnimInstance->OnAttackEnd.BindUObject(this, &AIFCharacterNonPlayer::NotifyAttackActionEnd);
 		AnimInstance->OnBackJump.BindUObject(this, &AIFCharacterNonPlayer::StartBackJump);
 		AnimInstance->OnBackJumpEnd.BindUObject(this, &AIFCharacterNonPlayer::NotifyBackJumpActionEnd);
 		AnimInstance->OnBeforeMoving.BindUObject(this, &AIFCharacterNonPlayer::NotifyBeforeMovingActionEnd);
 	}
+
+	InitPhysicsAnimation();
+}
+
+void AIFCharacterNonPlayer::SetAITarget(TObjectPtr<AActor> TargetActor)
+{
 }
 
 /// <summary>
@@ -140,6 +157,7 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 void AIFCharacterNonPlayer::FocusingTarget(TObjectPtr<AActor> TargetActor)
 {
 	AIController->SetFocus(TargetActor, EAIFocusPriority::Gameplay);
+	AIController->SetTarget(TargetActor);
 }
 
 /// <summary>
@@ -238,6 +256,21 @@ void AIFCharacterNonPlayer::NotifyBeforeMovingActionEnd()
 	OnBeforeMovingFinished.ExecuteIfBound();
 }
 
+float AIFCharacterNonPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+
+
+	if (const FCustomDamageEvent* CustomDamageEvent = static_cast<const FCustomDamageEvent*>(&DamageEvent))
+	{
+		PlayHitReaction(CustomDamageEvent->BoneName, CustomDamageEvent->HitResult);
+	}
+
+	FocusingTarget(DamageCauser);
+
+	return Damage;
+}
+
 void AIFCharacterNonPlayer::AttackHitCheck()
 {
 	FHitResult OutHitResult;
@@ -275,7 +308,7 @@ float AIFCharacterNonPlayer::GetAIPatrolRadius()
 
 float AIFCharacterNonPlayer::GetAIDetectRange()
 {
-	return 400.0f;
+	return StatComp->GetBaseStat().DetectRange; // 400.0f;
 }
 
 float AIFCharacterNonPlayer::GetAIAttackRange()

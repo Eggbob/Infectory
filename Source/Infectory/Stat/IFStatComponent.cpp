@@ -2,11 +2,20 @@
 
 
 #include "Stat/IFStatComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Character/IFBodyPartDamageData.h"
 #include "Data/IFGameSingleton.h"
+#include "Data/IFEnumDefine.h"
 
 UIFStatComponent::UIFStatComponent()
 {
 	bWantsInitializeComponent = true;
+
+	static ConstructorHelpers::FObjectFinder<UIFBodyPartDamageData> BodyPartDataRef(TEXT("/Script/Infectory.IFBodyPartDamageData'/Game/Assets/CharacterControl/ABC_BodyPartDamage.ABC_BodyPartDamage'"));
+	if (BodyPartDataRef.Object)
+	{
+		BodyPartDamageData = BodyPartDataRef.Object;
+	}
 }
 
 void UIFStatComponent::ForTest()
@@ -36,7 +45,8 @@ void UIFStatComponent::SetStat(FName NPCName, FName NPCTier)
 	SetHp(MaxHp);
 }
 
-float UIFStatComponent::ApplyDamage(float InDamage)
+
+float UIFStatComponent::ApplyDamage(float InDamage, FName BoneName)
 {
 	if (CurrentHp <= KINDA_SMALL_NUMBER)
 	{
@@ -44,9 +54,21 @@ float UIFStatComponent::ApplyDamage(float InDamage)
 	}
 
 	const float PrevHp = CurrentHp;
-	const float ActualDamage = FMath::Clamp<float>(InDamage, 0, InDamage);
+	float RealDamage = InDamage;
 
+	if (bIsNPC)
+	{
+		FString BoneNameStr = BoneName.ToString();
+		ENPCBoneName NPCBoneName = UIFEnumDefine::StringToEnum(BoneNameStr);
+
+		RealDamage = BodyPartDamageData.Get()->BodyPartDamageMap[NPCBoneName] * InDamage;
+		UE_LOG(LogTemp, Warning, TEXT("MultiPlyDamage : %f, BoneName %s"), BodyPartDamageData.Get()->BodyPartDamageMap[NPCBoneName], *BoneName.ToString());
+
+	}
+
+	const float ActualDamage = FMath::Clamp<float>(RealDamage, 0, RealDamage);
 	OnHit.Broadcast();
+
 	SetHp(PrevHp - ActualDamage);
 	
 	if (CurrentHp <= KINDA_SMALL_NUMBER)

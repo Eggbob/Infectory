@@ -28,7 +28,7 @@ protected:
 public:	
 	void HealHp(float InHealAmount);
 	void SetStat(FName NPCName, FName NPCTier);
-	float ApplyDamage(float InDamage);
+	float ApplyDamage(float InDamage, FName BoneName);
 
 	FORCEINLINE const FIFCharacterStat& GetBaseStat() const { return BaseStat; }
 
@@ -36,6 +36,8 @@ public:
 	FOnHpZeroDelegate OnHpZero;
 	FOnHitDelegate OnHit;
 	FOnHpChangedDelegate OnHpChanged;
+
+	bool bIsNPC;
 
 protected:
 	void SetHp(float NewHp);
@@ -48,4 +50,10 @@ protected:
 
 private:
 	FIFCharacterStat BaseStat;
+
+	UPROPERTY()
+	TMap<FString, float> PartDamage;
+
+	UPROPERTY()
+	TObjectPtr<class UIFBodyPartDamageData> BodyPartDamageData;
 };

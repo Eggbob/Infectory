@@ -16,4 +16,5 @@ class INFECTORY_API AIFGameMode : public AGameModeBase
 	
 public:
 	AIFGameMode();
+
 };

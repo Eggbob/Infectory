@@ -30,6 +30,7 @@ void AIFAIController::RunAI()
 		Blackboard.Get()->SetValueAsVector("HomePos", GetPawn()->GetActorLocation());
 		Blackboard.Get()->SetValueAsBool("bIsFirstContact", true);
 
+		bHasTarget = false;
 		bool RunResult = RunBehaviorTree(BTAsset);
 		ensure(RunResult);
 	}
@@ -42,6 +43,14 @@ void AIFAIController::StopAI()
 	{
 		BTComponent->StopTree();
 	}
+}
+
+void AIFAIController::SetTarget(TObjectPtr<AActor> Target)
+{
+	if (bHasTarget) return;
+
+	Blackboard.Get()->SetValueAsObject(BBKEY_TARGET, Target);
+	bHasTarget = true;
 }
 
 void AIFAIController::OnPossess(APawn* InPawn)
