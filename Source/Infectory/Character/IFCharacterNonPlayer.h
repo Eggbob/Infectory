@@ -20,6 +20,7 @@ class INFECTORY_API AIFCharacterNonPlayer : public AIFCharacterBase, public IIFC
 public:
 	AIFCharacterNonPlayer();
 	FORCEINLINE virtual ENPCState GetNPCState() { return CurNpcState; }
+	FORCEINLINE virtual ENPCMoveType GetNPCMoveType() { return CurNpcMoveType; }
 
 	void SetNPCType(ENPCType NpcName, FName NpcTier);
 	virtual float GetAIPatrolRadius() override;
@@ -37,7 +38,6 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void SetDead() override;
 
-	virtual void SetAITarget(TObjectPtr<AActor> TargetActor) override;
 	virtual void FocusingTarget(TObjectPtr<AActor> TargetActor) override;
 	virtual void SetAIAttackDelegate(const FAICharacterAttackFinished& InOnAttackFinished) override;
 	virtual void SetAIBackJumpDelegate(const FAICharacterBackJumpFinished& InOnBackJumpFinished) override;
@@ -49,6 +49,7 @@ protected:
 	virtual void PerformWaiting(bool bIsFirstContact) override;
 
 	void StartBackJump();
+	void SetHitWalkSpeed();
 
 	FAICharacterAttackFinished OnAttackFinished;
 	FAICharacterBackJumpFinished OnBackJumpFinished;
@@ -63,6 +64,9 @@ protected:
 private:
 	void AttackHitCheck() override;
 
+	UFUNCTION(BlueprintCallable)
+	void ChangeNPCMoveMode();
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = NPC)
 	ENPCType CurNPCType;
@@ -75,7 +79,9 @@ public:
 
 private:
 	ENPCState CurNpcState;
-	
+
+	ENPCMoveType CurNpcMoveType;
+
 	UPROPERTY()
 	TMap<ENPCType, TObjectPtr<class USkeletalMesh>> NPCSkeletalMeshes;
 	

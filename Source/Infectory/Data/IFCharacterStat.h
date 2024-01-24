@@ -44,6 +44,9 @@ public:
 	float MovementSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	float CrawlMovementSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	float JumpVelocity;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite,	Category = Stat)

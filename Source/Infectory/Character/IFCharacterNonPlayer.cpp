@@ -37,11 +37,19 @@ AIFCharacterNonPlayer::AIFCharacterNonPlayer()
 		NPCSkeletalMeshes.Add(ENPCType::Hunter, HunterMeshRef.Object);
 	}
 
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> HunterMiniMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/ParasiteZombieBundle01/ParasiteZombie01/ParasiteZombie01_Character/SK_HunterMini.SK_HunterMini'"));
+	if (HunterMiniMeshRef.Object)
+	{
+		NPCSkeletalMeshes.Add(ENPCType::MiniHunter, HunterMiniMeshRef.Object);
+	}
+
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> BoomerMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/ParasiteZombieBundle01/ParasiteZombie03/ParasiteZombie03_Character/SK_ParasiteZombie03.SK_ParasiteZombie03'"));
 	if (BoomerMeshRef.Object)
 	{
 		NPCSkeletalMeshes.Add(ENPCType::Boomer, BoomerMeshRef.Object);
 	}
+
+	
 
 #pragma endregion
 
@@ -65,6 +73,12 @@ AIFCharacterNonPlayer::AIFCharacterNonPlayer()
 		NPCAnimInstances.Add(ENPCType::Hunter, HunterAnimInstanceClassRef.Class);
 	}
 
+	static ConstructorHelpers::FClassFinder<UAnimInstance> MiniHunterAnimInstanceClassRef(TEXT("/Game/Assets/Animation/Enemy/ABP_HunterMini.ABP_HunterMini_C"));
+	if (MiniHunterAnimInstanceClassRef.Class)
+	{
+		NPCAnimInstances.Add(ENPCType::MiniHunter, MiniHunterAnimInstanceClassRef.Class);
+	}
+
 	static ConstructorHelpers::FClassFinder<UAnimInstance> BoomerAnimInstanceClassRef(TEXT("/Game/Assets/Animation/Enemy/ABP_Boomer.ABP_Boomer_C"));
 	if (BoomerAnimInstanceClassRef.Class)
 	{
@@ -78,6 +92,7 @@ AIFCharacterNonPlayer::AIFCharacterNonPlayer()
 	
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	CurNpcState = ENPCState::Idle;
+	CurNpcMoveType = ENPCMoveType::Walking;
 }
 
 void AIFCharacterNonPlayer::BeginPlay()
@@ -136,7 +151,7 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 	AnimInstance = Cast<UIFNonPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	if (AnimInstance)
 	{
-		//StatComp.Get()->OnHit.AddUObject(AnimInstance, &UIFNonPlayerAnimInstance::PlayHitAnim);
+		StatComp.Get()->OnHit.AddUObject(AnimInstance, &UIFNonPlayerAnimInstance::PlayHitAnim);
 		AnimInstance->OnAttackEnd.BindUObject(this, &AIFCharacterNonPlayer::NotifyAttackActionEnd);
 		AnimInstance->OnBackJump.BindUObject(this, &AIFCharacterNonPlayer::StartBackJump);
 		AnimInstance->OnBackJumpEnd.BindUObject(this, &AIFCharacterNonPlayer::NotifyBackJumpActionEnd);
@@ -146,9 +161,7 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 	InitPhysicsAnimation();
 }
 
-void AIFCharacterNonPlayer::SetAITarget(TObjectPtr<AActor> TargetActor)
-{
-}
+
 
 /// <summary>
 /// AI가 Focus할 대상 지정
@@ -213,6 +226,12 @@ void AIFCharacterNonPlayer::NotifyAttackActionEnd()
 /// </summary>
 void AIFCharacterNonPlayer::PeformBackMoveAI()
 {
+	if (CurNpcMoveType == ENPCMoveType::Crawling)
+	{
+		NotifyBackJumpActionEnd();
+		return;
+	}
+
 	CurNpcState = ENPCState::Jumping;
 	AnimInstance->PlayBackJumpAnimation();
 }
@@ -244,6 +263,22 @@ void AIFCharacterNonPlayer::StartBackJump()
 	LaunchCharacter(JumpDirection, false, false);
 }
 
+void AIFCharacterNonPlayer::SetHitWalkSpeed()
+{
+	FTimerHandle TimerHandle;
+
+	float CurMaxSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = StatComp.Get()->GetBaseStat().MovementSpeed / 2.0f;
+
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda(
+		[&]()
+		{
+			GetCharacterMovement()->MaxWalkSpeed = CurNpcMoveType == ENPCMoveType::Walking ?
+				StatComp.Get()->GetBaseStat().MovementSpeed : StatComp.Get()->GetBaseStat().CrawlMovementSpeed;
+		}
+	), 0.3f, false);
+}
+
 void AIFCharacterNonPlayer::NotifyBackJumpActionEnd()
 {
 	CurNpcState = ENPCState::Idle;
@@ -260,13 +295,13 @@ float AIFCharacterNonPlayer::TakeDamage(float Damage, FDamageEvent const& Damage
 {
 	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 
-
 	if (const FCustomDamageEvent* CustomDamageEvent = static_cast<const FCustomDamageEvent*>(&DamageEvent))
 	{
 		PlayHitReaction(CustomDamageEvent->BoneName, CustomDamageEvent->HitResult);
 	}
 
 	FocusingTarget(DamageCauser);
+	SetHitWalkSpeed();
 
 	return Damage;
 }
@@ -299,6 +334,12 @@ void AIFCharacterNonPlayer::AttackHitCheck()
 	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 5.0f);
 
 #endif
+}
+
+void AIFCharacterNonPlayer::ChangeNPCMoveMode()
+{
+	CurNpcMoveType = ENPCMoveType::Crawling;
+	GetCharacterMovement()->MaxWalkSpeed = StatComp.Get()->GetBaseStat().CrawlMovementSpeed;
 }
 
 float AIFCharacterNonPlayer::GetAIPatrolRadius()
