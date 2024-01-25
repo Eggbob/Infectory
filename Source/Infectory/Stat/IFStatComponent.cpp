@@ -62,7 +62,7 @@ float UIFStatComponent::ApplyDamage(float InDamage, FName BoneName)
 		ENPCBoneName NPCBoneName = UIFEnumDefine::StringToEnum(BoneNameStr);
 
 		RealDamage = BodyPartDamageData.Get()->BodyPartDamageMap[NPCBoneName] * InDamage;
-		UE_LOG(LogTemp, Warning, TEXT("MultiPlyDamage : %f, BoneName %s"), BodyPartDamageData.Get()->BodyPartDamageMap[NPCBoneName], *BoneName.ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("MultiPlyDamage : %f, BoneName %s"), BodyPartDamageData.Get()->BodyPartDamageMap[NPCBoneName], *BoneName.ToString());
 
 	}
 

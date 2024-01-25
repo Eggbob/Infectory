@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Data/IFEnumDefine.h"
 #include "IFGunBase.generated.h"
 
 DECLARE_DELEGATE(FOnFireGun);
@@ -16,7 +17,9 @@ class INFECTORY_API AIFGunBase : public AActor
 public:	
 	AIFGunBase();
 
-	void Fire();
+	void FireLineTrace();
+	void GiveDamage(TObjectPtr<AActor> HitActor, FCustomDamageEvent& Hit);
+	void FireProjectile();
 	void CachingOwner();
 	void StartFire();
 	void StopFire();
@@ -44,6 +47,12 @@ protected:
 
 	UPROPERTY(EditAnyWhere, BlueprintReadOnly)
 	TObjectPtr<class UNiagaraComponent> NiagaraComp;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadOnly)
+	TSubclassOf<class AIFProjectile> ProjectileoBP;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	ERangedWeaponType WeaponType = ERangedWeaponType::LineTrace;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	float MaxRange = 10000;

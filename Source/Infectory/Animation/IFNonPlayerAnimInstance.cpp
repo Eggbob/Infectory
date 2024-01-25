@@ -83,11 +83,14 @@ void UIFNonPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	if (Movement)
 	{
 		CurNpcState = DefineTypePawn.GetInterface()->GetNPCState();
+		CurNpcMoveType = DefineTypePawn.GetInterface()->GetNPCMoveType();
 	}
 }
 
 void UIFNonPlayerAnimInstance::PlayHitAnim()
 {
+	if (CurNpcMoveType == ENPCMoveType::Crawling) return;
+
 	if (CurNpcState == ENPCState::Idle || CurNpcState == ENPCState::Moving)
 	{
 		Montage_Play(HitAnimations[FMath::RandRange(0, HitAnimations.Num()-1)], 1.0f);

@@ -26,4 +26,5 @@ public:
 	virtual ECharacterMoveType GetPlayerMoveType() { return ECharacterMoveType::Walking; }
 	virtual ECharacterControlType GetPlayerControlType() { return ECharacterControlType::Zoom; }
 	virtual ENPCState GetNPCState() { return ENPCState::Idle; }
+	virtual ENPCMoveType GetNPCMoveType() { return ENPCMoveType::Walking; }
 };

@@ -30,7 +30,9 @@ EBTNodeResult::Type UBTTask_BackJump::ExecuteTask(UBehaviorTreeComponent& OwnerC
 	
 	if (RandVal < 0.5f)
 	{
-		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+		//FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+
+
 		return EBTNodeResult::Succeeded;
 	}
 	else

@@ -9,6 +9,7 @@
 #include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AI/IFAI.h"
+#include "Item/IFGunBase.h"
 #include "Animation/IFNonPlayerAnimInstance.h"
 
 
@@ -29,6 +30,13 @@ AIFCharacterNonPlayer::AIFCharacterNonPlayer()
 	{
 		//GetMesh()->SetSkeletalMesh(ParasiteMeshRef.Object);
 		NPCSkeletalMeshes.Add(ENPCType::Parasite, ParasiteMeshRef.Object);
+		NPCSkeletalMeshes.Add(ENPCType::RangedParasite, ParasiteMeshRef.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> RangedParasiteMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/ParasiteZombieBundle01/ParasiteZombie02/ParasiteZombie02_Character/SK_ParasiteZombie02.SK_ParasiteZombie02'"));
+	if (RangedParasiteMeshRef.Object)
+	{
+		NPCSkeletalMeshes.Add(ENPCType::RangedParasite, RangedParasiteMeshRef.Object);
 	}
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> HunterMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/ParasiteZombieBundle01/ParasiteZombie01/ParasiteZombie01_Character/SK_ParasiteZombie01.SK_ParasiteZombie01'"));
@@ -37,11 +45,19 @@ AIFCharacterNonPlayer::AIFCharacterNonPlayer()
 		NPCSkeletalMeshes.Add(ENPCType::Hunter, HunterMeshRef.Object);
 	}
 
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> HunterMiniMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/ParasiteZombieBundle01/ParasiteZombie01/ParasiteZombie01_Character/SK_HunterMini.SK_HunterMini'"));
+	if (HunterMiniMeshRef.Object)
+	{
+		NPCSkeletalMeshes.Add(ENPCType::MiniHunter, HunterMiniMeshRef.Object);
+	}
+
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> BoomerMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/ParasiteZombieBundle01/ParasiteZombie03/ParasiteZombie03_Character/SK_ParasiteZombie03.SK_ParasiteZombie03'"));
 	if (BoomerMeshRef.Object)
 	{
 		NPCSkeletalMeshes.Add(ENPCType::Boomer, BoomerMeshRef.Object);
 	}
+
+	
 
 #pragma endregion
 
@@ -59,10 +75,22 @@ AIFCharacterNonPlayer::AIFCharacterNonPlayer()
 		NPCAnimInstances.Add(ENPCType::Parasite, ParasiteAnimInstanceClassRef.Class);
 	}
 
+	static ConstructorHelpers::FClassFinder<UAnimInstance> RangedParasiteAnimInstanceClassRef(TEXT("/Game/Assets/Animation/Enemy/ABP_ParasiteRanged.ABP_ParasiteRanged_C"));
+	if (RangedParasiteAnimInstanceClassRef.Class)
+	{
+		NPCAnimInstances.Add(ENPCType::RangedParasite, RangedParasiteAnimInstanceClassRef.Class);
+	}
+
 	static ConstructorHelpers::FClassFinder<UAnimInstance> HunterAnimInstanceClassRef(TEXT("/Game/Assets/Animation/Enemy/ABP_Hunter.ABP_Hunter_C"));
 	if (HunterAnimInstanceClassRef.Class)
 	{
 		NPCAnimInstances.Add(ENPCType::Hunter, HunterAnimInstanceClassRef.Class);
+	}
+
+	static ConstructorHelpers::FClassFinder<UAnimInstance> MiniHunterAnimInstanceClassRef(TEXT("/Game/Assets/Animation/Enemy/ABP_HunterMini.ABP_HunterMini_C"));
+	if (MiniHunterAnimInstanceClassRef.Class)
+	{
+		NPCAnimInstances.Add(ENPCType::MiniHunter, MiniHunterAnimInstanceClassRef.Class);
 	}
 
 	static ConstructorHelpers::FClassFinder<UAnimInstance> BoomerAnimInstanceClassRef(TEXT("/Game/Assets/Animation/Enemy/ABP_Boomer.ABP_Boomer_C"));
@@ -78,6 +106,7 @@ AIFCharacterNonPlayer::AIFCharacterNonPlayer()
 	
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	CurNpcState = ENPCState::Idle;
+	CurNpcMoveType = ENPCMoveType::Walking;
 }
 
 void AIFCharacterNonPlayer::BeginPlay()
@@ -128,27 +157,44 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 	GetCapsuleComponent()->SetCapsuleHalfHeight(MeshExtent.Z);
 	GetCapsuleComponent()->SetCapsuleRadius(FMath::Max(MeshExtent.X, MeshExtent.Y));
 
+	if (CurNPCType == ENPCType::RangedParasite)
+	{
+		ProjectileWeapon = GetWorld()->SpawnActor<AIFGunBase>(GunClass);
+		ProjectileWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("spine_03"));
+		ProjectileWeapon->SetOwner(this);
+		ProjectileWeapon->CachingOwner();
+		ProjectileWeapon->SetActorRotation(FRotator(0.f, 0.f, 90.f));
+	}
+
 	//UE_LOG(LogTemp, Warning, TEXT("MaxWalkSpeed : %f"), GetCharacterMovement()->MaxWalkSpeed);
 	//UE_LOG(LogTemp, Warning, TEXT("MovementSpeed : %f"), StatComp->GetBaseStat().MovementSpeed);
 	//UE_LOG(LogTemp, Warning, TEXT("MaxWalkSpeed2 : %f"), GetCharacterMovement()->MaxWalkSpeed);
 
+	const UEnum* EnumPtr = StaticEnum<ENPCBoneName>();
+	BodyDamageCheckMap.Empty();
+
+	for (int i = 0; i < EnumPtr->NumEnums()-1; i++)
+	{
+		int RandVal = FMath::RandRange(2, 5);
+
+		BodyDamageCheckMap.Add((ENPCBoneName)EnumPtr->GetValueByIndex(i), RandVal);
+	}
 
 	AnimInstance = Cast<UIFNonPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	if (AnimInstance)
 	{
-		//StatComp.Get()->OnHit.AddUObject(AnimInstance, &UIFNonPlayerAnimInstance::PlayHitAnim);
+		StatComp.Get()->OnHit.AddUObject(AnimInstance, &UIFNonPlayerAnimInstance::PlayHitAnim);
 		AnimInstance->OnAttackEnd.BindUObject(this, &AIFCharacterNonPlayer::NotifyAttackActionEnd);
 		AnimInstance->OnBackJump.BindUObject(this, &AIFCharacterNonPlayer::StartBackJump);
 		AnimInstance->OnBackJumpEnd.BindUObject(this, &AIFCharacterNonPlayer::NotifyBackJumpActionEnd);
 		AnimInstance->OnBeforeMoving.BindUObject(this, &AIFCharacterNonPlayer::NotifyBeforeMovingActionEnd);
 	}
 
+
 	InitPhysicsAnimation();
 }
 
-void AIFCharacterNonPlayer::SetAITarget(TObjectPtr<AActor> TargetActor)
-{
-}
+
 
 /// <summary>
 /// AI가 Focus할 대상 지정
@@ -186,6 +232,7 @@ void AIFCharacterNonPlayer::SetAIWaitingDelegate(const FAICharacterWaitingFinish
 {
 	OnWaitingFinished.Unbind();
 	OnWaitingFinished = InOnWaitingFinished;
+
 }
 
 /// <summary>
@@ -213,6 +260,12 @@ void AIFCharacterNonPlayer::NotifyAttackActionEnd()
 /// </summary>
 void AIFCharacterNonPlayer::PeformBackMoveAI()
 {
+	if (CurNpcMoveType == ENPCMoveType::Crawling)
+	{
+		NotifyBackJumpActionEnd();
+		return;
+	}
+
 	CurNpcState = ENPCState::Jumping;
 	AnimInstance->PlayBackJumpAnimation();
 }
@@ -244,6 +297,22 @@ void AIFCharacterNonPlayer::StartBackJump()
 	LaunchCharacter(JumpDirection, false, false);
 }
 
+void AIFCharacterNonPlayer::SetHitWalkSpeed()
+{
+	FTimerHandle TimerHandle;
+
+	float CurMaxSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = StatComp.Get()->GetBaseStat().MovementSpeed / 2.0f;
+
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda(
+		[&]()
+		{
+			GetCharacterMovement()->MaxWalkSpeed = CurNpcMoveType == ENPCMoveType::Walking ?
+				StatComp.Get()->GetBaseStat().MovementSpeed : StatComp.Get()->GetBaseStat().CrawlMovementSpeed;
+		}
+	), 0.3f, false);
+}
+
 void AIFCharacterNonPlayer::NotifyBackJumpActionEnd()
 {
 	CurNpcState = ENPCState::Idle;
@@ -260,18 +329,40 @@ float AIFCharacterNonPlayer::TakeDamage(float Damage, FDamageEvent const& Damage
 {
 	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 
-
 	if (const FCustomDamageEvent* CustomDamageEvent = static_cast<const FCustomDamageEvent*>(&DamageEvent))
 	{
-		PlayHitReaction(CustomDamageEvent->BoneName, CustomDamageEvent->HitResult);
+		//TODo Fix Enum
+		FString BoneNameStr = CustomDamageEvent->BoneName.ToString();
+		ENPCBoneName BoneEnum = UIFEnumDefine::StringToEnum(BoneNameStr);
+		BodyDamageCheckMap[BoneEnum] -= 1;
+
+		if (BodyDamageCheckMap[BoneEnum] <= 0)
+		{
+			PlayHitReaction(CustomDamageEvent->BoneName, CustomDamageEvent->HitResult);
+		}
 	}
 
 	FocusingTarget(DamageCauser);
+	SetHitWalkSpeed();
 
 	return Damage;
 }
 
 void AIFCharacterNonPlayer::AttackHitCheck()
+{
+	if (CurNPCType == ENPCType::RangedParasite)
+	{
+		ProjectileWeapon->StartFire();
+		return;
+	}
+	else
+	{
+		MeleeAttackCheck();
+		return;
+	}
+}
+
+void AIFCharacterNonPlayer::MeleeAttackCheck()
 {
 	FHitResult OutHitResult;
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
@@ -299,6 +390,13 @@ void AIFCharacterNonPlayer::AttackHitCheck()
 	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 5.0f);
 
 #endif
+}
+
+void AIFCharacterNonPlayer::ChangeNPCMoveMode()
+{
+	CurNpcMoveType = ENPCMoveType::Crawling;
+	GetCharacterMovement()->MaxWalkSpeed = StatComp.Get()->GetBaseStat().CrawlMovementSpeed;
+	AnimInstance->StopAllMontages(0.0f);
 }
 
 float AIFCharacterNonPlayer::GetAIPatrolRadius()

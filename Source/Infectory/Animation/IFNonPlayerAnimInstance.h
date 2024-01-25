@@ -36,6 +36,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	ENPCState CurNpcState;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+	ENPCMoveType CurNpcMoveType;
+
 protected:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;

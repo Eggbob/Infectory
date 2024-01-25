@@ -36,6 +36,14 @@ enum class ENPCState : uint8
 	Dead
 };
 
+
+UENUM()
+enum class ENPCMoveType : uint8
+{
+	Walking,
+	Crawling,
+};
+
 UENUM()
 enum class EDamageType : uint8
 {
@@ -48,15 +56,17 @@ enum class ENPCType : uint8
 	Test,
 	Parasite,
 	Hunter,
-	Boomer
+	Boomer,
+	MiniHunter,
+	RangedParasite,
+	BigBoomer
 };
 
 UENUM()
-enum class ENPCTier : uint8
+enum class ERangedWeaponType : uint8
 {
-	Normal,
-	Elite,
-	Champion
+	LineTrace,
+	Projectile
 };
 
 UENUM()
