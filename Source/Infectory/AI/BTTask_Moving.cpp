@@ -7,7 +7,7 @@
 
 UBTTask_Moving::UBTTask_Moving()
 {
-	NodeName = ("BeforeMoving");
+	NodeName = ("MoveNPC");
 }
 
 EBTNodeResult::Type UBTTask_Moving::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -26,17 +26,7 @@ EBTNodeResult::Type UBTTask_Moving::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 		return EBTNodeResult::Failed;
 	}
 
-	FAICharacterBeforeMovingFinished OnBeforeMovingFinished;
-
-	OnBeforeMovingFinished.BindLambda(
-		[&]()
-		{
-			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
-		}
-	);
-
-	AIPawn->SetAIBeforeMovingDelegate(OnBeforeMovingFinished);
 	AIPawn->PerformMoving();
 
-	return EBTNodeResult::InProgress;
+	return EBTNodeResult::Succeeded;
 }

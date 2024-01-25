@@ -4,6 +4,7 @@
 #include "AI/BTDecorator_AttackInRange.h"
 #include "BTDecorator_AttackInRange.h"
 #include "IFAIController.h"
+#include "IFAI.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Interface/IFCharacterAIInterface.h"
 
@@ -28,7 +29,7 @@ bool UBTDecorator_AttackInRange::CalculateRawConditionValue(UBehaviorTreeCompone
 		return false;
 	}
 
-	APawn* Target = Cast<APawn>(OwnerComp.GetBlackboardComponent()->GetValueAsObject("Target"));
+	APawn* Target = Cast<APawn>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(BBKEY_TARGET));
 	if (nullptr == Target)
 	{
 		return false;

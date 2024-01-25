@@ -54,6 +54,14 @@ void AIFAIController::SetTarget(TObjectPtr<AActor> Target)
 	bHasTarget = true;
 }
 
+void AIFAIController::MoveToTarget(float Range)
+{
+	float ExceptRange = FMath::RandRange(50.f, Range - 150.f);
+
+	TWeakObjectPtr<AActor> Target = Cast<AActor>(Blackboard.Get()->GetValueAsObject(BBKEY_TARGET));
+	MoveToActor(Target.Get(), ExceptRange, true, true, false, 0, true);
+}
+
 void AIFAIController::UpdateControlRotation(float DeltaTime, bool bUpdatePawn)
 {
 	Super::UpdateControlRotation(DeltaTime, bUpdatePawn);

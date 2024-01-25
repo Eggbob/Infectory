@@ -21,6 +21,7 @@ public:
 	void RunAI();
 	void StopAI();
 	void SetTarget(TObjectPtr<AActor> Target);
+	void MoveToTarget(float Range);
 	virtual void UpdateControlRotation(float DeltaTime, bool bUpdatePawn = true) override;
 
 protected:
