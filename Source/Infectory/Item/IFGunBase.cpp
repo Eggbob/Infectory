@@ -129,7 +129,7 @@ bool AIFGunBase::GunTrace(FHitResult& Hit, FVector& ShotDirection)
 	Params.AddIgnoredActor(this);
 	Params.AddIgnoredActor(GetOwner());
 
-	DrawDebugLine(GetWorld(), OwnerLocation, End, FColor::Red, true);
+	//DrawDebugLine(GetWorld(), OwnerLocation, End, FColor::Red, true);
 
 	return GetWorld()->LineTraceSingleByChannel(Hit, OwnerLocation, End, ECollisionChannel::ECC_GameTraceChannel1, Params);
 }

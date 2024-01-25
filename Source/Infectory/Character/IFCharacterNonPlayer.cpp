@@ -283,8 +283,11 @@ void AIFCharacterNonPlayer::PerformWaiting(bool bIsFirstContact)
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]() 
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Waiting Finished"));
 			OnWaitingFinished.ExecuteIfBound();
-		}), bIsFirstContact, false);
+		}), WaitTime, false);
+
+	AnimInstance->PlayRandomIdleAnimaiton();
 }
 
 /// <summary>
