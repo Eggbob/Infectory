@@ -63,11 +63,10 @@ enum class ENPCType : uint8
 };
 
 UENUM()
-enum class ENPCTier : uint8
+enum class ERangedWeaponType : uint8
 {
-	Normal,
-	Elite,
-	Champion
+	LineTrace,
+	Projectile
 };
 
 UENUM()

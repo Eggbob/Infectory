@@ -9,6 +9,7 @@
 #include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AI/IFAI.h"
+#include "Item/IFGunBase.h"
 #include "Animation/IFNonPlayerAnimInstance.h"
 
 
@@ -29,6 +30,13 @@ AIFCharacterNonPlayer::AIFCharacterNonPlayer()
 	{
 		//GetMesh()->SetSkeletalMesh(ParasiteMeshRef.Object);
 		NPCSkeletalMeshes.Add(ENPCType::Parasite, ParasiteMeshRef.Object);
+		NPCSkeletalMeshes.Add(ENPCType::RangedParasite, ParasiteMeshRef.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> RangedParasiteMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/ParasiteZombieBundle01/ParasiteZombie02/ParasiteZombie02_Character/SK_ParasiteZombie02.SK_ParasiteZombie02'"));
+	if (RangedParasiteMeshRef.Object)
+	{
+		NPCSkeletalMeshes.Add(ENPCType::RangedParasite, RangedParasiteMeshRef.Object);
 	}
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> HunterMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/ParasiteZombieBundle01/ParasiteZombie01/ParasiteZombie01_Character/SK_ParasiteZombie01.SK_ParasiteZombie01'"));
@@ -65,6 +73,12 @@ AIFCharacterNonPlayer::AIFCharacterNonPlayer()
 	if (ParasiteAnimInstanceClassRef.Class)
 	{
 		NPCAnimInstances.Add(ENPCType::Parasite, ParasiteAnimInstanceClassRef.Class);
+	}
+
+	static ConstructorHelpers::FClassFinder<UAnimInstance> RangedParasiteAnimInstanceClassRef(TEXT("/Game/Assets/Animation/Enemy/ABP_ParasiteRanged.ABP_ParasiteRanged_C"));
+	if (RangedParasiteAnimInstanceClassRef.Class)
+	{
+		NPCAnimInstances.Add(ENPCType::RangedParasite, RangedParasiteAnimInstanceClassRef.Class);
 	}
 
 	static ConstructorHelpers::FClassFinder<UAnimInstance> HunterAnimInstanceClassRef(TEXT("/Game/Assets/Animation/Enemy/ABP_Hunter.ABP_Hunter_C"));
@@ -143,10 +157,28 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 	GetCapsuleComponent()->SetCapsuleHalfHeight(MeshExtent.Z);
 	GetCapsuleComponent()->SetCapsuleRadius(FMath::Max(MeshExtent.X, MeshExtent.Y));
 
+	if (CurNPCType == ENPCType::RangedParasite)
+	{
+		ProjectileWeapon = GetWorld()->SpawnActor<AIFGunBase>(GunClass);
+		ProjectileWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("spine_03"));
+		ProjectileWeapon->SetOwner(this);
+		ProjectileWeapon->CachingOwner();
+		ProjectileWeapon->SetActorRotation(FRotator(0.f, 0.f, 90.f));
+	}
+
 	//UE_LOG(LogTemp, Warning, TEXT("MaxWalkSpeed : %f"), GetCharacterMovement()->MaxWalkSpeed);
 	//UE_LOG(LogTemp, Warning, TEXT("MovementSpeed : %f"), StatComp->GetBaseStat().MovementSpeed);
 	//UE_LOG(LogTemp, Warning, TEXT("MaxWalkSpeed2 : %f"), GetCharacterMovement()->MaxWalkSpeed);
 
+	const UEnum* EnumPtr = StaticEnum<ENPCBoneName>();
+	BodyDamageCheckMap.Empty();
+
+	for (int i = 0; i < EnumPtr->NumEnums()-1; i++)
+	{
+		int RandVal = FMath::RandRange(2, 5);
+
+		BodyDamageCheckMap.Add((ENPCBoneName)EnumPtr->GetValueByIndex(i), RandVal);
+	}
 
 	AnimInstance = Cast<UIFNonPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	if (AnimInstance)
@@ -157,6 +189,7 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 		AnimInstance->OnBackJumpEnd.BindUObject(this, &AIFCharacterNonPlayer::NotifyBackJumpActionEnd);
 		AnimInstance->OnBeforeMoving.BindUObject(this, &AIFCharacterNonPlayer::NotifyBeforeMovingActionEnd);
 	}
+
 
 	InitPhysicsAnimation();
 }
@@ -199,6 +232,7 @@ void AIFCharacterNonPlayer::SetAIWaitingDelegate(const FAICharacterWaitingFinish
 {
 	OnWaitingFinished.Unbind();
 	OnWaitingFinished = InOnWaitingFinished;
+
 }
 
 /// <summary>
@@ -297,7 +331,15 @@ float AIFCharacterNonPlayer::TakeDamage(float Damage, FDamageEvent const& Damage
 
 	if (const FCustomDamageEvent* CustomDamageEvent = static_cast<const FCustomDamageEvent*>(&DamageEvent))
 	{
-		PlayHitReaction(CustomDamageEvent->BoneName, CustomDamageEvent->HitResult);
+		//TODo Fix Enum
+		FString BoneNameStr = CustomDamageEvent->BoneName.ToString();
+		ENPCBoneName BoneEnum = UIFEnumDefine::StringToEnum(BoneNameStr);
+		BodyDamageCheckMap[BoneEnum] -= 1;
+
+		if (BodyDamageCheckMap[BoneEnum] <= 0)
+		{
+			PlayHitReaction(CustomDamageEvent->BoneName, CustomDamageEvent->HitResult);
+		}
 	}
 
 	FocusingTarget(DamageCauser);
@@ -307,6 +349,20 @@ float AIFCharacterNonPlayer::TakeDamage(float Damage, FDamageEvent const& Damage
 }
 
 void AIFCharacterNonPlayer::AttackHitCheck()
+{
+	if (CurNPCType == ENPCType::RangedParasite)
+	{
+		ProjectileWeapon->StartFire();
+		return;
+	}
+	else
+	{
+		MeleeAttackCheck();
+		return;
+	}
+}
+
+void AIFCharacterNonPlayer::MeleeAttackCheck()
 {
 	FHitResult OutHitResult;
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
@@ -340,6 +396,7 @@ void AIFCharacterNonPlayer::ChangeNPCMoveMode()
 {
 	CurNpcMoveType = ENPCMoveType::Crawling;
 	GetCharacterMovement()->MaxWalkSpeed = StatComp.Get()->GetBaseStat().CrawlMovementSpeed;
+	AnimInstance->StopAllMontages(0.0f);
 }
 
 float AIFCharacterNonPlayer::GetAIPatrolRadius()

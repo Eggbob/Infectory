@@ -4,10 +4,10 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/DamageEvents.h"
-#include "Data/IFEnumDefine.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/Character.h"
 #include "NiagaraComponent.h"
+#include "Item/IFProjectile.h"
 
 AIFGunBase::AIFGunBase()
 {
@@ -19,7 +19,7 @@ AIFGunBase::AIFGunBase()
 	Mesh->SetupAttachment(RootComp);
 }
 
-void AIFGunBase::Fire()
+void AIFGunBase::FireLineTrace()
 {
 	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, Mesh, TEXT("MuzzleFlashSocket"));
 
@@ -29,23 +29,19 @@ void AIFGunBase::Fire()
 	bool bSuccess = GunTrace(Hit, ShotDirection);
 	if (bSuccess)
 	{
-	//	DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Red, true);
 		AActor* HitActor = Hit.GetActor();
 		
 		if (HitActor != nullptr && HitActor->IsA(ACharacter::StaticClass()))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("HitActor : %s"), *Hit.BoneName.ToString());
+			//UE_LOG(LogTemp, Warning, TEXT("HitActor : %s"), *Hit.BoneName.ToString());
 
-			//FDamageEvent DamageEvent;
 			FCustomDamageEvent CustomDamageEvent;
+
 			CustomDamageEvent.BoneName = Hit.BoneName;
 			CustomDamageEvent.HitResult = Hit;
 
-			HitActor->TakeDamage(10.f, CustomDamageEvent, OwnerController, GetOwner());
+			GiveDamage(HitActor, CustomDamageEvent);
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodImpactEffect, Hit.Location, ShotDirection.Rotation());
-			/*FPointDamageEvent DmgeEvent(Damage, Hit, ShotDirection, nullptr);
-			AController* OwnerController = GetOwnerController();
-			HitActor->TakeDamage(Damage, DmgeEvent, OwnerController, this);*/
 		}
 		else
 		{
@@ -62,6 +58,26 @@ void AIFGunBase::Fire()
 	}
 }
 
+void AIFGunBase::GiveDamage(TObjectPtr<AActor> HitActor, FCustomDamageEvent& Hit)
+{
+	HitActor->TakeDamage(Damage, Hit, OwnerController, GetOwner());
+}
+
+
+void AIFGunBase::FireProjectile()
+{
+	FVector PlusVector = GetActorForwardVector() * 100.f;
+	PlusVector.Z = 0.f;
+	FVector SpawnLocation = Mesh->GetSocketTransform("MuzzleFlashSocket").GetLocation() + PlusVector;
+
+	TObjectPtr<AIFProjectile> Projectile = GetWorld()->SpawnActor<AIFProjectile>(ProjectileoBP, SpawnLocation, Owner.Get()->GetActorRotation());
+	Projectile.Get()->Init();
+	Projectile.Get()->OnAttack.BindLambda([&](TObjectPtr<AActor> HitActor){
+		FCustomDamageEvent CustomDamageEvent;
+		GiveDamage(HitActor, CustomDamageEvent);
+	}); 
+}
+
 void AIFGunBase::CachingOwner()
 {
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
@@ -71,11 +87,19 @@ void AIFGunBase::CachingOwner()
 
 void AIFGunBase::StartFire()
 {
-	Fire();
-
-	if (IsAuto)
+	switch (WeaponType)
 	{
-		GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AIFGunBase::Fire, FireDelayTime, true);
+	case ERangedWeaponType::LineTrace:
+		FireLineTrace();
+
+		if (IsAuto)
+		{
+			GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AIFGunBase::FireLineTrace, FireDelayTime, true);
+		}
+		break;
+	case ERangedWeaponType::Projectile:
+		FireProjectile();
+		break;
 	}
 }
 

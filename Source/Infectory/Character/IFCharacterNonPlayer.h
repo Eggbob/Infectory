@@ -63,6 +63,7 @@ protected:
 
 private:
 	void AttackHitCheck() override;
+	void MeleeAttackCheck();
 
 	UFUNCTION(BlueprintCallable)
 	void ChangeNPCMoveMode();
@@ -83,6 +84,12 @@ private:
 	ENPCMoveType CurNpcMoveType;
 
 	UPROPERTY()
+	TObjectPtr<class AIFGunBase> ProjectileWeapon;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class AIFGunBase> GunClass;
+
+	UPROPERTY()
 	TMap<ENPCType, TObjectPtr<class USkeletalMesh>> NPCSkeletalMeshes;
 	
 	UPROPERTY()
@@ -94,7 +101,6 @@ private:
 	UPROPERTY()
 	TObjectPtr<class AIFAIController> AIController;
 
-
-
-	
+	UPROPERTY()
+	TMap<ENPCBoneName, int32> BodyDamageCheckMap;
 };

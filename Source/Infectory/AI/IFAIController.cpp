@@ -5,6 +5,7 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "IFAI.h"
 
 AIFAIController::AIFAIController()
@@ -51,6 +52,23 @@ void AIFAIController::SetTarget(TObjectPtr<AActor> Target)
 
 	Blackboard.Get()->SetValueAsObject(BBKEY_TARGET, Target);
 	bHasTarget = true;
+}
+
+void AIFAIController::UpdateControlRotation(float DeltaTime, bool bUpdatePawn)
+{
+	Super::UpdateControlRotation(DeltaTime, bUpdatePawn);
+
+	if (bUpdatePawn)
+	{
+		const FRotator CurrentPawnRotation = GetPawn()->GetActorRotation();
+
+		SmoothTargetRotation = UKismetMathLibrary::RInterpTo_Constant(GetPawn()->GetActorRotation(), ControlRotation, DeltaTime, SmoothFocusInterpSpeed);
+
+		if (CurrentPawnRotation.Equals(SmoothTargetRotation, 1e-3f) == false)
+		{
+			GetPawn()->FaceRotation(SmoothTargetRotation, DeltaTime);
+		}
+	}
 }
 
 void AIFAIController::OnPossess(APawn* InPawn)

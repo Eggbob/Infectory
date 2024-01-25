@@ -21,9 +21,15 @@ public:
 	void RunAI();
 	void StopAI();
 	void SetTarget(TObjectPtr<AActor> Target);
+	virtual void UpdateControlRotation(float DeltaTime, bool bUpdatePawn = true) override;
 
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
+
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float SmoothFocusInterpSpeed = 60.0f;
 
 private:
 	UPROPERTY()
@@ -31,6 +37,8 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<class UBehaviorTree> BTAsset;
+
+	FRotator SmoothTargetRotation;
 
 	bool bHasTarget = false;
 };
