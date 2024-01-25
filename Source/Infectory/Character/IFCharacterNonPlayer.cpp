@@ -272,7 +272,8 @@ void AIFCharacterNonPlayer::PeformBackMoveAI()
 
 void AIFCharacterNonPlayer::PerformMoving()
 {
-	AnimInstance->PlayRandomIdleAnimaiton();
+	AIController->MoveToTarget(GetAIAttackRange());
+	//AnimInstance->PlayRandomIdleAnimaiton();
 }
 
 void AIFCharacterNonPlayer::PerformWaiting(bool bIsFirstContact)
@@ -283,7 +284,6 @@ void AIFCharacterNonPlayer::PerformWaiting(bool bIsFirstContact)
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]() 
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Waiting Finished"));
 			OnWaitingFinished.ExecuteIfBound();
 		}), WaitTime, false);
 
