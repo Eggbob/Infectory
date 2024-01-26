@@ -25,6 +25,16 @@ enum class ECharacterMoveType : uint8
 	Zooming
 };
 
+UENUM()
+enum class ECharacterState : uint8
+{
+	Idle,
+	Moving,
+	Hitting,
+	Attacking,
+	Dead
+};
+
 
 UENUM()
 enum class ENPCState : uint8

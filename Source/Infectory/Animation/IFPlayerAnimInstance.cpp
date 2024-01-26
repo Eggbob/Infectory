@@ -15,7 +15,6 @@ void UIFPlayerAnimInstance::AddRecoil()
 
 void UIFPlayerAnimInstance::PlayHitAnim()
 {
-	UE_LOG(LogTemp, Warning, TEXT("PlayHitAnim"));
 	Montage_Play(HitAnimation, 1.0f);
 }
 

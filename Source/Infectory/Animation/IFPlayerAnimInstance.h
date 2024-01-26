@@ -10,6 +10,7 @@ enum class ECharacterMoveType : uint8;
 enum class ECharacterControlType : uint8;
 
 DECLARE_DELEGATE_RetVal(FVector, FOnLeftIKChangeDelegate)
+DECLARE_DELEGATE(FOnHitAnimFinishedDelegate)
 /**
  * 
  */
@@ -34,12 +35,17 @@ public:
 	FVector LeftHandPosition;
 
 	FOnLeftIKChangeDelegate OnLeftIKChange;
+	FOnHitAnimFinishedDelegate OnHitAnimFinished;
 
 protected:
 	virtual void NativeInitializeAnimation() override;
 
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
+	UFUNCTION()
+	FORCEINLINE void AnimNotify_Hit() { OnHitAnimFinished.ExecuteIfBound(); }
+
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	float AimPitch;
 
