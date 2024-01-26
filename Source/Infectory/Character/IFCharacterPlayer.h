@@ -87,7 +87,7 @@ protected:
 	float MinPitchValue;
 
 	ECharacterControlType CurControlType;
-
+	ECharacterState CurCharacterState;
 	
 private:
 	UPROPERTY(EditDefaultsOnly)

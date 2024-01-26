@@ -111,6 +111,7 @@ void AIFCharacterPlayer::BeginPlay()
 
 	AnimInstance = Cast<UIFPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	AnimInstance->OnLeftIKChange.BindUObject(this, &AIFCharacterPlayer::GetGunHandPosition);
+	AnimInstance->OnHitAnimFinished.BindLambda([&]() { CurCharacterState = ECharacterState::Idle; });
 
 	StatComp->ForTest();
 	StatComp->bIsNPC = false;
@@ -176,6 +177,7 @@ void AIFCharacterPlayer::SetCharacterControl(ECharacterControlType NewCharacterC
 
 void AIFCharacterPlayer::OnHitAction()
 {
+	CurCharacterState = ECharacterState::Hitting;
 	AnimInstance.Get()->PlayHitAnim();
 
 	if (CurControlType == ECharacterControlType::Zoom)
@@ -188,9 +190,7 @@ void AIFCharacterPlayer::Shoot()
 {
 	IsFiring = IsFiring ? false : true ;
 
-	//UE_LOG(LogTemp, Warning, TEXT("Shoot"));
-
-	if (CurControlType == ECharacterControlType::Zoom && IsFiring)
+	if (CurControlType == ECharacterControlType::Zoom && IsFiring && CurCharacterState == ECharacterState::Idle)
 	{
 		Gun->FireGunDelegate.BindUObject(AnimInstance, &UIFPlayerAnimInstance::AddRecoil);
 		Gun->StartFire();
