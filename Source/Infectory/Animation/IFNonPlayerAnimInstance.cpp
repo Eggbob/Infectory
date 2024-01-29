@@ -56,6 +56,11 @@ void UIFNonPlayerAnimInstance::PlayRandomIdleAnimaiton()
 	), IdleAnimations[Index].Get()->GetPlayLength(), false);
 }
 
+void UIFNonPlayerAnimInstance::PlaySpecialHitAnimation()
+{
+		Montage_Play(SpecialHitAnimation, 1.0f);
+}
+
 void UIFNonPlayerAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();

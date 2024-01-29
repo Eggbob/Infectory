@@ -31,7 +31,7 @@ void AIFGunBase::FireLineTrace()
 	{
 		AActor* HitActor = Hit.GetActor();
 		
-		if (HitActor != nullptr && HitActor->IsA(ACharacter::StaticClass()))
+		if (HitActor != nullptr)
 		{
 			//UE_LOG(LogTemp, Warning, TEXT("HitActor : %s"), *Hit.BoneName.ToString());
 
@@ -41,6 +41,10 @@ void AIFGunBase::FireLineTrace()
 			CustomDamageEvent.HitResult = Hit;
 
 			GiveDamage(HitActor, CustomDamageEvent);
+		}
+
+		if (HitActor->IsA(ACharacter::StaticClass()))
+		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodImpactEffect, Hit.Location, ShotDirection.Rotation());
 		}
 		else
