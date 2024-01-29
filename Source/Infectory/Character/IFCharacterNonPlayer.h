@@ -90,6 +90,12 @@ private:
 	TSubclassOf<class AIFGunBase> GunClass;
 
 	UPROPERTY()
+	TObjectPtr<class AIFShield> ShieldObject;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class AIFShield> ShieldClass;
+
+	UPROPERTY()
 	TMap<ENPCType, TObjectPtr<class USkeletalMesh>> NPCSkeletalMeshes;
 	
 	UPROPERTY()

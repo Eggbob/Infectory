@@ -10,6 +10,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AI/IFAI.h"
 #include "Item/IFGunBase.h"
+#include "Item/IFShield.h"
 #include "Animation/IFNonPlayerAnimInstance.h"
 
 
@@ -57,6 +58,11 @@ AIFCharacterNonPlayer::AIFCharacterNonPlayer()
 		NPCSkeletalMeshes.Add(ENPCType::Boomer, BoomerMeshRef.Object);
 	}
 
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> BigBoomerMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/ParasiteZombieBundle01/ParasiteZombie03/ParasiteZombie03_Character/SM_BoomerShield.SM_BoomerShield'"));
+	if (BigBoomerMeshRef.Object)
+	{
+		NPCSkeletalMeshes.Add(ENPCType::BigBoomer, BigBoomerMeshRef.Object);
+	}
 	
 
 #pragma endregion
@@ -99,6 +105,11 @@ AIFCharacterNonPlayer::AIFCharacterNonPlayer()
 		NPCAnimInstances.Add(ENPCType::Boomer, BoomerAnimInstanceClassRef.Class);
 	}
 
+	static ConstructorHelpers::FClassFinder<UAnimInstance> BigBoomerAnimInstanceClassRef(TEXT("/Game/Assets/Animation/Enemy/ABP_BigBoomer.ABP_BigBoomer_C"));
+	if (BigBoomerAnimInstanceClassRef.Class)
+	{
+		NPCAnimInstances.Add(ENPCType::BigBoomer, BigBoomerAnimInstanceClassRef.Class);
+	}
 
 #pragma endregion
 
@@ -165,6 +176,19 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 		ProjectileWeapon->CachingOwner();
 		ProjectileWeapon->SetActorRotation(FRotator(0.f, 0.f, 90.f));
 	}
+	else if (CurNPCType == ENPCType::BigBoomer)
+	{
+		ShieldObject = GetWorld()->SpawnActor<AIFShield>(ShieldClass);
+		ShieldObject.Get()->SetOwner(this);
+		ShieldObject.Get()->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("shieldsocket"));
+
+		ShieldObject.Get()->SetShieldDestoryedDelegate(FOnShieldDestoryed::CreateLambda([&]()
+			{
+				AIController.Get()->StopAI();
+				GetCharacterMovement()->StopActiveMovement();
+				AnimInstance.Get()->PlaySpecialHitAnimation();
+			}));
+	}
 
 	//UE_LOG(LogTemp, Warning, TEXT("MaxWalkSpeed : %f"), GetCharacterMovement()->MaxWalkSpeed);
 	//UE_LOG(LogTemp, Warning, TEXT("MovementSpeed : %f"), StatComp->GetBaseStat().MovementSpeed);
@@ -188,6 +212,9 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 		AnimInstance->OnBackJump.BindUObject(this, &AIFCharacterNonPlayer::StartBackJump);
 		AnimInstance->OnBackJumpEnd.BindUObject(this, &AIFCharacterNonPlayer::NotifyBackJumpActionEnd);
 		AnimInstance->OnBeforeMoving.BindUObject(this, &AIFCharacterNonPlayer::NotifyBeforeMovingActionEnd);
+		AnimInstance->OnHitEnd.BindLambda([&]() { 
+			AIController.Get()->RunAI();
+		});
 	}
 
 

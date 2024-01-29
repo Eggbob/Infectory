@@ -11,6 +11,8 @@ DECLARE_DELEGATE(FOnAttackEndDelegate);
 DECLARE_DELEGATE(FOnBackJumpEndDelegate);
 DECLARE_DELEGATE(FOnBackJumpDelegate);
 DECLARE_DELEGATE(FOnBeforeMovingDelegate);
+DECLARE_DELEGATE(FOnHitEndDelegate);
+
 
 /**
  * 
@@ -27,11 +29,13 @@ public:
 	void PlayAttackAnimation(float AttackSpeed);
 	void PlayBackJumpAnimation();
 	void PlayRandomIdleAnimaiton();
+	void PlaySpecialHitAnimation();
 
 	FOnAttackEndDelegate OnAttackEnd;
 	FOnBackJumpEndDelegate OnBackJumpEnd;
 	FOnBackJumpDelegate OnBackJump;
 	FOnBeforeMovingDelegate OnBeforeMoving;
+	FOnHitEndDelegate OnHitEnd;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	ENPCState CurNpcState;
@@ -46,6 +50,9 @@ protected:
 	UFUNCTION()
 	FORCEINLINE void AnimNotify_BackJump() { OnBackJump.ExecuteIfBound(); }
 
+	UFUNCTION()
+	FORCEINLINE void AnimNotify_OnHitEnd() { OnHitEnd.ExecuteIfBound(); }
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TArray<TObjectPtr<class UAnimMontage>> IdleAnimations;
 
@@ -54,6 +61,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> BackJumpAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> SpecialHitAnimation;
 
 private:
 	TObjectPtr<class UIFFootIkComponent> FootIkComponent;
