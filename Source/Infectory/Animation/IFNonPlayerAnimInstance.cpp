@@ -89,6 +89,9 @@ void UIFNonPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		CurNpcState = DefineTypePawn.GetInterface()->GetNPCState();
 		CurNpcMoveType = DefineTypePawn.GetInterface()->GetNPCMoveType();
+
+		bIsTurnRight = CurRotation > 0.3f ? true : false;
+		bIsTurnLeft = CurRotation < -0.3f ? true : false;
 	}
 }
 
@@ -96,7 +99,7 @@ void UIFNonPlayerAnimInstance::PlayHitAnim()
 {
 	if (CurNpcMoveType == ENPCMoveType::Crawling) return;
 
-	if (CurNpcState == ENPCState::Idle || CurNpcState == ENPCState::Moving)
+	if (CurNpcState == ENPCState::Moving || CurNpcState == ENPCState::Idle)
 	{
 		Montage_Play(HitAnimations[FMath::RandRange(0, HitAnimations.Num()-1)], 1.0f);
 	}

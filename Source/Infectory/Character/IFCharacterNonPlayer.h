@@ -78,6 +78,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = NPC)
 	bool bIsJustSpawn;
 
+
 private:
 	ENPCState CurNpcState;
 

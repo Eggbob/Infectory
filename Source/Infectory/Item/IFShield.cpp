@@ -39,6 +39,8 @@ float AIFShield::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACont
 	{
 		OnShieldDestoryed.ExecuteIfBound();
 		SetActorHiddenInGame(true);
+		SetActorEnableCollision(false);
+		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		//Destroy();
 	}
 

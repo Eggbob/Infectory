@@ -32,6 +32,7 @@ enum class ECharacterState : uint8
 	Moving,
 	Hitting,
 	Attacking,
+	Reloading,
 	Dead
 };
 
@@ -75,7 +76,8 @@ enum class ENPCType : uint8
 UENUM()
 enum class ERangedWeaponType : uint8
 {
-	LineTrace,
+	Rifle,
+	ShotGun,
 	Projectile
 };
 

@@ -41,12 +41,10 @@ void UIFAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		CurVelocity = Movement->Velocity;
 		GroundSpeed = FMath::Lerp(GroundSpeed,FVector::DotProduct(CurVelocity, AnimOwner->GetActorForwardVector()), 0.05f);
-		//GroundSpeed = FMath::Lerp(GroundSpeed, CurVelocity.Size2D(), 0.05f); 
 		bIsIdle = GroundSpeed < MovingThreshould;
 		bIsFalling = Movement->IsFalling();
 		bIsJumping = bIsFalling & (CurVelocity.Z > JumpingThreshould);
 		CurRotation = FMath::Lerp(CurRotation,FVector::DotProduct(CurVelocity, AnimOwner->GetActorRightVector()), 0.05f);
-		//UE_LOG(LogTemp, Warning, TEXT("%f"), GroundSpeed);
 	}
 
 	TickIKFoot();

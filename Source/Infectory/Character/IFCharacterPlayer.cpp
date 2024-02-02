@@ -12,6 +12,7 @@
 #include "Character/IFCharacterMovementData.h"
 #include "Stat/IFStatComponent.h"
 #include "Item/IFGunBase.h"
+#include "UI/IFUserWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Animation/IFPlayerAnimInstance.h"
 
@@ -71,6 +72,12 @@ AIFCharacterPlayer::AIFCharacterPlayer()
 		AttackAction = InputActionAttackRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionReloadRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Assets/Input/Actions/IA_Reload.IA_Reload'"));
+	if (nullptr != InputActionReloadRef.Object)
+	{
+		ReloadAction = InputActionReloadRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionToggleAimRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Assets/Input/Actions/IA_ToggleAim.IA_ToggleAim'"));
 	if (nullptr != InputActionToggleAimRef.Object)
 	{
@@ -105,13 +112,18 @@ void AIFCharacterPlayer::BeginPlay()
 	SetCharacterControl(CurControlType);
 
 	Gun = GetWorld()->SpawnActor<AIFGunBase>(GunClass);
-	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
+	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("RifleWeaponSocket"));
 	Gun->SetOwner(this);
 	Gun->CachingOwner();
+
+	UserWidget->UpdateAmmoState(Gun->GetCurAmmo(), Gun->GetTotalAmmo());
+
+	Gun.Get()->AmmoChangedDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateAmmoState);
 
 	AnimInstance = Cast<UIFPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	AnimInstance->OnLeftIKChange.BindUObject(this, &AIFCharacterPlayer::GetGunHandPosition);
 	AnimInstance->OnHitAnimFinished.BindLambda([&]() { CurCharacterState = ECharacterState::Idle; });
+	AnimInstance->OnReloadFinished.BindLambda([&]() { CurCharacterState = ECharacterState::Idle; });
 
 	StatComp->ForTest();
 	StatComp->bIsNPC = false;
@@ -201,6 +213,14 @@ void AIFCharacterPlayer::Shoot()
 	}
 }
 
+void AIFCharacterPlayer::Reload()
+{
+	if (IsFiring) return;
+	CurCharacterState = ECharacterState::Reloading;
+	AnimInstance.Get()->PlayReloadAnim();
+	Gun->Reload();
+}
+
 /// <summary>
 /// 캐릭터 컨트롤러 데이터 설정
 /// </summary>
@@ -237,16 +257,28 @@ void AIFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(ShoulderMoveAction, ETriggerEvent::Completed, this, &AIFCharacterPlayer::ShoulderMoveFinish);
 	EnhancedInputComponent->BindAction(ShoulderLookAction, ETriggerEvent::Triggered, this, &AIFCharacterPlayer::ShoulderLook);
 	EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::PerformRun);
-	//EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Completed, this, &AIFCharacterPlayer::PerformRun);
 	EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::PerformCrouch);
 	EnhancedInputComponent->BindAction(ToggleAimAction, ETriggerEvent::Triggered, this, &AIFCharacterPlayer::ChangeCharacterControl);
 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::Shoot);
 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Completed, this, &AIFCharacterPlayer::Shoot);
+	EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Triggered, this, &AIFCharacterPlayer::Reload);
 }
 
 FVector AIFCharacterPlayer::GetGunHandPosition()
 {
 	return Gun->GetWeaponSocket();
+}
+
+void AIFCharacterPlayer::SetupUserWidget(TObjectPtr<UIFUserWidget> InUserWidget)
+{
+	if (InUserWidget)
+	{
+		UserWidget = InUserWidget;
+
+	/*	InUserWidget->UpdateAmmoState(Gun->GetCurAmmo(), Gun->GetTotalAmmo());
+
+		Gun.Get()->ReloadDelegate.BindUObject(InUserWidget, &UIFUserWidget::UpdateAmmoState);*/
+	}
 }
 
 void AIFCharacterPlayer::ShoulderMove(const FInputActionValue& Value)
@@ -300,16 +332,6 @@ void AIFCharacterPlayer::ShoulderLook(const FInputActionValue& Value)
 	// Pitch 회전값에 따라 Pitch 회전을 조절
 	AddControllerPitchInput(LookAxisVector.Y);
 
-	//if (GetController()->GetControlRotation().Pitch > 25.f)
-	//{
-	//	FollowCamera->FieldOfView = 45.f;
-	//}
-	//else
-	//{
-	//	FollowCamera->FieldOfView = 75.0f;
-	//}
-
-	//UE_LOG(LogTemp, Warning, TEXT("%f"), GetController()->GetControlRotation().Pitch);
 }
 
 void AIFCharacterPlayer::ShoulderMoveFinish()

@@ -1,0 +1,29 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "UI/IFUserWidget.h"
+#include "UI/IFCrossHairWidget.h"
+#include "UI/IFAmmoWidget.h"
+#include "Interface/IFUserWidgetInterface.h"
+
+void UIFUserWidget::UpdateAmmoState(int32 CurAmmo, int32 TotalAmmo)
+{
+	if (AmmoWidget)
+	{
+		AmmoWidget->SetAmmoText(CurAmmo, TotalAmmo);
+	}
+}
+
+void UIFUserWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	CrossHairWidget = Cast<UIFCrossHairWidget>(GetWidgetFromName(TEXT("BP_CrossHair")));
+	AmmoWidget = Cast<UIFAmmoWidget>(GetWidgetFromName(TEXT("BP_AmmoInterface")));
+
+	IIFUserWidgetInterface* UserWidgetInterface = Cast<IIFUserWidgetInterface>(GetOwningPlayerPawn());
+	if (UserWidgetInterface)
+	{
+		UserWidgetInterface->SetupUserWidget(this);
+	}
+}
