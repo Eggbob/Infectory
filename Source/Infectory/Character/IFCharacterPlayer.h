@@ -6,11 +6,12 @@
 #include "IFCharacterBase.h"
 #include "InputActionValue.h"
 #include "Interface/IFGetDefineTypeInterface.h"
+#include "Interface/IFUserWidgetInterface.h"
 #include "IFCharacterPlayer.generated.h"
 
 
 UCLASS()
-class INFECTORY_API AIFCharacterPlayer : public AIFCharacterBase, public IIFGetDefineTypeInterface
+class INFECTORY_API AIFCharacterPlayer : public AIFCharacterBase, public IIFGetDefineTypeInterface, public IIFUserWidgetInterface
 {
 	GENERATED_BODY()
 	
@@ -28,6 +29,7 @@ protected:
 	virtual void BeginPlay() override;
 	void ChangeCharacterControl();
 	void SetCharacterControlData(const class UIFCharacterControlData* CharacterControlData);
+	void SetupUserWidget(TObjectPtr<class UIFUserWidget> InUserWidget) override;
 	void SetCharacterControl(ECharacterControlType NewCharacterControlType);
 	void OnHitAction();
 
@@ -37,6 +39,7 @@ protected:
 	void PerformRun();
 	void PerformCrouch();
 	void Shoot();
+	void Reload();
 
 
 private:
@@ -66,13 +69,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class UInputAction> CrouchAction;
 
-	//공격 인풋 액션
+	//이동 인풋 액션
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class UInputAction> RunAction;
 
 	//공격 인풋 액션
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class UInputAction> AttackAction;
+
+	//재장전 인풋 액션
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
+	TObjectPtr<class UInputAction> ReloadAction;
 
 	UPROPERTY(EditAnywhere, Category = CharacterControl, Meta = (AllowPrivateAccess = "true"))
 	TMap<ECharacterControlType, class UIFCharacterControlData*> CharacterControlManager;
@@ -102,6 +109,11 @@ private:
 	UPROPERTY()
 	ECharacterMoveType CurMoveType;
 
+	UPROPERTY()
+	TObjectPtr<UIFUserWidget> UserWidget;
+
 	bool IsFiring = false;
+
+
 
 };

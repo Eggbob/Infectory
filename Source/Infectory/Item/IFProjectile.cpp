@@ -8,21 +8,23 @@
 AIFProjectile::AIFProjectile()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComp"));
-	SetRootComponent(StaticMeshComp);
-
+	
 	CapsuleComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CAPSULECOMP"));
-	CapsuleComp->SetupAttachment(StaticMeshComp);
+	//CapsuleComp->SetupAttachment(StaticMeshComp);
 	CapsuleComp->SetCapsuleHalfHeight(34.f);
 	CapsuleComp->SetCapsuleRadius(10.f);
 	CapsuleComp->SetGenerateOverlapEvents(true);
+	SetRootComponent(CapsuleComp);
+
+	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComp"));
+	StaticMeshComp->SetupAttachment(CapsuleComp);
 }
 
 void AIFProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!bIsCollisioned)
+	/*if (!bIsCollisioned)
 	{
 		Super::Tick(DeltaTime);
 		SetActorLocationAndRotation((GetActorLocation() + GetActorForwardVector() * (MoveSpeed * DeltaTime)), GetActorRotation());
@@ -32,8 +34,9 @@ void AIFProjectile::Tick(float DeltaTime)
 	if (checkTime >= ReturnTime || bIsCollisioned)
 	{
 		DeInit();
-	}
+	}*/
 }
+
 
 void AIFProjectile::NotifyActorBeginOverlap(AActor* OtherActor)
 {
@@ -47,7 +50,7 @@ void AIFProjectile::NotifyActorBeginOverlap(AActor* OtherActor)
 		bIsCollisioned = true;
 	}
 
-	GetWorld()->DestroyActor(this);
+	//GetWorld()->DestroyActor(this);
 }
 
 void AIFProjectile::Init()

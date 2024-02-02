@@ -8,14 +8,32 @@ UIFPlayerAnimInstance::UIFPlayerAnimInstance()
 
 }
 
-void UIFPlayerAnimInstance::AddRecoil()
+void UIFPlayerAnimInstance::AddRecoil(ERangedWeaponType RangedWeaponType)
 {
 	RecoilAlpha = 1.0f;
+	RecoilRotation = WeaponRecoilVectorMap[RangedWeaponType];
 }
 
 void UIFPlayerAnimInstance::PlayHitAnim()
 {
-	Montage_Play(HitAnimation, 1.0f);
+	Montage_Play(HitAnimations[FMath::RandRange(0, HitAnimations.Num() - 1)], 1.0f);
+}
+
+void UIFPlayerAnimInstance::PlayReloadAnim()
+{
+	if (IsValid(ReloadAnimation))
+	{
+		Montage_Play(ReloadAnimation, 1.0f);
+
+		FTimerHandle TimerHandle;
+
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle,FTimerDelegate::CreateLambda(
+			[&]()
+			{
+				OnReloadFinished.ExecuteIfBound();
+			}
+		), ReloadAnimation.Get()->GetPlayLength(), false);
+	}
 }
 
 void UIFPlayerAnimInstance::NativeInitializeAnimation()
@@ -39,4 +57,5 @@ void UIFPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		LeftHandPosition = OnLeftIKChange.Execute();
 	}
 }
+
 

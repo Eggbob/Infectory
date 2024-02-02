@@ -22,6 +22,8 @@ public:
 	void Init();
 	void DeInit();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void TestFunc();
 
 public:
 	OnAttackDelegate OnAttack;

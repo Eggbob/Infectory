@@ -31,6 +31,18 @@ public:
 	void PlayRandomIdleAnimaiton();
 	void PlaySpecialHitAnimation();
 
+protected:
+	virtual void NativeInitializeAnimation() override;
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+
+	UFUNCTION()
+	FORCEINLINE void AnimNotify_BackJump() { OnBackJump.ExecuteIfBound(); }
+
+	UFUNCTION()
+	FORCEINLINE void AnimNotify_OnHitEnd() { OnHitEnd.ExecuteIfBound(); }
+
+
+public:
 	FOnAttackEndDelegate OnAttackEnd;
 	FOnBackJumpEndDelegate OnBackJumpEnd;
 	FOnBackJumpDelegate OnBackJump;
@@ -44,15 +56,12 @@ public:
 	ENPCMoveType CurNpcMoveType;
 
 protected:
-	virtual void NativeInitializeAnimation() override;
-	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	bool bIsTurnLeft;
 
-	UFUNCTION()
-	FORCEINLINE void AnimNotify_BackJump() { OnBackJump.ExecuteIfBound(); }
-
-	UFUNCTION()
-	FORCEINLINE void AnimNotify_OnHitEnd() { OnHitEnd.ExecuteIfBound(); }
-
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	bool bIsTurnRight;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TArray<TObjectPtr<class UAnimMontage>> IdleAnimations;
 

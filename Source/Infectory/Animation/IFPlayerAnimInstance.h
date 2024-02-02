@@ -8,9 +8,12 @@
 
 enum class ECharacterMoveType : uint8;
 enum class ECharacterControlType : uint8;
+enum class ERangedWeaponType : uint8;
 
 DECLARE_DELEGATE_RetVal(FVector, FOnLeftIKChangeDelegate)
 DECLARE_DELEGATE(FOnHitAnimFinishedDelegate)
+DECLARE_DELEGATE(FOnReloadFinishedDelegate)
+
 /**
  * 
  */
@@ -21,9 +24,10 @@ class INFECTORY_API UIFPlayerAnimInstance : public UIFAnimInstance
 	
 public:
 	UIFPlayerAnimInstance();
-	void AddRecoil();
-	
 	virtual void PlayHitAnim() override;
+	
+	void AddRecoil(ERangedWeaponType RangedWeaponType);
+	void PlayReloadAnim();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	ECharacterMoveType CurMoveType;
@@ -36,6 +40,7 @@ public:
 
 	FOnLeftIKChangeDelegate OnLeftIKChange;
 	FOnHitAnimFinishedDelegate OnHitAnimFinished;
+	FOnReloadFinishedDelegate OnReloadFinished;
 
 protected:
 	virtual void NativeInitializeAnimation() override;
@@ -58,6 +63,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	FRotator RecoilRotation = FRotator(-5.0f, 0.0f, 0.0f);
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+	TMap<ERangedWeaponType, FRotator> WeaponRecoilVectorMap;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UAnimMontage> HitAnimation;
+	TObjectPtr<class UAnimMontage> ReloadAnimation;
 };
