@@ -112,7 +112,7 @@ void AIFCharacterPlayer::BeginPlay()
 	SetCharacterControl(CurControlType);
 
 	Gun = GetWorld()->SpawnActor<AIFGunBase>(GunClass);
-	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("LauncherWeaponSocket"));
+	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("RifleWeaponSocket"));
 	Gun->SetOwner(this);
 	Gun->CachingOwner();
 
