@@ -98,13 +98,15 @@ void UIFNonPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 void UIFNonPlayerAnimInstance::PlayHitAnim()
 {
-	PlayAnimation();
+	Montage_Play(HitAnimations[FMath::RandRange(0, HitAnimations.Num() - 1)], 1.0f);
+	//UE_LOG(LogTemp, Warning, TEXT("PlayHitAnim"));
+
+	//PlayAnimation();
 	if (CurNpcMoveType == ENPCMoveType::Crawling) return;
 
 	if (CurNpcState == ENPCState::Moving || CurNpcState == ENPCState::Idle)
 	{
-		//Montage_Play(HitAnimations[FMath::RandRange(0, HitAnimations.Num()-1)], 1.0f);
-		//UE_LOG(LogTemp, Warning, TEXT("PlayHitAnim"));
+		
 
 	}
 }
