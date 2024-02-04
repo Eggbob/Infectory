@@ -5,10 +5,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Data/IFEnumDefine.h"
+#include "Data/IFGunStat.h"
 #include "IFGunBase.generated.h"
+
 
 DECLARE_DELEGATE_OneParam(FOnFireGun, ERangedWeaponType);
 DECLARE_DELEGATE_TwoParams(FOnReload, int32, int32); //현재 장탄수, 총 총알 수
+
+#define MuzzleSocket "MuzzleFlashSocket"
 
 UCLASS()
 class INFECTORY_API AIFGunBase : public AActor
@@ -29,6 +33,7 @@ public:
 
 	FORCEINLINE int32 GetCurAmmo() const { return CurrentAmmo; }
 	FORCEINLINE int32 GetTotalAmmo() const { return TotalAmmo; }
+	FORCEINLINE ERangedWeaponType GetWeaponType() const { return WeaponType; }
 
 	UFUNCTION(Blueprintcallable)
 	FVector GetWeaponSocket();
@@ -51,14 +56,17 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USceneComponent> RootComp;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TObjectPtr<USkeletalMeshComponent> Mesh;
 
-	UPROPERTY(EditAnyWhere, BlueprintReadOnly)
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	TObjectPtr<class UNiagaraComponent> NiagaraComp;
 
-	UPROPERTY(EditAnyWhere, BlueprintReadOnly)
-	TSubclassOf<class AIFProjectile> ProjectileoBP;
+	UPROPERTY(EditAnyWhere)
+	TSubclassOf<class AIFProjectile> ProjectileBP;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	TSubclassOf<AActor> TracerEffect;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	ERangedWeaponType WeaponType = ERangedWeaponType::Rifle;
@@ -69,8 +77,8 @@ protected:
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	float SpreadRange = 1000;
 
-	UPROPERTY(EditAnyWhere)
-	float Damage = 10;
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	int32 Damage = 10;
 
 	//총 총알 수
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
@@ -84,23 +92,28 @@ protected:
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	int32 MagazineCapacity;
 
-	UPROPERTY(EditAnyWhere)
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	float FireDelayTime = 0.2f; //발사 딜레이
 	
-	UPROPERTY(EditAnyWhere)
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	float ProjectileSpeed = 1000;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	FIFGunStat GunStat;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	TObjectPtr<UParticleSystem> MuzzleFlash;
 
-	UPROPERTY(EditAnyWhere)
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	TObjectPtr<UParticleSystem> ImpactEffect;
 
-	UPROPERTY(EditAnyWhere)
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	TObjectPtr<UParticleSystem> BloodImpactEffect;
 
-	FTimerHandle FireTimerHandle;
-
-
 private:
+	bool IsAuto = true;
+	
+	FTimerHandle FireTimerHandle;
 	TArray<FHitResult> HitResults;
 
-	bool IsAuto = true;
 };

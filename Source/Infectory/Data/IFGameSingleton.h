@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "IFCharacterStat.h"
+#include "IFGunStat.h"
 #include "Data/IFEnumDefine.h"
 #include "IFGameSingleton.generated.h"
 
@@ -22,8 +23,16 @@ public:
 
 public:
 	FIFCharacterStat GetCharacterStat(FName NpcName, FName NPCTier) const;
+	FIFGunStat GetGunStat(FName GunName) const;
 
 private:
-	TMap<TPair<FName, FName>, FIFCharacterStat> CharacterStatMap;
+	UPROPERTY()
 	TObjectPtr<class UDataTable> CharacterStatTable;
+
+	TMap<TPair<FName, FName>, FIFCharacterStat> CharacterStatMap;
+
+	UPROPERTY()
+	TObjectPtr<class UDataTable> GunStatTable;
+
+	TMap<FName, FIFGunStat> GunStatMap;
 };

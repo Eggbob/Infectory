@@ -370,6 +370,8 @@ float AIFCharacterNonPlayer::TakeDamage(float Damage, FDamageEvent const& Damage
 		{
 			PlayHitReaction(CustomDamageEvent->BoneName, CustomDamageEvent->HitResult);
 		}
+
+		//PlayHitReaction(CustomDamageEvent->BoneName, CustomDamageEvent->HitResult);
 	}
 
 	FocusingTarget(DamageCauser);
