@@ -23,7 +23,7 @@ public:
 	FORCEINLINE virtual ECharacterControlType GetPlayerControlType() override { return CurControlType; }
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE class AIFGunBase* GetCurGun() { return Gun.Get(); }
+	FORCEINLINE class AIFGunBase* GetCurGun() { return CurGun.Get(); }
 
 protected:
 	virtual void BeginPlay() override;
@@ -41,9 +41,13 @@ protected:
 	void Shoot();
 	void Reload();
 
+	void ChangeWeapon1();
+	void ChangeWeapon2();
+	void ChangeWeapon3();
 
 private:
 	FVector GetGunHandPosition();
+	void SetGunPos();
 
 protected:
 	//카메라 Arm
@@ -81,8 +85,18 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class UInputAction> ReloadAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
+	TObjectPtr<class UInputAction> ChangeWeaponAction1;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
+	TObjectPtr<class UInputAction> ChangeWeaponAction2;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
+	TObjectPtr<class UInputAction> ChangeWeaponAction3;
+
 	UPROPERTY(EditAnywhere, Category = CharacterControl, Meta = (AllowPrivateAccess = "true"))
 	TMap<ECharacterControlType, class UIFCharacterControlData*> CharacterControlManager;
+
+	UPROPERTY(EditAnywhere, Category = CharacterControl, Meta = (AllowPrivateAccess = "true"))
+	TMap<ERangedWeaponType, FName> WeaponSocketMap;
 
 	UPROPERTY(EditAnywhere, Category = CharacterControl, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UIFCharacterMovementData> CharacterMovemntData;
@@ -97,11 +111,11 @@ protected:
 	ECharacterState CurCharacterState;
 	
 private:
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class AIFGunBase> GunClass;
+	UPROPERTY()
+	TObjectPtr<class AIFGunBase> CurGun;
 
 	UPROPERTY()
-	TObjectPtr<class AIFGunBase> Gun;
+	TObjectPtr<class UIFInventory> Inventory;
 
 	UPROPERTY()
 	TObjectPtr<class UIFPlayerAnimInstance> AnimInstance;
@@ -111,6 +125,7 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UIFUserWidget> UserWidget;
+
 
 	bool IsFiring = false;
 

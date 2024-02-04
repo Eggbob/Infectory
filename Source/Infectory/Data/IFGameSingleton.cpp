@@ -22,6 +22,25 @@ UIFGameSingleton::UIFGameSingleton()
 			}
 		}
 	}
+
+
+	static ConstructorHelpers::FObjectFinder<UDataTable> GunDataTableRef(TEXT("/Script/Engine.DataTable'/Game/Assets/GameData/IFGunStatTable.IFGunStatTable'"));
+	if(GunDataTableRef.Object)
+	{
+		GunStatTable = GunDataTableRef.Object;
+
+		TArray<FName> RowNames = GunStatTable->GetRowNames();
+
+		for (FName& RName : RowNames)
+		{
+			FIFGunStat* GunStat = GunStatTable->FindRow<FIFGunStat>(RName, TEXT(""));
+
+			if (nullptr != GunStat)
+			{
+				GunStatMap.Add((FName)GunStat->Name, *GunStat);
+			}
+		}
+	}
 }
 
 UIFGameSingleton& UIFGameSingleton::Get()
@@ -47,6 +66,19 @@ FIFCharacterStat UIFGameSingleton::GetCharacterStat(FName NpcName, FName NPCTier
 		UE_LOG(LogTemp, Error, TEXT("Invalid Character Stat"));
 		return FIFCharacterStat();
 	}
-
-	//return CharacterStatMap.Contains(TPair<FName, ENPCTier>(NpcName, NPCTier)) ? CharacterStatMap[TPair<FName, ENPCTier>(NpcName, NPCTier)] : FIFCharacterStat();
 }
+
+FIFGunStat UIFGameSingleton::GetGunStat(FName GunName) const
+{
+	if (GunStatMap.Contains(GunName))
+	{
+		return GunStatMap[GunName];
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invalid Gun Stat"));
+		return FIFGunStat();
+	}
+}
+
+

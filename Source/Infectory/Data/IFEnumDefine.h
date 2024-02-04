@@ -78,7 +78,8 @@ enum class ERangedWeaponType : uint8
 {
 	Rifle,
 	ShotGun,
-	Projectile
+	Projectile,
+	EnemyProjectile
 };
 
 UENUM()

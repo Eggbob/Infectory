@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "Data/IFEnumDefine.h"
 #include "IFInventory.generated.h"
 
 /**
@@ -13,9 +14,16 @@ UCLASS()
 class INFECTORY_API UIFInventory : public UObject
 {
 	GENERATED_BODY()
-	
+
+public:
+	UIFInventory();
+
+	void InitInventory(UWorld * World);
+
+	TObjectPtr<class AIFGunBase> GetRangedWeapon(ERangedWeaponType WeaponType);
 
 private:
+	TMap<ERangedWeaponType, TObjectPtr<class AIFGunBase>> RangedWeapon;
 
-	
+	TMap<ERangedWeaponType, TSubclassOf<class AIFGunBase>> RangedWeaponBP;
 };

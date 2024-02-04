@@ -18,34 +18,43 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
-	void SetMoveSpeed(float Speed) { MoveSpeed = Speed; }
-	void Init();
+	void ExcuteAttack(AActor* OtherActor);
+	void Init(float Speed);
 	void DeInit();
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void TestFunc();
+private:
+	void CheckAttackRange();
 
 public:
 	OnAttackDelegate OnAttack;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pawn, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ammo, Meta = (AllowPrivateAccess = true))
 	float ReturnTime = 3.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pawn, Meta = (AllowPrivateAccess = true))
-	TObjectPtr<class UCapsuleComponent> CapsuleComp;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pawn, Meta = (AllowPrivateAccess = true))
-	TObjectPtr<class UStaticMeshComponent> StaticMeshComp;
-
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = Ammo, Meta = (AllowPrivateAccess = true))
+	TObjectPtr<UParticleSystem> ImpactEffect;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
-	float MoveSpeed = 600.f;
+	TObjectPtr<class UCapsuleComponent> CapsuleComp;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
+	TObjectPtr<class UStaticMeshComponent> StaticMeshComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
+	TObjectPtr<class UProjectileMovementComponent> ProjectileMovementComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
+	float MoveSpeed = 600.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	bool bIsCollisioned;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	bool bIsDeInit;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
+	bool bIsExplosive;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	float checkTime = 0.f;
+
+
+
 };

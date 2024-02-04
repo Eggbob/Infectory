@@ -31,6 +31,9 @@ public:
 	void PlayRandomIdleAnimaiton();
 	void PlaySpecialHitAnimation();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayAnimation();
+
 protected:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;

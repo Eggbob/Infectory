@@ -14,7 +14,9 @@
 #include "Item/IFGunBase.h"
 #include "UI/IFUserWidget.h"
 #include "Kismet/GameplayStatics.h"
+#include "Item/IFInventory.h"
 #include "Animation/IFPlayerAnimInstance.h"
+
 
 AIFCharacterPlayer::AIFCharacterPlayer()
 {
@@ -84,6 +86,22 @@ AIFCharacterPlayer::AIFCharacterPlayer()
 		ToggleAimAction = InputActionToggleAimRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> ChangeWeapon1Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/Assets/Input/Actions/IA_ChangeWeapon1.IA_ChangeWeapon1'"));
+	if (nullptr != ChangeWeapon1Ref.Object)
+	{
+		ChangeWeaponAction1 = ChangeWeapon1Ref.Object;
+	}
+	static ConstructorHelpers::FObjectFinder<UInputAction> ChangeWeapon2Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/Assets/Input/Actions/IA_ChangeWeapon2.IA_ChangeWeapon2'"));
+	if (nullptr != ChangeWeapon2Ref.Object)
+	{
+		ChangeWeaponAction2 = ChangeWeapon2Ref.Object;
+	}
+	static ConstructorHelpers::FObjectFinder<UInputAction> ChangeWeapon3Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/Assets/Input/Actions/IA_ChangeWeapon3.IA_ChangeWeapon3'"));
+	if (nullptr != ChangeWeapon3Ref.Object)
+	{
+		ChangeWeaponAction3 = ChangeWeapon3Ref.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UIFCharacterControlData> ShoulderDataRef(TEXT("/Script/Infectory.IFCharacterControlData'/Game/Assets/CharacterControl/ABC_Shoulder.ABC_Shoulder'"));
 	if (ShoulderDataRef.Object)
 	{
@@ -111,14 +129,12 @@ void AIFCharacterPlayer::BeginPlay()
 	Super::BeginPlay();
 	SetCharacterControl(CurControlType);
 
-	Gun = GetWorld()->SpawnActor<AIFGunBase>(GunClass);
-	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("RifleWeaponSocket"));
-	Gun->SetOwner(this);
-	Gun->CachingOwner();
+	Inventory = NewObject<UIFInventory>();
+	Inventory.Get()->InitInventory(GetWorld());
 
-	UserWidget->UpdateAmmoState(Gun->GetCurAmmo(), Gun->GetTotalAmmo());
-
-	Gun.Get()->AmmoChangedDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateAmmoState);
+	SetGunPos();
+	UserWidget->UpdateAmmoState(CurGun->GetCurAmmo(), CurGun->GetTotalAmmo());
+	CurGun.Get()->AmmoChangedDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateAmmoState);
 
 	AnimInstance = Cast<UIFPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	AnimInstance->OnLeftIKChange.BindUObject(this, &AIFCharacterPlayer::GetGunHandPosition);
@@ -129,8 +145,7 @@ void AIFCharacterPlayer::BeginPlay()
 	StatComp->bIsNPC = false;
 	StatComp->OnHit.AddUObject(this, &AIFCharacterPlayer::OnHitAction);
 	StatComp->OnHpZero.AddUObject(AnimInstance, &UIFPlayerAnimInstance::PlayDeadAnim);
-
-
+	
 	TWeakObjectPtr<APlayerCameraManager> CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
 	if (CameraManager != nullptr)
 	{
@@ -155,7 +170,7 @@ void AIFCharacterPlayer::ChangeCharacterControl()
 	}
 	else if (CurControlType == ECharacterControlType::Zoom)
 	{
-		Gun->StopFire();
+		CurGun->StopFire();
 		SetCharacterControl(ECharacterControlType::Shoulder);
 	}
 }
@@ -204,12 +219,12 @@ void AIFCharacterPlayer::Shoot()
 
 	if (CurControlType == ECharacterControlType::Zoom && IsFiring && CurCharacterState == ECharacterState::Idle)
 	{
-		Gun->FireGunDelegate.BindUObject(AnimInstance, &UIFPlayerAnimInstance::AddRecoil);
-		Gun->StartFire();
+		CurGun->FireGunDelegate.BindUObject(AnimInstance, &UIFPlayerAnimInstance::AddRecoil);
+		CurGun->StartFire();
 	}
 	else if(CurControlType == ECharacterControlType::Zoom && !IsFiring)
 	{
-		Gun->StopFire();
+		CurGun->StopFire();
 	}
 }
 
@@ -218,7 +233,46 @@ void AIFCharacterPlayer::Reload()
 	if (IsFiring) return;
 	CurCharacterState = ECharacterState::Reloading;
 	AnimInstance.Get()->PlayReloadAnim();
-	Gun->Reload();
+	CurGun->Reload();
+}
+
+void AIFCharacterPlayer::ChangeWeapon1()
+{
+	if (CurGun.Get()->GetWeaponType() == ERangedWeaponType::Rifle) return;
+
+	CurGun->StopFire();
+	CurGun->SetActorHiddenInGame(true);
+	CurGun = Inventory.Get()->GetRangedWeapon(ERangedWeaponType::Rifle);
+	CurGun.Get()->SetActorHiddenInGame(false);
+
+	UserWidget->UpdateAmmoState(CurGun->GetCurAmmo(), CurGun->GetTotalAmmo());
+	CurGun.Get()->AmmoChangedDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateAmmoState);
+}
+
+void AIFCharacterPlayer::ChangeWeapon2()
+{
+	if (CurGun.Get()->GetWeaponType() == ERangedWeaponType::ShotGun) return;
+
+	CurGun->StopFire();
+	CurGun->SetActorHiddenInGame(true);
+	CurGun = Inventory.Get()->GetRangedWeapon(ERangedWeaponType::ShotGun);
+	CurGun.Get()->SetActorHiddenInGame(false);
+
+	UserWidget->UpdateAmmoState(CurGun->GetCurAmmo(), CurGun->GetTotalAmmo());
+	CurGun.Get()->AmmoChangedDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateAmmoState);
+}
+
+void AIFCharacterPlayer::ChangeWeapon3()
+{
+	if (CurGun.Get()->GetWeaponType() == ERangedWeaponType::Projectile) return;
+
+	CurGun->StopFire();
+	CurGun->SetActorHiddenInGame(true);
+	CurGun = Inventory.Get()->GetRangedWeapon(ERangedWeaponType::Projectile);
+	CurGun.Get()->SetActorHiddenInGame(false);
+
+	UserWidget->UpdateAmmoState(CurGun->GetCurAmmo(), CurGun->GetTotalAmmo());
+	CurGun.Get()->AmmoChangedDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateAmmoState);
 }
 
 /// <summary>
@@ -262,11 +316,34 @@ void AIFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::Shoot);
 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Completed, this, &AIFCharacterPlayer::Shoot);
 	EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Triggered, this, &AIFCharacterPlayer::Reload);
+	EnhancedInputComponent->BindAction(ChangeWeaponAction1, ETriggerEvent::Started, this, &AIFCharacterPlayer::ChangeWeapon1);
+	EnhancedInputComponent->BindAction(ChangeWeaponAction2, ETriggerEvent::Started, this, &AIFCharacterPlayer::ChangeWeapon2);
+	EnhancedInputComponent->BindAction(ChangeWeaponAction3, ETriggerEvent::Started, this, &AIFCharacterPlayer::ChangeWeapon3);
 }
 
 FVector AIFCharacterPlayer::GetGunHandPosition()
 {
-	return Gun->GetWeaponSocket();
+	return CurGun->GetWeaponSocket();
+}
+
+void AIFCharacterPlayer::SetGunPos()
+{
+	const UEnum* EnumPtr = StaticEnum<ERangedWeaponType>();
+
+	for (int i = 0; i < EnumPtr->NumEnums() - 1; i++)
+	{
+		AIFGunBase* GunBase = Inventory.Get()->GetRangedWeapon((ERangedWeaponType)EnumPtr->GetValueByIndex(i));
+
+		if (GunBase)
+		{
+			GunBase->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, WeaponSocketMap[GunBase->GetWeaponType()]);
+			GunBase->SetOwner(this);
+			GunBase->CachingOwner();
+		}
+	}
+
+	CurGun = Inventory.Get()->GetRangedWeapon(ERangedWeaponType::Rifle);
+	CurGun.Get()->SetActorHiddenInGame(false);
 }
 
 void AIFCharacterPlayer::SetupUserWidget(TObjectPtr<UIFUserWidget> InUserWidget)
