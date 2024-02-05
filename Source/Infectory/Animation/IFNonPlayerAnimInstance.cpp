@@ -58,8 +58,10 @@ void UIFNonPlayerAnimInstance::PlayRandomIdleAnimaiton()
 
 void UIFNonPlayerAnimInstance::PlaySpecialHitAnimation()
 {
-		Montage_Play(SpecialHitAnimation, 1.0f);
+	Montage_Play(SpecialHitAnimation, 1.0f);
+	UE_LOG(LogTemp, Warning, TEXT("PlaySpecialHitAnimation"));
 }
+
 
 void UIFNonPlayerAnimInstance::NativeInitializeAnimation()
 {
@@ -87,27 +89,25 @@ void UIFNonPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	if (Movement)
 	{
+		RecoilAlpha = FMath::Lerp(RecoilAlpha, 0, 0.04f);
 		CurNpcState = DefineTypePawn.GetInterface()->GetNPCState();
 		CurNpcMoveType = DefineTypePawn.GetInterface()->GetNPCMoveType();
 
 		bIsTurnRight = CurRotation > 0.3f ? true : false;
 		bIsTurnLeft = CurRotation < -0.3f ? true : false;
-
 	}
 }
 
 void UIFNonPlayerAnimInstance::PlayHitAnim()
 {
-	Montage_Play(HitAnimations[FMath::RandRange(0, HitAnimations.Num() - 1)], 1.0f);
-	//UE_LOG(LogTemp, Warning, TEXT("PlayHitAnim"));
-
+	//Montage_Play(HitAnimations[FMath::RandRange(0, HitAnimations.Num() - 1)], 1.0f);
 	//PlayAnimation();
 	if (CurNpcMoveType == ENPCMoveType::Crawling) return;
 
 	if (CurNpcState == ENPCState::Moving || CurNpcState == ENPCState::Idle)
 	{
-		
-
+		RecoilAlpha = 1.0f;
+		RecoilRot = FRotator(FMath::RandRange(5.0f, 20.0f), FMath::RandRange(-20.0f, 20.0f), 0.f);
 	}
 }
 

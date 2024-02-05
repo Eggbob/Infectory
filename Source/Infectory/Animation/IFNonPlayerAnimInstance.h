@@ -42,8 +42,8 @@ protected:
 	FORCEINLINE void AnimNotify_BackJump() { OnBackJump.ExecuteIfBound(); }
 
 	UFUNCTION()
-	FORCEINLINE void AnimNotify_OnHitEnd() { OnHitEnd.ExecuteIfBound(); }
-
+	FORCEINLINE void AnimNotify_OnHitEnd() { UE_LOG(LogTemp, Warning, TEXT("AnimNotify_OnHitEnd"));
+		OnHitEnd.ExecuteIfBound(); }
 
 public:
 	FOnAttackEndDelegate OnAttackEnd;
@@ -59,6 +59,12 @@ public:
 	ENPCMoveType CurNpcMoveType;
 
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+	float RecoilAlpha;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+	FRotator RecoilRot;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	bool bIsTurnLeft;
 

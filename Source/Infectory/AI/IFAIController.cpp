@@ -29,6 +29,7 @@ void AIFAIController::RunAI()
 	if (UseBlackboard(BBAsset, BlackboardPtr))
 	{
 		Blackboard.Get()->SetValueAsBool("bIsFirstContact", true);
+		Blackboard.Get()->SetValueAsBool(BBKEY_ISHIT, false);
 
 		bHasTarget = false;
 		bool RunResult = RunBehaviorTree(BTAsset);

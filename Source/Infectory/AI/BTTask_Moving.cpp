@@ -3,6 +3,8 @@
 
 #include "AI/BTTask_Moving.h"
 #include "AIController.h"
+#include "IFAI.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Interface/IFCharacterAIInterface.h"
 
 UBTTask_Moving::UBTTask_Moving()
@@ -21,7 +23,9 @@ EBTNodeResult::Type UBTTask_Moving::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	}
 
 	IIFCharacterAIInterface* AIPawn = Cast<IIFCharacterAIInterface>(ControllingPawn);
-	if (nullptr == AIPawn)
+	bool bIsHit = OwnerComp.GetBlackboardComponent()->GetValueAsBool(BBKEY_ISHIT);
+
+	if (nullptr == AIPawn || bIsHit)
 	{
 		return EBTNodeResult::Failed;
 	}

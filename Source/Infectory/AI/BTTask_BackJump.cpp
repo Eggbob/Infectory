@@ -46,8 +46,6 @@ EBTNodeResult::Type UBTTask_BackJump::ExecuteTask(UBehaviorTreeComponent& OwnerC
 		);
 
 		AIPawn->SetAIBackJumpDelegate(OnBackJumpFinished);
-		AIPawn->PeformBackMoveAI();
-
 
 		return EBTNodeResult::InProgress;
 	}

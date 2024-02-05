@@ -9,6 +9,7 @@
 #include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "AI/IFAI.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Item/IFGunBase.h"
 #include "Item/IFShield.h"
 #include "Animation/IFNonPlayerAnimInstance.h"
@@ -210,13 +211,11 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 		StatComp.Get()->OnHit.AddUObject(AnimInstance, &UIFNonPlayerAnimInstance::PlayHitAnim);
 		AnimInstance->OnAttackEnd.BindUObject(this, &AIFCharacterNonPlayer::NotifyAttackActionEnd);
 		AnimInstance->OnBackJump.BindUObject(this, &AIFCharacterNonPlayer::StartBackJump);
-		AnimInstance->OnBackJumpEnd.BindUObject(this, &AIFCharacterNonPlayer::NotifyBackJumpActionEnd);
 		AnimInstance->OnBeforeMoving.BindUObject(this, &AIFCharacterNonPlayer::NotifyBeforeMovingActionEnd);
 		AnimInstance->OnHitEnd.BindLambda([&]() { 
-			AIController.Get()->RunAI();
+			AIController.Get()->GetBlackboardComponent()->SetValueAsBool(BBKEY_ISHIT, false);
 		});
 	}
-
 
 	InitPhysicsAnimation();
 }
@@ -282,25 +281,16 @@ void AIFCharacterNonPlayer::NotifyAttackActionEnd()
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 }
 
-/// <summary>
-/// 백점프 애니메이션 재생
-/// </summary>
-void AIFCharacterNonPlayer::PeformBackMoveAI()
-{
-	if (CurNpcMoveType == ENPCMoveType::Crawling)
-	{
-		NotifyBackJumpActionEnd();
-		return;
-	}
-
-	CurNpcState = ENPCState::Jumping;
-	AnimInstance->PlayBackJumpAnimation();
-}
-
 void AIFCharacterNonPlayer::PerformMoving()
 {
 	AIController->MoveToTarget(GetAIAttackRange());
-	//AnimInstance->PlayRandomIdleAnimaiton();
+	//UE_LOG(LogTemp, Warning, TEXT("PerformMoving"));
+}
+
+void AIFCharacterNonPlayer::StopMoving()
+{
+	AIController->StopMovement();
+	UE_LOG(LogTemp, Warning, TEXT("StopMoving"));
 }
 
 void AIFCharacterNonPlayer::PerformWaiting(bool bIsFirstContact)
@@ -343,11 +333,6 @@ void AIFCharacterNonPlayer::SetHitWalkSpeed()
 	), 0.3f, false);
 }
 
-void AIFCharacterNonPlayer::NotifyBackJumpActionEnd()
-{
-	CurNpcState = ENPCState::Idle;
-	OnBackJumpFinished.ExecuteIfBound();
-}
 
 void AIFCharacterNonPlayer::NotifyBeforeMovingActionEnd()
 {
@@ -366,16 +351,23 @@ float AIFCharacterNonPlayer::TakeDamage(float Damage, FDamageEvent const& Damage
 		ENPCBoneName BoneEnum = UIFEnumDefine::StringToEnum(BoneNameStr);
 		BodyDamageCheckMap[BoneEnum] -= 1;
 
-		if (BodyDamageCheckMap[BoneEnum] <= 0)
+		if (BodyDamageCheckMap[BoneEnum] == 0)
 		{
 			PlayHitReaction(CustomDamageEvent->BoneName, CustomDamageEvent->HitResult);
-		}
 
-		//PlayHitReaction(CustomDamageEvent->BoneName, CustomDamageEvent->HitResult);
+			AnimInstance.Get()->PlaySpecialHitAnimation();
+			AIController.Get()->GetBlackboardComponent()->SetValueAsBool(BBKEY_ISHIT, true);
+
+			if (CurNpcMoveType != ENPCMoveType::Crawling)
+			{
+				
+			}
+		}
 	}
 
 	FocusingTarget(DamageCauser);
 	SetHitWalkSpeed();
+	
 
 	return Damage;
 }
