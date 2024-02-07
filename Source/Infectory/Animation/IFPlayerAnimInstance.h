@@ -13,6 +13,7 @@ enum class ERangedWeaponType : uint8;
 DECLARE_DELEGATE_RetVal(FVector, FOnLeftIKChangeDelegate)
 DECLARE_DELEGATE(FOnHitAnimFinishedDelegate)
 DECLARE_DELEGATE(FOnReloadFinishedDelegate)
+DECLARE_DELEGATE(FOnWeaponChangeFinishedDelegate)
 
 /**
  * 
@@ -28,7 +29,18 @@ public:
 	
 	void AddRecoil(ERangedWeaponType RangedWeaponType);
 	void PlayReloadAnim();
+	void PlayWeaponChangeAnim();
 
+	UFUNCTION()
+	FORCEINLINE void AnimNotify_OnWeaponChange() { OnWeaponChangeFinished.ExecuteIfBound(); }
+	UFUNCTION()
+	FORCEINLINE void AnimNotify_Hit() { OnHitAnimFinished.ExecuteIfBound(); }
+
+protected:
+	virtual void NativeInitializeAnimation() override;
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	ECharacterMoveType CurMoveType;
 
@@ -41,14 +53,7 @@ public:
 	FOnLeftIKChangeDelegate OnLeftIKChange;
 	FOnHitAnimFinishedDelegate OnHitAnimFinished;
 	FOnReloadFinishedDelegate OnReloadFinished;
-
-protected:
-	virtual void NativeInitializeAnimation() override;
-
-	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
-
-	UFUNCTION()
-	FORCEINLINE void AnimNotify_Hit() { OnHitAnimFinished.ExecuteIfBound(); }
+	FOnWeaponChangeFinishedDelegate OnWeaponChangeFinished;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
@@ -68,4 +73,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> ReloadAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> WeaponChangeAnimation;
 };

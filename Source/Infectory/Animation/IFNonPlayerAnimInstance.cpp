@@ -14,16 +14,16 @@ void UIFNonPlayerAnimInstance::PlayAttackAnimation(float AttackSpeed)
 {
 	if (IsValid(AttackAnimation))
 	{
+		BlendWeight = 1.f;
 		Montage_Play(AttackAnimation, AttackSpeed);
 
 		FTimerHandle TimerHandle;
-
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda(
 			[&]()
 			{
 				OnAttackEnd.ExecuteIfBound();
 			}
-		), AttackAnimation->GetPlayLength(), false);
+		), AttackAnimation->GetPlayLength() - 0.5f, false);
 	}
 }
 
@@ -43,6 +43,8 @@ void UIFNonPlayerAnimInstance::PlayBackJumpAnimation()
 
 void UIFNonPlayerAnimInstance::PlayRandomIdleAnimaiton()
 {
+	BlendWeight = 1.f; 
+
 	int Index = FMath::RandRange(0, IdleAnimations.Num() - 1);
 	Montage_Play(IdleAnimations[Index], 1.0f);
 
@@ -58,8 +60,39 @@ void UIFNonPlayerAnimInstance::PlayRandomIdleAnimaiton()
 
 void UIFNonPlayerAnimInstance::PlaySpecialHitAnimation()
 {
+	FTimerHandle TimerHandle;
+
+	BlendWeight = 0.f;
 	Montage_Play(SpecialHitAnimation, 1.0f);
+
+	/*GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda(
+		[&]()
+		{
+		
+		}
+	), 0.3f, false);*/
+	
 	UE_LOG(LogTemp, Warning, TEXT("PlaySpecialHitAnimation"));
+}
+
+void UIFNonPlayerAnimInstance::PlayLyingAnimation()
+{
+	BlendWeight = 0.f;
+	Montage_Play(LyingAnimation, 0.01f);
+
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda(
+		[&]()
+		{
+			PlayStandUpAnimation();
+		}
+	), 1.3f, false);
+}
+
+void UIFNonPlayerAnimInstance::PlayStandUpAnimation()
+{
+	BlendWeight = 0.f;
+	Montage_Play(StandUpAnimation, 1.0f);
 }
 
 
@@ -93,8 +126,9 @@ void UIFNonPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		CurNpcState = DefineTypePawn.GetInterface()->GetNPCState();
 		CurNpcMoveType = DefineTypePawn.GetInterface()->GetNPCMoveType();
 
-		bIsTurnRight = CurRotation > 0.3f ? true : false;
-		bIsTurnLeft = CurRotation < -0.3f ? true : false;
+		//CurRotation = FMath::Lerp(CurRotation, FVector::DotProduct(CurVelocity, GetOwningActor()->GetActorRightVector()), 0.05f);
+	/*	bIsTurnRight = CurRotation > 0.3f ? true : false;
+		bIsTurnLeft = CurRotation < -0.3f ? true : false;*/
 	}
 }
 

@@ -19,6 +19,14 @@ void UIFPlayerAnimInstance::PlayHitAnim()
 	Montage_Play(HitAnimations[FMath::RandRange(0, HitAnimations.Num() - 1)], 1.0f);
 }
 
+void UIFPlayerAnimInstance::PlayWeaponChangeAnim()
+{
+	if (IsValid(WeaponChangeAnimation))
+	{
+		Montage_Play(WeaponChangeAnimation, 1.0f);
+	}
+}
+
 void UIFPlayerAnimInstance::PlayReloadAnim()
 {
 	if (IsValid(ReloadAnimation))
@@ -57,5 +65,4 @@ void UIFPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		LeftHandPosition = OnLeftIKChange.Execute();
 	}
 }
-
 

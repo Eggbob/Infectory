@@ -4,9 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Data/IFEnumDefine.h"
 #include "IFProjectile.generated.h"
 
-DECLARE_DELEGATE_OneParam(OnAttackDelegate, TObjectPtr<AActor>)
+DECLARE_DELEGATE_TwoParams(OnAttackDelegate, TObjectPtr<AActor>, FCustomDamageEvent)
+DECLARE_DELEGATE_OneParam(FOnShootDelegate, TSubclassOf<class ULegacyCameraShake>);
 
 UCLASS()
 class INFECTORY_API AIFProjectile : public AActor
@@ -22,17 +24,24 @@ public:
 	void Init(float Speed);
 	void DeInit();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void LaunchEnemy(AActor* TargetActor);
+
 private:
 	void CheckAttackRange();
 
 public:
 	OnAttackDelegate OnAttack;
+	FOnShootDelegate OnShoot;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ammo, Meta = (AllowPrivateAccess = true))
 	float ReturnTime = 3.f;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = Ammo, Meta = (AllowPrivateAccess = true))
 	TObjectPtr<UParticleSystem> ImpactEffect;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<class ULegacyCameraShake> CameraShake;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))

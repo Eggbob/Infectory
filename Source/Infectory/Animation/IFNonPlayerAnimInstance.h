@@ -12,6 +12,7 @@ DECLARE_DELEGATE(FOnBackJumpEndDelegate);
 DECLARE_DELEGATE(FOnBackJumpDelegate);
 DECLARE_DELEGATE(FOnBeforeMovingDelegate);
 DECLARE_DELEGATE(FOnHitEndDelegate);
+DECLARE_DELEGATE(FOnStandUpFinishDelegate);
 
 
 /**
@@ -30,9 +31,8 @@ public:
 	void PlayBackJumpAnimation();
 	void PlayRandomIdleAnimaiton();
 	void PlaySpecialHitAnimation();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void PlayAnimation();
+	void PlayLyingAnimation();
+	void PlayStandUpAnimation();
 
 protected:
 	virtual void NativeInitializeAnimation() override;
@@ -40,10 +40,12 @@ protected:
 
 	UFUNCTION()
 	FORCEINLINE void AnimNotify_BackJump() { OnBackJump.ExecuteIfBound(); }
+	
+	UFUNCTION()
+	FORCEINLINE void AnimNotify_OnHitEnd() { UE_LOG(LogTemp, Warning, TEXT("AnimNotify_OnHitEnd")); OnHitEnd.ExecuteIfBound(); }
 
 	UFUNCTION()
-	FORCEINLINE void AnimNotify_OnHitEnd() { UE_LOG(LogTemp, Warning, TEXT("AnimNotify_OnHitEnd"));
-		OnHitEnd.ExecuteIfBound(); }
+	FORCEINLINE void AnimNotify_OnStandUpFinish() { OnStandUpFinish.ExecuteIfBound(); }
 
 public:
 	FOnAttackEndDelegate OnAttackEnd;
@@ -51,6 +53,7 @@ public:
 	FOnBackJumpDelegate OnBackJump;
 	FOnBeforeMovingDelegate OnBeforeMoving;
 	FOnHitEndDelegate OnHitEnd;
+	FOnStandUpFinishDelegate OnStandUpFinish;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	ENPCState CurNpcState;
@@ -60,16 +63,19 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+	float BlendWeight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	float RecoilAlpha;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	FRotator RecoilRot;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
-	bool bIsTurnLeft;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	//bool bIsTurnLeft;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
-	bool bIsTurnRight;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	//bool bIsTurnRight;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TArray<TObjectPtr<class UAnimMontage>> IdleAnimations;
@@ -82,6 +88,15 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> SpecialHitAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> LyingAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> StandUpAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> TurnAnimation;
 
 private:
 	TObjectPtr<class UIFFootIkComponent> FootIkComponent;

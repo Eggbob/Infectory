@@ -3,6 +3,7 @@
 
 #include "AI/BTTask_NPCWait.h"
 #include "AIController.h"
+#include "AI/IFAI.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Interface/IFCharacterAIInterface.h"
 
@@ -41,7 +42,7 @@ EBTNodeResult::Type UBTTask_NPCWait::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 
 	if (bIsFirst)
 	{
-		OwnerComp.GetBlackboardComponent()->SetValueAsBool("bIsFirstContact", false);
+		OwnerComp.GetBlackboardComponent()->SetValueAsBool(BBKEY_ISFIRSTCONTACT, false);
 	}
 
 	return EBTNodeResult::InProgress;

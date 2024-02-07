@@ -215,6 +215,10 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 		AnimInstance->OnHitEnd.BindLambda([&]() { 
 			AIController.Get()->GetBlackboardComponent()->SetValueAsBool(BBKEY_ISHIT, false);
 		});
+		AnimInstance->OnStandUpFinish.BindLambda([&]() {
+			CurNpcState = ENPCState::Idle;
+			AIController.Get()->GetBlackboardComponent()->SetValueAsBool(BBKEY_ISHIT, false);
+		});
 	}
 
 	InitPhysicsAnimation();
@@ -228,7 +232,7 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 /// <param name="TargetActor"></param>
 void AIFCharacterNonPlayer::FocusingTarget(TObjectPtr<AActor> TargetActor)
 {
-	AIController->SetFocus(TargetActor, EAIFocusPriority::Gameplay);
+	//AIController->SetFocus(TargetActor, EAIFocusPriority::Gameplay);
 	AIController->SetTarget(TargetActor);
 }
 
@@ -284,7 +288,6 @@ void AIFCharacterNonPlayer::NotifyAttackActionEnd()
 void AIFCharacterNonPlayer::PerformMoving()
 {
 	AIController->MoveToTarget(GetAIAttackRange());
-	//UE_LOG(LogTemp, Warning, TEXT("PerformMoving"));
 }
 
 void AIFCharacterNonPlayer::StopMoving()
@@ -305,6 +308,11 @@ void AIFCharacterNonPlayer::PerformWaiting(bool bIsFirstContact)
 		}), WaitTime, false);
 
 	AnimInstance->PlayRandomIdleAnimaiton();
+
+	if (bIsFirstContact)
+	{
+		AIController.Get()->GetBlackboardComponent()->SetValueAsBool(BBKEY_ISFIRSTCONTACT, false);
+	}
 }
 
 /// <summary>
@@ -346,7 +354,15 @@ float AIFCharacterNonPlayer::TakeDamage(float Damage, FDamageEvent const& Damage
 
 	if (const FCustomDamageEvent* CustomDamageEvent = static_cast<const FCustomDamageEvent*>(&DamageEvent))
 	{
-		//TODo Fix Enum
+		if (CustomDamageEvent->DamageType == EDamageType::Explosive)
+		{
+			AIController.Get()->GetBlackboardComponent()->SetValueAsBool(BBKEY_ISHIT, true);
+			StopMoving();
+			CurNpcState = ENPCState::Lying;
+			AnimInstance.Get()->PlayLyingAnimation();
+		}
+
+		//TODO Fix Enum
 		FString BoneNameStr = CustomDamageEvent->BoneName.ToString();
 		ENPCBoneName BoneEnum = UIFEnumDefine::StringToEnum(BoneNameStr);
 		BodyDamageCheckMap[BoneEnum] -= 1;
@@ -355,20 +371,16 @@ float AIFCharacterNonPlayer::TakeDamage(float Damage, FDamageEvent const& Damage
 		{
 			PlayHitReaction(CustomDamageEvent->BoneName, CustomDamageEvent->HitResult);
 
-			AnimInstance.Get()->PlaySpecialHitAnimation();
-			AIController.Get()->GetBlackboardComponent()->SetValueAsBool(BBKEY_ISHIT, true);
-
-			if (CurNpcMoveType != ENPCMoveType::Crawling)
+			if (CurNpcMoveType != ENPCMoveType::Crawling && CurNpcState != ENPCState::Lying)
 			{
-				
+				AIController.Get()->GetBlackboardComponent()->SetValueAsBool(BBKEY_ISHIT, true);
+				AnimInstance.Get()->PlaySpecialHitAnimation();
 			}
 		}
+		
 	}
-
-	FocusingTarget(DamageCauser);
+	//FocusingTarget(DamageCauser);
 	SetHitWalkSpeed();
-	
-
 	return Damage;
 }
 
@@ -393,7 +405,6 @@ void AIFCharacterNonPlayer::MeleeAttackCheck()
 
 	const float AttackRange = StatComp->GetBaseStat().AttackRange;
 	const float AttackRadius = 100.f;//StatComp->GetRadi;
-	//const float AttackDamage = Stat->GetTotalStat().Attack;
 	const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();
 	const FVector End = Start + GetActorForwardVector() * AttackRange;
 

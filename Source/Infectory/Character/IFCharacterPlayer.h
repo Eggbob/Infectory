@@ -25,6 +25,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class AIFGunBase* GetCurGun() { return CurGun.Get(); }
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayCameraShake(TSubclassOf<class ULegacyCameraShake> CameraShake);
+
 protected:
 	virtual void BeginPlay() override;
 	void ChangeCharacterControl();

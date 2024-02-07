@@ -33,8 +33,6 @@ void UIFInventory::InitInventory(UWorld* World)
 		TObjectPtr<AIFGunBase> Rifle = World->SpawnActor<AIFGunBase>(RangedWeaponBP[ERangedWeaponType::Rifle]);
 		Rifle->SetActorHiddenInGame(true);
 		RangedWeapon.Add(ERangedWeaponType::Rifle, Rifle);
-		
-
 
 		TObjectPtr<AIFGunBase> ShotGun = World->SpawnActor<AIFGunBase>(RangedWeaponBP[ERangedWeaponType::ShotGun]);
 	ShotGun->SetActorHiddenInGame(true);

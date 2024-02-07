@@ -33,6 +33,7 @@ enum class ECharacterState : uint8
 	Hitting,
 	Attacking,
 	Reloading,
+	WeaponChanging,
 	Dead
 };
 
@@ -44,6 +45,7 @@ enum class ENPCState : uint8
 	Moving,
 	Jumping,
 	Attacking,
+	Lying,
 	Dead
 };
 
@@ -58,7 +60,8 @@ enum class ENPCMoveType : uint8
 UENUM()
 enum class EDamageType : uint8
 {
-	Light
+	Light,
+	Explosive,
 };
 
 UENUM()
@@ -118,6 +121,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FHitResult HitResult;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EDamageType DamageType = EDamageType::Light; 
+
 };
 
 /**
