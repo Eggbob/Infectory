@@ -16,6 +16,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Item/IFInventory.h"
 #include "Animation/IFPlayerAnimInstance.h"
+#include "LegacyCameraShake.h"
 
 
 AIFCharacterPlayer::AIFCharacterPlayer()
@@ -215,6 +216,9 @@ void AIFCharacterPlayer::OnHitAction()
 
 void AIFCharacterPlayer::Shoot()
 {
+	CurGun.Get()->ShootDelegate.Unbind();
+	CurGun.Get()->ShootDelegate.BindUObject(this, &AIFCharacterPlayer::PlayCameraShake);
+
 	IsFiring = IsFiring ? false : true ;
 
 	if (CurControlType == ECharacterControlType::Zoom && IsFiring && CurCharacterState == ECharacterState::Idle)
@@ -240,39 +244,60 @@ void AIFCharacterPlayer::ChangeWeapon1()
 {
 	if (CurGun.Get()->GetWeaponType() == ERangedWeaponType::Rifle) return;
 
-	CurGun->StopFire();
-	CurGun->SetActorHiddenInGame(true);
-	CurGun = Inventory.Get()->GetRangedWeapon(ERangedWeaponType::Rifle);
-	CurGun.Get()->SetActorHiddenInGame(false);
+	CurCharacterState = ECharacterState::WeaponChanging;
+	AnimInstance.Get()->PlayWeaponChangeAnim();
+	AnimInstance.Get()->OnWeaponChangeFinished.Unbind();
+	AnimInstance.Get()->OnWeaponChangeFinished.BindLambda([&]() {
+		CurGun->StopFire();
+		CurGun->SetActorHiddenInGame(true);
+		CurGun = Inventory.Get()->GetRangedWeapon(ERangedWeaponType::Rifle);
+		CurGun.Get()->SetActorHiddenInGame(false);
 
-	UserWidget->UpdateAmmoState(CurGun->GetCurAmmo(), CurGun->GetTotalAmmo());
-	CurGun.Get()->AmmoChangedDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateAmmoState);
+		UserWidget->UpdateAmmoState(CurGun->GetCurAmmo(), CurGun->GetTotalAmmo());
+		CurGun.Get()->AmmoChangedDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateAmmoState);
+		CurCharacterState = ECharacterState::Idle;
+
+		});
 }
 
 void AIFCharacterPlayer::ChangeWeapon2()
 {
 	if (CurGun.Get()->GetWeaponType() == ERangedWeaponType::ShotGun) return;
 
-	CurGun->StopFire();
-	CurGun->SetActorHiddenInGame(true);
-	CurGun = Inventory.Get()->GetRangedWeapon(ERangedWeaponType::ShotGun);
-	CurGun.Get()->SetActorHiddenInGame(false);
+	CurCharacterState = ECharacterState::WeaponChanging;
+	AnimInstance.Get()->PlayWeaponChangeAnim();
+	AnimInstance.Get()->OnWeaponChangeFinished.Unbind();
+	AnimInstance.Get()->OnWeaponChangeFinished.BindLambda([&]() {
+		CurGun->StopFire();
+		CurGun->SetActorHiddenInGame(true);
+		CurGun = Inventory.Get()->GetRangedWeapon(ERangedWeaponType::ShotGun);
+		CurGun.Get()->SetActorHiddenInGame(false);
 
-	UserWidget->UpdateAmmoState(CurGun->GetCurAmmo(), CurGun->GetTotalAmmo());
-	CurGun.Get()->AmmoChangedDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateAmmoState);
+		UserWidget->UpdateAmmoState(CurGun->GetCurAmmo(), CurGun->GetTotalAmmo());
+		CurGun.Get()->AmmoChangedDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateAmmoState);
+		CurCharacterState = ECharacterState::Idle;
+		});
 }
 
 void AIFCharacterPlayer::ChangeWeapon3()
 {
 	if (CurGun.Get()->GetWeaponType() == ERangedWeaponType::Projectile) return;
 
-	CurGun->StopFire();
-	CurGun->SetActorHiddenInGame(true);
-	CurGun = Inventory.Get()->GetRangedWeapon(ERangedWeaponType::Projectile);
-	CurGun.Get()->SetActorHiddenInGame(false);
+	CurCharacterState = ECharacterState::WeaponChanging;
+	AnimInstance.Get()->PlayWeaponChangeAnim();
+	AnimInstance.Get()->OnWeaponChangeFinished.Unbind();
+	AnimInstance.Get()->OnWeaponChangeFinished.BindLambda([&]() {
+		CurGun->StopFire();
+		CurGun->SetActorHiddenInGame(true);
+		CurGun = Inventory.Get()->GetRangedWeapon(ERangedWeaponType::Projectile);
+		CurGun.Get()->SetActorHiddenInGame(false);
 
-	UserWidget->UpdateAmmoState(CurGun->GetCurAmmo(), CurGun->GetTotalAmmo());
-	CurGun.Get()->AmmoChangedDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateAmmoState);
+		UserWidget->UpdateAmmoState(CurGun->GetCurAmmo(), CurGun->GetTotalAmmo());
+		CurGun.Get()->AmmoChangedDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateAmmoState);
+		CurCharacterState = ECharacterState::Idle;
+		});
+
+	
 }
 
 /// <summary>

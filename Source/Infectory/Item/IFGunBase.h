@@ -10,6 +10,7 @@
 
 
 DECLARE_DELEGATE_OneParam(FOnFireGun, ERangedWeaponType);
+DECLARE_DELEGATE_OneParam(FOnShootDelegate, TSubclassOf<class ULegacyCameraShake>);
 DECLARE_DELEGATE_TwoParams(FOnReload, int32, int32); //현재 장탄수, 총 총알 수
 
 #define MuzzleSocket "MuzzleFlashSocket"
@@ -48,6 +49,7 @@ private:
 public:
 	FOnFireGun FireGunDelegate;
 	FOnReload AmmoChangedDelegate;
+	FOnShootDelegate ShootDelegate;
 
 protected:
 	UPROPERTY()
@@ -67,6 +69,9 @@ protected:
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	TSubclassOf<AActor> TracerEffect;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<class ULegacyCameraShake> CameraShake;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	ERangedWeaponType WeaponType = ERangedWeaponType::Rifle;

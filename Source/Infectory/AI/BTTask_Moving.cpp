@@ -21,12 +21,12 @@ EBTNodeResult::Type UBTTask_Moving::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	}
 
 	IIFCharacterAIInterface* AIPawn = Cast<IIFCharacterAIInterface>(ControllingPawn);
+
 	if (nullptr == AIPawn)
 	{
 		return EBTNodeResult::Failed;
 	}
 
 	AIPawn->PerformMoving();
-
 	return EBTNodeResult::Succeeded;
 }

@@ -8,6 +8,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
+
 AIFProjectile::AIFProjectile()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -46,7 +47,7 @@ void AIFProjectile::NotifyActorBeginOverlap(AActor* OtherActor)
 	if (bIsExplosive)
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, GetActorLocation());
-
+		OnShoot.ExecuteIfBound(CameraShake);
 		CheckAttackRange();
 	}
 	else
@@ -60,9 +61,17 @@ void AIFProjectile::NotifyActorBeginOverlap(AActor* OtherActor)
 
 void AIFProjectile::ExcuteAttack(AActor* OtherActor)
 {
-	if (OnAttack.IsBound() && OtherActor != nullptr && !bIsCollisioned)
+	FCustomDamageEvent DamageEvent;
+
+	if (OtherActor != nullptr && !bIsCollisioned)
 	{
-		OnAttack.Execute(OtherActor);
+		if (bIsExplosive)
+		{
+			DamageEvent.DamageType = EDamageType::Explosive;
+			LaunchEnemy(OtherActor);
+		}
+
+		OnAttack.ExecuteIfBound(OtherActor, DamageEvent);
 	}
 }
 

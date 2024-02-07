@@ -28,7 +28,8 @@ void AIFAIController::RunAI()
 	UBlackboardComponent* BlackboardPtr = Blackboard.Get();
 	if (UseBlackboard(BBAsset, BlackboardPtr))
 	{
-		Blackboard.Get()->SetValueAsBool("bIsFirstContact", true);
+		Blackboard.Get()->SetValueAsBool(BBKEY_ISFIRSTCONTACT, true);
+		Blackboard.Get()->SetValueAsBool(BBKEY_ISHIT, false);
 
 		bHasTarget = false;
 		bool RunResult = RunBehaviorTree(BTAsset);
@@ -65,7 +66,7 @@ void AIFAIController::UpdateControlRotation(float DeltaTime, bool bUpdatePawn)
 {
 	Super::UpdateControlRotation(DeltaTime, bUpdatePawn);
 
-	if (bUpdatePawn)
+	/*if (bUpdatePawn)
 	{
 		const FRotator CurrentPawnRotation = GetPawn()->GetActorRotation();
 
@@ -75,7 +76,7 @@ void AIFAIController::UpdateControlRotation(float DeltaTime, bool bUpdatePawn)
 		{
 			GetPawn()->FaceRotation(SmoothTargetRotation, DeltaTime);
 		}
-	}
+	}*/
 }
 
 void AIFAIController::OnPossess(APawn* InPawn)

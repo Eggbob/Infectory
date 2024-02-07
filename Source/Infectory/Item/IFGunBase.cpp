@@ -11,6 +11,8 @@
 #include "Data/IFGameSingleton.h"
 #include "Item/IFProjectile.h"
 
+
+
 AIFGunBase::AIFGunBase()
 {
 	RootComp = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
@@ -115,10 +117,16 @@ void AIFGunBase::FireProjectile()
 
 	TObjectPtr<AIFProjectile> Projectile = GetWorld()->SpawnActor<AIFProjectile>(ProjectileBP, SpawnLocation, Owner.Get()->GetActorRotation());
 	Projectile.Get()->Init(ProjectileSpeed);
-	Projectile.Get()->OnAttack.BindLambda([&](TObjectPtr<AActor> HitActor){
-		FCustomDamageEvent CustomDamageEvent;
+	Projectile.Get()->OnAttack.BindLambda([&](TObjectPtr<AActor> HitActor, FCustomDamageEvent CustomDamageEvent){
 		GiveDamage(HitActor, CustomDamageEvent);
 	}); 
+
+	if (ShootDelegate.IsBound())
+	{
+		Projectile.Get()->OnShoot.BindLambda([&](TSubclassOf<ULegacyCameraShake> CameraShake) {
+			ShootDelegate.ExecuteIfBound(CameraShake);
+		});
+	}
 
 	if (FireGunDelegate.IsBound())
 	{
@@ -146,6 +154,8 @@ void AIFGunBase::CachingOwner()
 void AIFGunBase::StartFire()
 {
 	if (CurrentAmmo <= 0) { return; }
+
+	ShootDelegate.ExecuteIfBound(CameraShake);
 
 	CurrentAmmo--;
 	AmmoChangedDelegate.ExecuteIfBound(CurrentAmmo, TotalAmmo);

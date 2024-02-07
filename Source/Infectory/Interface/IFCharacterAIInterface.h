@@ -38,6 +38,6 @@ public:
 	virtual void SetAIWaitingDelegate(const FAICharacterWaitingFinished& InOnWaitingFinished) = 0;
 	virtual void AttackByAI() = 0;
 	virtual void PerformWaiting(bool bIsFirstContact) = 0;
-	virtual void PeformBackMoveAI() = 0;
 	virtual void PerformMoving() = 0;
+	virtual void StopMoving() = 0;
 };

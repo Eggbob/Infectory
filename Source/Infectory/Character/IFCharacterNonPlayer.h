@@ -44,8 +44,8 @@ protected:
 	virtual void SetAIBeforeMovingDelegate(const FAICharacterBeforeMovingFinished& InOnBeforeMovingFinished) override;
 	virtual void SetAIWaitingDelegate(const FAICharacterWaitingFinished& InOnWaitingFinished) override;
 	virtual void AttackByAI() override;
-	virtual void PeformBackMoveAI() override;
 	virtual void PerformMoving() override;
+	virtual void StopMoving() override;
 	virtual void PerformWaiting(bool bIsFirstContact) override;
 
 	void StartBackJump();
@@ -57,7 +57,6 @@ protected:
 	FAICharacterWaitingFinished OnWaitingFinished;
 
 	void NotifyAttackActionEnd();
-	void NotifyBackJumpActionEnd();
 	void NotifyBeforeMovingActionEnd();
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
@@ -110,4 +109,5 @@ private:
 
 	UPROPERTY()
 	TMap<ENPCBoneName, int32> BodyDamageCheckMap;
+
 };

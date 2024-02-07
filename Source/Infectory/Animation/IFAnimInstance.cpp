@@ -45,6 +45,8 @@ void UIFAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		bIsFalling = Movement->IsFalling();
 		bIsJumping = bIsFalling & (CurVelocity.Z > JumpingThreshould);
 		CurRotation = FMath::Lerp(CurRotation,FVector::DotProduct(CurVelocity, AnimOwner->GetActorRightVector()), 0.05f);
+		bIsTurnRight = CurRotation > 0.3f ? true : false;
+		bIsTurnLeft = CurRotation < -0.3f ? true : false;
 	}
 
 	TickIKFoot();
