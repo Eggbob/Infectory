@@ -14,6 +14,14 @@ void UIFUserWidget::UpdateAmmoState(int32 CurAmmo, int32 TotalAmmo)
 	}
 }
 
+void UIFUserWidget::UpdateCrossHair(bool bIsHit)
+{
+	if (CrossHairWidget)
+	{
+		CrossHairWidget->PlayCrossHair(bIsHit);
+	}
+}
+
 void UIFUserWidget::NativeConstruct()
 {
 	Super::NativeConstruct();

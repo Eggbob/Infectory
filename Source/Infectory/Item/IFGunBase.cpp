@@ -53,10 +53,12 @@ void AIFGunBase::FireRifle()
 		if (HitActor->IsA(ACharacter::StaticClass()))
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodImpactEffect, Hit.Location, ShotDirection.Rotation());
+			CrossHairDelegate.ExecuteIfBound(true);
 		}
 		else
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.Location, ShotDirection.Rotation());
+			CrossHairDelegate.ExecuteIfBound(false);
 		}
 	}
 
@@ -91,12 +93,24 @@ void AIFGunBase::FireShotGun()
 		if (HitActor->IsA(ACharacter::StaticClass()))
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodImpactEffect, Hit.Location, ShotDirection.Rotation());
+		
 		}
 		else
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.Location, ShotDirection.Rotation());
+			CrossHairDelegate.ExecuteIfBound(false);
 		}
 	}
+
+	if (HitResults.Num() > 0)
+	{
+		CrossHairDelegate.ExecuteIfBound(true);
+	}
+	else
+	{
+		CrossHairDelegate.ExecuteIfBound(false);
+	}
+
 
 	if (FireGunDelegate.IsBound())
 	{
@@ -265,7 +279,6 @@ void AIFGunBase::ShotGunTrace(FVector& ShotDirection)
 		FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(OwnerLocation, End);
 		GetWorld()->SpawnActor<AActor>(TracerEffect, SpawnLocation, Rotation);
 	}
-
 }
 
 
