@@ -44,6 +44,9 @@ public:
 	TSubclassOf<class ULegacyCameraShake> CameraShake;
 
 protected:
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> ProjectileSound;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	TObjectPtr<class UCapsuleComponent> CapsuleComp;
 

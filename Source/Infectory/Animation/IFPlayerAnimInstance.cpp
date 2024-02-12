@@ -3,6 +3,7 @@
 
 #include "Animation/IFPlayerAnimInstance.h"
 
+
 UIFPlayerAnimInstance::UIFPlayerAnimInstance()
 {
 
@@ -44,10 +45,7 @@ void UIFPlayerAnimInstance::PlayReloadAnim()
 	}
 }
 
-void UIFPlayerAnimInstance::NativeInitializeAnimation()
-{
-	Super::NativeInitializeAnimation();
-}
+
 
 void UIFPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
@@ -58,6 +56,7 @@ void UIFPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		RecoilAlpha = FMath::Lerp(RecoilAlpha, 0, 0.04f);
 		CurMoveType = DefineTypePawn.GetInterface()->GetPlayerMoveType();
 		CurControlType = DefineTypePawn.GetInterface()->GetPlayerControlType();
+		CurRotation = FMath::Lerp(CurRotation, FVector::DotProduct(CurVelocity, GetOwningActor()->GetActorRightVector()), 0.05f);
 	}
 
 	if (OnLeftIKChange.IsBound())
@@ -65,4 +64,8 @@ void UIFPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		LeftHandPosition = OnLeftIKChange.Execute();
 	}
 }
+
+
+
+
 

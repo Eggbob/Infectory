@@ -13,7 +13,7 @@
 #include "Item/IFGunBase.h"
 #include "Item/IFShield.h"
 #include "Animation/IFNonPlayerAnimInstance.h"
-
+#include "Kismet/GameplayStatics.h"
 
 AIFCharacterNonPlayer::AIFCharacterNonPlayer()
 {
@@ -144,6 +144,7 @@ void AIFCharacterNonPlayer::SetDead()
 	GetMesh()->SetCollisionProfileName("Ragdoll");
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), DeadSound, GetActorLocation());
 
 	if (AIController)
 	{
@@ -232,8 +233,9 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 /// <param name="TargetActor"></param>
 void AIFCharacterNonPlayer::FocusingTarget(TObjectPtr<AActor> TargetActor)
 {
-	//AIController->SetFocus(TargetActor, EAIFocusPriority::Gameplay);
+	AIController->SetFocus(TargetActor, EAIFocusPriority::Gameplay);
 	AIController->SetTarget(TargetActor);
+	//AnimInstance.Get()->PlayTurnAnimation();
 }
 
 /// <summary>
@@ -272,6 +274,7 @@ void AIFCharacterNonPlayer::AttackByAI()
 {
 	CurNpcState = ENPCState::Attacking;
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	AnimInstance.Get()->SetCurSound(AttackSound);
 	AnimInstance->PlayAttackAnimation(StatComp->GetBaseStat().AttackSpeed);
 }
 

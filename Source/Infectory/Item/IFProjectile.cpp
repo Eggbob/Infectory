@@ -47,6 +47,7 @@ void AIFProjectile::NotifyActorBeginOverlap(AActor* OtherActor)
 	if (bIsExplosive)
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, GetActorLocation());
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ProjectileSound, GetActorLocation());
 		OnShoot.ExecuteIfBound(CameraShake);
 		CheckAttackRange();
 	}

@@ -5,6 +5,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 UIFAnimInstance::UIFAnimInstance()
 {
@@ -16,6 +17,15 @@ void UIFAnimInstance::PlayDeadAnim()
 {
 	StopAllMontages(0.f);
 	Montage_Play(DeadAnimaton, 1.0f);
+}
+
+void UIFAnimInstance::SetCurSound(TObjectPtr<USoundBase> InSound)
+{
+	CurSound = nullptr;
+	if (InSound)
+	{
+		CurSound = InSound;
+	}
 }
 
 void UIFAnimInstance::NativeInitializeAnimation()
@@ -44,12 +54,29 @@ void UIFAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		bIsIdle = GroundSpeed < MovingThreshould;
 		bIsFalling = Movement->IsFalling();
 		bIsJumping = bIsFalling & (CurVelocity.Z > JumpingThreshould);
-		CurRotation = FMath::Lerp(CurRotation,FVector::DotProduct(CurVelocity, AnimOwner->GetActorRightVector()), 0.05f);
+		
+		/*CurRotation = FMath::Lerp(CurRotation,FVector::DotProduct(CurVelocity, AnimOwner->GetActorRightVector()), 0.05f);
 		bIsTurnRight = CurRotation > 0.3f ? true : false;
-		bIsTurnLeft = CurRotation < -0.3f ? true : false;
+		bIsTurnLeft = CurRotation < -0.3f ? true : false;*/
 	}
 
 	TickIKFoot();
+}
+
+void UIFAnimInstance::PlaySound()
+{
+	if (CurSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), CurSound, GetOwningActor()->GetActorLocation());
+	}
+}
+
+void UIFAnimInstance::PlayFootSound()
+{
+	if (FootSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), FootSound, GetOwningActor()->GetActorLocation());
+	}
 }
 
 void UIFAnimInstance::InitIKFootRef()
@@ -67,7 +94,6 @@ void UIFAnimInstance::InitIKFootRef()
 			}
 		}
 	}
-
 }
 
 void UIFAnimInstance::TickIKFoot()

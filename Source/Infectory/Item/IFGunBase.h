@@ -50,6 +50,24 @@ public:
 	FOnShootDelegate ShootDelegate;
 	FOnCrossHairDelegate CrossHairDelegate;
 
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> FireSound;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> EmptySound;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> ReloadSound;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> SwapSound;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> ImpactSound;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> BodyImpactSound;
+
 protected:
 	UPROPERTY()
 	TObjectPtr<AController> OwnerController;
@@ -115,7 +133,8 @@ protected:
 	TObjectPtr<UParticleSystem> BloodImpactEffect;
 
 private:
-	bool IsAuto = true;
+	bool bIsAuto = true;
+	bool bDoOnce = false;
 	
 	FTimerHandle FireTimerHandle;
 	TArray<FHitResult> HitResults;

@@ -28,8 +28,12 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayCameraShake(TSubclassOf<class ULegacyCameraShake> CameraShake);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetAudioLitener();
+
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 	void ChangeCharacterControl();
 	void SetCharacterControlData(const class UIFCharacterControlData* CharacterControlData);
 	void SetupUserWidget(TObjectPtr<class UIFUserWidget> InUserWidget) override;
@@ -47,6 +51,7 @@ protected:
 	void ChangeWeapon1();
 	void ChangeWeapon2();
 	void ChangeWeapon3();
+	void ChangeWeaponBody(ERangedWeaponType NewWeaponType);
 
 private:
 	FVector GetGunHandPosition();
@@ -84,9 +89,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class UInputAction> AttackAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class ULegacyCameraShake> HitCameraShake;
+	
 	//재장전 인풋 액션
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class UInputAction> ReloadAction;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> HitSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class UInputAction> ChangeWeaponAction1;
@@ -110,6 +121,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Camera, Meta = (AllowPrivateAccess = "true"))
 	float MinPitchValue;
 
+	ERangedWeaponType CurWeaponType;
 	ECharacterControlType CurControlType;
 	ECharacterState CurCharacterState;
 	
