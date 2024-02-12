@@ -23,4 +23,7 @@ protected:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = StatComp, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UIFStatComponent> StatComp;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> FootStepSound;
 };

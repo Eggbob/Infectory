@@ -33,6 +33,8 @@ public:
 	void PlaySpecialHitAnimation();
 	void PlayLyingAnimation();
 	void PlayStandUpAnimation();
+	void PlayTurnAnimation();
+
 
 protected:
 	virtual void NativeInitializeAnimation() override;
@@ -42,10 +44,17 @@ protected:
 	FORCEINLINE void AnimNotify_BackJump() { OnBackJump.ExecuteIfBound(); }
 	
 	UFUNCTION()
-	FORCEINLINE void AnimNotify_OnHitEnd() { UE_LOG(LogTemp, Warning, TEXT("AnimNotify_OnHitEnd")); OnHitEnd.ExecuteIfBound(); }
+	FORCEINLINE void AnimNotify_OnHitEnd() { OnHitEnd.ExecuteIfBound(); }
 
 	UFUNCTION()
 	FORCEINLINE void AnimNotify_OnStandUpFinish() { OnStandUpFinish.ExecuteIfBound(); }
+
+	UFUNCTION()
+	FORCEINLINE void AnimNotify_PlaySound() { PlaySound(); }
+
+	UFUNCTION()
+	FORCEINLINE void AnimNotify_PlayFootStep() { PlayFootSound(); }
+
 
 public:
 	FOnAttackEndDelegate OnAttackEnd;
@@ -71,12 +80,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	FRotator RecoilRot;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
-	//bool bIsTurnLeft;
-
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
-	//bool bIsTurnRight;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TArray<TObjectPtr<class UAnimMontage>> IdleAnimations;
 
@@ -96,7 +99,7 @@ protected:
 	TObjectPtr<class UAnimMontage> StandUpAnimation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UAnimMontage> TurnAnimation;
+	TObjectPtr<class UAnimMontage> TurnAnimation45;
 
 private:
 	TObjectPtr<class UIFFootIkComponent> FootIkComponent;

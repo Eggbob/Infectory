@@ -25,8 +25,6 @@ AIFGunBase::AIFGunBase()
 
 void AIFGunBase::FireRifle()
 {
-	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, Mesh, MuzzleSocket);
-
 	FHitResult Hit;
 	FVector ShotDirection;
 
@@ -53,10 +51,14 @@ void AIFGunBase::FireRifle()
 		if (HitActor->IsA(ACharacter::StaticClass()))
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodImpactEffect, Hit.Location, ShotDirection.Rotation());
+			UGameplayStatics::SpawnSoundAtLocation(GetWorld(), BodyImpactSound, Hit.Location, ShotDirection.Rotation());
+			CrossHairDelegate.ExecuteIfBound(true);
 		}
 		else
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.Location, ShotDirection.Rotation());
+			UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ImpactSound, Hit.Location, ShotDirection.Rotation());
+			CrossHairDelegate.ExecuteIfBound(false);
 		}
 	}
 
@@ -68,11 +70,10 @@ void AIFGunBase::FireRifle()
 
 void AIFGunBase::FireShotGun()
 {
-	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, Mesh, MuzzleSocket);
-
 	FVector ShotDirection;
 
 	ShotGunTrace(ShotDirection);
+	bDoOnce = false;
 
 	for (FHitResult Hit : HitResults)
 	{
@@ -91,12 +92,36 @@ void AIFGunBase::FireShotGun()
 		if (HitActor->IsA(ACharacter::StaticClass()))
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodImpactEffect, Hit.Location, ShotDirection.Rotation());
+
+			if (!bDoOnce)
+			{
+				bDoOnce = true;
+				UGameplayStatics::SpawnSoundAtLocation(GetWorld(), BodyImpactSound, Hit.Location, ShotDirection.Rotation());
+			}
 		}
 		else
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.Location, ShotDirection.Rotation());
+
+			if (!bDoOnce)
+			{
+				bDoOnce = true;
+				UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ImpactSound, Hit.Location, ShotDirection.Rotation());
+			}
+			//CrossHairDelegate.ExecuteIfBound(false);
 		}
 	}
+
+	if (HitResults.Num() > 0)
+	{
+		CrossHairDelegate.ExecuteIfBound(true);
+	}
+	else
+	{
+		CrossHairDelegate.ExecuteIfBound(false);
+		
+	}
+
 
 	if (FireGunDelegate.IsBound())
 	{
@@ -111,7 +136,6 @@ void AIFGunBase::GiveDamage(TObjectPtr<AActor> HitActor, FCustomDamageEvent& Hit
 
 void AIFGunBase::FireProjectile()
 {
-	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, Mesh, MuzzleSocket);
 
 	FVector SpawnLocation = Mesh->GetSocketTransform(MuzzleSocket).GetLocation();
 
@@ -153,19 +177,26 @@ void AIFGunBase::CachingOwner()
 
 void AIFGunBase::StartFire()
 {
-	if (CurrentAmmo <= 0) { return; }
+	if (CurrentAmmo <= 0) 
+	{ 
+		UGameplayStatics::SpawnSoundAttached(EmptySound, Mesh, MuzzleSocket);
+		return; 
+	}
 
 	ShootDelegate.ExecuteIfBound(CameraShake);
 
 	CurrentAmmo--;
 	AmmoChangedDelegate.ExecuteIfBound(CurrentAmmo, TotalAmmo);
 
+	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, Mesh, MuzzleSocket);
+	UGameplayStatics::SpawnSoundAttached(FireSound, Mesh, MuzzleSocket);
+
 	switch (WeaponType)
 	{
 	case ERangedWeaponType::Rifle:
 		FireRifle();
 
-		if (IsAuto)
+		if (bIsAuto)
 		{
 			GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AIFGunBase::StartFire, FireDelayTime, false);
 		}
@@ -189,8 +220,6 @@ void AIFGunBase::StopFire()
 
 void AIFGunBase::Reload()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Reload"));
-
 	TotalAmmo += CurrentAmmo;
 
 	if (TotalAmmo >= MagazineCapacity)
@@ -203,6 +232,7 @@ void AIFGunBase::Reload()
 		CurrentAmmo = TotalAmmo;
 		TotalAmmo = 0;
 	}
+
 	AmmoChangedDelegate.ExecuteIfBound(CurrentAmmo, TotalAmmo);
 
 }
@@ -265,7 +295,6 @@ void AIFGunBase::ShotGunTrace(FVector& ShotDirection)
 		FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(OwnerLocation, End);
 		GetWorld()->SpawnActor<AActor>(TracerEffect, SpawnLocation, Rotation);
 	}
-
 }
 
 

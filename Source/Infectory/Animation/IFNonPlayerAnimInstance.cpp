@@ -3,6 +3,7 @@
 
 #include "Animation/IFNonPlayerAnimInstance.h"
 #include "Interface/IFGetDefineTypeInterface.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Component/IFFootIkComponent.h"
 
 UIFNonPlayerAnimInstance::UIFNonPlayerAnimInstance()
@@ -71,8 +72,6 @@ void UIFNonPlayerAnimInstance::PlaySpecialHitAnimation()
 		
 		}
 	), 0.3f, false);*/
-	
-	UE_LOG(LogTemp, Warning, TEXT("PlaySpecialHitAnimation"));
 }
 
 void UIFNonPlayerAnimInstance::PlayLyingAnimation()
@@ -93,6 +92,12 @@ void UIFNonPlayerAnimInstance::PlayStandUpAnimation()
 {
 	BlendWeight = 0.f;
 	Montage_Play(StandUpAnimation, 1.0f);
+}
+
+void UIFNonPlayerAnimInstance::PlayTurnAnimation()
+{
+	BlendWeight = 0.f;
+	Montage_Play(TurnAnimation45, 1.0f);
 }
 
 
@@ -125,12 +130,13 @@ void UIFNonPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		RecoilAlpha = FMath::Lerp(RecoilAlpha, 0, 0.04f);
 		CurNpcState = DefineTypePawn.GetInterface()->GetNPCState();
 		CurNpcMoveType = DefineTypePawn.GetInterface()->GetNPCMoveType();
-
 		//CurRotation = FMath::Lerp(CurRotation, FVector::DotProduct(CurVelocity, GetOwningActor()->GetActorRightVector()), 0.05f);
 	/*	bIsTurnRight = CurRotation > 0.3f ? true : false;
 		bIsTurnLeft = CurRotation < -0.3f ? true : false;*/
 	}
 }
+
+
 
 void UIFNonPlayerAnimInstance::PlayHitAnim()
 {

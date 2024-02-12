@@ -77,11 +77,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = NPC)
 	bool bIsJustSpawn;
 
-
 private:
 	ENPCState CurNpcState;
 
 	ENPCMoveType CurNpcMoveType;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> AttackSound;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> CrawlSound;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> DeadSound;
 
 	UPROPERTY()
 	TObjectPtr<class AIFGunBase> ProjectileWeapon;

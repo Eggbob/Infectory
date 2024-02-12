@@ -25,8 +25,8 @@ class INFECTORY_API UIFPlayerAnimInstance : public UIFAnimInstance
 	
 public:
 	UIFPlayerAnimInstance();
-	virtual void PlayHitAnim() override;
 	
+	virtual void PlayHitAnim() override;
 	void AddRecoil(ERangedWeaponType RangedWeaponType);
 	void PlayReloadAnim();
 	void PlayWeaponChangeAnim();
@@ -35,10 +35,14 @@ public:
 	FORCEINLINE void AnimNotify_OnWeaponChange() { OnWeaponChangeFinished.ExecuteIfBound(); }
 	UFUNCTION()
 	FORCEINLINE void AnimNotify_Hit() { OnHitAnimFinished.ExecuteIfBound(); }
+	UFUNCTION()
+	FORCEINLINE void AnimNotify_PlaySound() { PlaySound(); }
+	UFUNCTION()
+	FORCEINLINE void AnimNotify_PlayFootStep() { PlayFootSound(); }
 
 protected:
-	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)

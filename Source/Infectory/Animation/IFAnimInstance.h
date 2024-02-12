@@ -21,16 +21,18 @@ public:
 
 	virtual void PlayHitAnim() {};
 	virtual void PlayDeadAnim();
+	virtual void SetCurSound(TObjectPtr<USoundBase> InSound);
+	void SetFootSound(TObjectPtr<USoundBase> InSound);
 
 protected:
 	virtual void NativeInitializeAnimation() override;
-
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+	virtual void PlaySound();
+	virtual void PlayFootSound();
 
 private:
 	void InitIKFootRef();
 	void TickIKFoot();
-
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character)
 	TObjectPtr<class ACharacter> AnimOwner;
@@ -41,7 +43,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	FVector CurVelocity;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	float CurRotation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
@@ -79,6 +81,12 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UIFFootIkComponent> IkFootComp;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> CurSound;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> FootSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "IKFoot Value", meta = (AllowPrivateAccess = "true"))
 	FIKAnimValue IkAnimValue;

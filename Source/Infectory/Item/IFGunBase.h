@@ -11,6 +11,7 @@
 
 DECLARE_DELEGATE_OneParam(FOnFireGun, ERangedWeaponType);
 DECLARE_DELEGATE_OneParam(FOnShootDelegate, TSubclassOf<class ULegacyCameraShake>);
+DECLARE_DELEGATE_OneParam(FOnCrossHairDelegate, bool);
 DECLARE_DELEGATE_TwoParams(FOnReload, int32, int32); //현재 장탄수, 총 총알 수
 
 #define MuzzleSocket "MuzzleFlashSocket"
@@ -39,9 +40,6 @@ public:
 	UFUNCTION(Blueprintcallable)
 	FVector GetWeaponSocket();
 
-protected:
-	
-
 private:
 	bool GunTrace(FHitResult& Hit, FVector& ShotDirection);
 	void ShotGunTrace(FVector& ShotDirection);
@@ -50,6 +48,25 @@ public:
 	FOnFireGun FireGunDelegate;
 	FOnReload AmmoChangedDelegate;
 	FOnShootDelegate ShootDelegate;
+	FOnCrossHairDelegate CrossHairDelegate;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> FireSound;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> EmptySound;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> ReloadSound;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> SwapSound;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> ImpactSound;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> BodyImpactSound;
 
 protected:
 	UPROPERTY()
@@ -116,7 +133,8 @@ protected:
 	TObjectPtr<UParticleSystem> BloodImpactEffect;
 
 private:
-	bool IsAuto = true;
+	bool bIsAuto = true;
+	bool bDoOnce = false;
 	
 	FTimerHandle FireTimerHandle;
 	TArray<FHitResult> HitResults;
