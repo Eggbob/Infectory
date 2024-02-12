@@ -142,6 +142,7 @@ void AIFCharacterPlayer::BeginPlay()
 	AnimInstance->OnLeftIKChange.BindUObject(this, &AIFCharacterPlayer::GetGunHandPosition);
 	AnimInstance->OnHitAnimFinished.BindLambda([&]() { CurCharacterState = ECharacterState::Idle; });
 	AnimInstance->OnReloadFinished.BindLambda([&]() { CurCharacterState = ECharacterState::Idle; });
+	AnimInstance.Get()->SetFootSound(FootStepSound);
 
 	StatComp->ForTest();
 	StatComp->bIsNPC = false;

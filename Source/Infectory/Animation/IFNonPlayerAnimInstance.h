@@ -35,6 +35,7 @@ public:
 	void PlayStandUpAnimation();
 	void PlayTurnAnimation();
 
+
 protected:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
@@ -53,6 +54,7 @@ protected:
 
 	UFUNCTION()
 	FORCEINLINE void AnimNotify_PlayFootStep() { PlayFootSound(); }
+
 
 public:
 	FOnAttackEndDelegate OnAttackEnd;
@@ -78,12 +80,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	FRotator RecoilRot;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
-	//bool bIsTurnLeft;
-
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
-	//bool bIsTurnRight;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TArray<TObjectPtr<class UAnimMontage>> IdleAnimations;
 

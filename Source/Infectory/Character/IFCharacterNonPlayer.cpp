@@ -213,6 +213,7 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 		AnimInstance->OnAttackEnd.BindUObject(this, &AIFCharacterNonPlayer::NotifyAttackActionEnd);
 		AnimInstance->OnBackJump.BindUObject(this, &AIFCharacterNonPlayer::StartBackJump);
 		AnimInstance->OnBeforeMoving.BindUObject(this, &AIFCharacterNonPlayer::NotifyBeforeMovingActionEnd);
+		AnimInstance.Get()->SetFootSound(FootStepSound);
 		AnimInstance->OnHitEnd.BindLambda([&]() { 
 			AIController.Get()->GetBlackboardComponent()->SetValueAsBool(BBKEY_ISHIT, false);
 		});
@@ -434,7 +435,9 @@ void AIFCharacterNonPlayer::ChangeNPCMoveMode()
 {
 	CurNpcMoveType = ENPCMoveType::Crawling;
 	GetCharacterMovement()->MaxWalkSpeed = StatComp.Get()->GetBaseStat().CrawlMovementSpeed;
-	AnimInstance->StopAllMontages(0.0f);
+	AnimInstance.Get()->StopAllMontages(0.0f);
+	AnimInstance.Get()->SetFootSound(CrawlSound);
+	
 }
 
 float AIFCharacterNonPlayer::GetAIPatrolRadius()

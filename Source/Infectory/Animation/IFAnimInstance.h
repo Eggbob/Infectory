@@ -22,6 +22,7 @@ public:
 	virtual void PlayHitAnim() {};
 	virtual void PlayDeadAnim();
 	virtual void SetCurSound(TObjectPtr<USoundBase> InSound);
+	void SetFootSound(TObjectPtr<USoundBase> InSound);
 
 protected:
 	virtual void NativeInitializeAnimation() override;

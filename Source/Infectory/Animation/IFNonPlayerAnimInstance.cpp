@@ -136,6 +136,8 @@ void UIFNonPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	}
 }
 
+
+
 void UIFNonPlayerAnimInstance::PlayHitAnim()
 {
 	//Montage_Play(HitAnimations[FMath::RandRange(0, HitAnimations.Num() - 1)], 1.0f);

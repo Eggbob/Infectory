@@ -28,6 +28,15 @@ void UIFAnimInstance::SetCurSound(TObjectPtr<USoundBase> InSound)
 	}
 }
 
+void UIFAnimInstance::SetFootSound(TObjectPtr<USoundBase> InSound)
+{
+	FootSound = nullptr;
+	if (InSound)
+	{
+		FootSound = InSound;
+	}
+}
+
 void UIFAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();

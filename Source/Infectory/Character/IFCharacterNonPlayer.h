@@ -86,6 +86,9 @@ private:
 	TObjectPtr<USoundBase> AttackSound;
 
 	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> CrawlSound;
+
+	UPROPERTY(EditAnywhere)
 	TObjectPtr<USoundBase> DeadSound;
 
 	UPROPERTY()
