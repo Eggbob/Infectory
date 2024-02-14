@@ -33,7 +33,6 @@ public:
 	void PlaySpecialHitAnimation();
 	void PlayLyingAnimation();
 	void PlayStandUpAnimation();
-	void PlayTurnAnimation();
 
 
 protected:
@@ -79,6 +78,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	FRotator RecoilRot;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	float LastYaw;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TArray<TObjectPtr<class UAnimMontage>> IdleAnimations;
@@ -93,15 +95,14 @@ protected:
 	TObjectPtr<class UAnimMontage> SpecialHitAnimation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UAnimMontage> LyingAnimation;
+	TMap<ENPCMoveType, TObjectPtr<class UAnimMontage>> LyingAnimation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UAnimMontage> StandUpAnimation;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UAnimMontage> TurnAnimation45;
+	TMap<ENPCMoveType, TObjectPtr<class UAnimMontage>> StandUpAnimation;
 
 private:
+	UPROPERTY()
 	TObjectPtr<class UIFFootIkComponent> FootIkComponent;
-
+	
+	
 };

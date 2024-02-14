@@ -30,6 +30,7 @@ void AIFAIController::RunAI()
 	{
 		Blackboard.Get()->SetValueAsBool(BBKEY_ISFIRSTCONTACT, true);
 		Blackboard.Get()->SetValueAsBool(BBKEY_ISHIT, false);
+		Blackboard->SetValueAsVector(BBKEY_HOMEPOS, GetPawn()->GetActorLocation());
 
 		bHasTarget = false;
 		bool RunResult = RunBehaviorTree(BTAsset);

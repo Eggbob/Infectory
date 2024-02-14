@@ -22,9 +22,12 @@ public:
 protected:
 	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	float MinSpeed = 50.0f;
+
 private:
 	TObjectPtr<class IIFCharacterAIInterface> AIPawn;
 	bool bIsHit = false;
 	bool bIsReady = false;
-	float MinSpeed = 0.01f;
 };

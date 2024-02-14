@@ -234,7 +234,7 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 /// <param name="TargetActor"></param>
 void AIFCharacterNonPlayer::FocusingTarget(TObjectPtr<AActor> TargetActor)
 {
-	AIController->SetFocus(TargetActor, EAIFocusPriority::Gameplay);
+	//AIController->SetFocus(TargetActor, EAIFocusPriority::Gameplay);
 	AIController->SetTarget(TargetActor);
 	//AnimInstance.Get()->PlayTurnAnimation();
 }
@@ -305,6 +305,8 @@ void AIFCharacterNonPlayer::PerformWaiting(bool bIsFirstContact)
 	CurNpcState = ENPCState::Idle;
 	float WaitTime = bIsFirstContact ? StatComp->GetBaseStat().EncounterTime : StatComp->GetBaseStat().WaitTime;
 	
+	WaitTime = 10.0f;
+
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]() 
 		{

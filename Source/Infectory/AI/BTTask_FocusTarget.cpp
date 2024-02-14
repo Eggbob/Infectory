@@ -43,7 +43,7 @@ EBTNodeResult::Type UBTTask_FocusTarget::ExecuteTask(UBehaviorTreeComponent& Own
 	//FRotator LookAtRotation = LookAtDirection.Rotation();
 	//LookAtRotation.Pitch = 0.0f;
 	
-	//ControllingPawn->SetActorRotation(TargetRot);
+	ControllingPawn->SetActorRotation(TargetRot);
 	AIPawn->FocusingTarget(Target);
 
 	return EBTNodeResult::Succeeded;
