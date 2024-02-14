@@ -222,8 +222,7 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 			AIController.Get()->GetBlackboardComponent()->SetValueAsBool(BBKEY_ISHIT, false);
 		});
 	}
-	FVector Vec = GetActorLocation();
-	AIController.Get()->GetBlackboardComponent()->GetValueAsVector("HomePos", Vec);
+
 	InitPhysicsAnimation();
 }
 
