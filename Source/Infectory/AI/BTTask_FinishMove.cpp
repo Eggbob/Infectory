@@ -35,7 +35,7 @@ EBTNodeResult::Type UBTTask_FinishMove::ExecuteTask(UBehaviorTreeComponent& Owne
 	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]()
 		{
 			bIsReady = true;
-		}), 2.f, false);
+		}), 0.5f, false);
 
 	return EBTNodeResult::InProgress;
 }

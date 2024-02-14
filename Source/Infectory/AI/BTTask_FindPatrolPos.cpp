@@ -2,6 +2,7 @@
 
 
 #include "AI/BTTask_FindPatrolPos.h"
+#include "AI/IFAI.h"
 #include "AIController.h"
 #include "NavigationSystem.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -37,7 +38,7 @@ EBTNodeResult::Type UBTTask_FindPatrolPos::ExecuteTask(UBehaviorTreeComponent& O
 		return EBTNodeResult::Failed;
 	}
 
-	FVector Origin = OwnerComp.GetBlackboardComponent()->GetValueAsVector("HomePos");
+	FVector Origin = OwnerComp.GetBlackboardComponent()->GetValueAsVector(BBKEY_HOMEPOS);
 	float PatrolRadius = AIPawn->GetAIPatrolRadius();
 	FNavLocation NextPatrolPos;
 
@@ -45,7 +46,7 @@ EBTNodeResult::Type UBTTask_FindPatrolPos::ExecuteTask(UBehaviorTreeComponent& O
 	{
 		UE_LOG(LogTemp, Warning, TEXT("FindPos"));
 
-		OwnerComp.GetBlackboardComponent()->SetValueAsVector("PatrolPos", NextPatrolPos.Location);
+		OwnerComp.GetBlackboardComponent()->SetValueAsVector(BBKEY_PATROLPOS, NextPatrolPos.Location);
 		return EBTNodeResult::Succeeded;
 	}
 

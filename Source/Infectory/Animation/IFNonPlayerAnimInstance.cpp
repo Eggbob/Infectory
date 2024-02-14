@@ -4,7 +4,9 @@
 #include "Animation/IFNonPlayerAnimInstance.h"
 #include "Interface/IFGetDefineTypeInterface.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Character.h"
 #include "Component/IFFootIkComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 UIFNonPlayerAnimInstance::UIFNonPlayerAnimInstance()
 {
@@ -24,7 +26,7 @@ void UIFNonPlayerAnimInstance::PlayAttackAnimation(float AttackSpeed)
 			{
 				OnAttackEnd.ExecuteIfBound();
 			}
-		), AttackAnimation->GetPlayLength() - 0.5f, false);
+		), AttackAnimation->GetPlayLength() - 2.0f, false);
 	}
 }
 
@@ -66,18 +68,18 @@ void UIFNonPlayerAnimInstance::PlaySpecialHitAnimation()
 	BlendWeight = 0.f;
 	Montage_Play(SpecialHitAnimation, 1.0f);
 
-	/*GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda(
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda(
 		[&]()
 		{
-		
+			OnHitEnd.ExecuteIfBound();
 		}
-	), 0.3f, false);*/
+	), SpecialHitAnimation.Get()->GetPlayLength(), false);
 }
 
 void UIFNonPlayerAnimInstance::PlayLyingAnimation()
 {
 	BlendWeight = 0.f;
-	Montage_Play(LyingAnimation, 0.01f);
+	Montage_Play(LyingAnimation[CurNpcMoveType], 0.01f);
 
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda(
@@ -91,14 +93,9 @@ void UIFNonPlayerAnimInstance::PlayLyingAnimation()
 void UIFNonPlayerAnimInstance::PlayStandUpAnimation()
 {
 	BlendWeight = 0.f;
-	Montage_Play(StandUpAnimation, 1.0f);
+	Montage_Play(StandUpAnimation[CurNpcMoveType], 1.0f);
 }
 
-void UIFNonPlayerAnimInstance::PlayTurnAnimation()
-{
-	BlendWeight = 0.f;
-	Montage_Play(TurnAnimation45, 1.0f);
-}
 
 
 void UIFNonPlayerAnimInstance::NativeInitializeAnimation()
