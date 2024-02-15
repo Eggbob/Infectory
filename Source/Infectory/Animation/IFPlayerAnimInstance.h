@@ -28,7 +28,7 @@ public:
 	
 	virtual void PlayHitAnim() override;
 	void AddRecoil(ERangedWeaponType RangedWeaponType);
-	void PlayReloadAnim();
+	void PlayReloadAnim(ERangedWeaponType RangedWeaponType);
 	void PlayWeaponChangeAnim();
 
 	UFUNCTION()
@@ -76,7 +76,7 @@ protected:
 	TMap<ERangedWeaponType, FRotator> WeaponRecoilVectorMap;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UAnimMontage> ReloadAnimation;
+	TMap<ERangedWeaponType, TObjectPtr<class UAnimMontage>> ReloadAnimationMap;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> WeaponChangeAnimation;

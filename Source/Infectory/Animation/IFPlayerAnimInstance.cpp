@@ -28,11 +28,11 @@ void UIFPlayerAnimInstance::PlayWeaponChangeAnim()
 	}
 }
 
-void UIFPlayerAnimInstance::PlayReloadAnim()
+void UIFPlayerAnimInstance::PlayReloadAnim(ERangedWeaponType RangedWeaponType)
 {
-	if (IsValid(ReloadAnimation))
+	if (IsValid(ReloadAnimationMap[RangedWeaponType]))
 	{
-		Montage_Play(ReloadAnimation, 1.0f);
+		Montage_Play(ReloadAnimationMap[RangedWeaponType], 1.0f);
 
 		FTimerHandle TimerHandle;
 
@@ -41,7 +41,7 @@ void UIFPlayerAnimInstance::PlayReloadAnim()
 			{
 				OnReloadFinished.ExecuteIfBound();
 			}
-		), ReloadAnimation.Get()->GetPlayLength(), false);
+		), ReloadAnimationMap[RangedWeaponType].Get()->GetPlayLength() - 0.5f, false);
 	}
 }
 
@@ -64,8 +64,4 @@ void UIFPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		LeftHandPosition = OnLeftIKChange.Execute();
 	}
 }
-
-
-
-
 

@@ -143,7 +143,10 @@ void AIFCharacterPlayer::BeginPlay()
 	AnimInstance = Cast<UIFPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	AnimInstance->OnLeftIKChange.BindUObject(this, &AIFCharacterPlayer::GetGunHandPosition);
 	AnimInstance->OnHitAnimFinished.BindLambda([&]() { CurCharacterState = ECharacterState::Idle; });
-	AnimInstance->OnReloadFinished.BindLambda([&]() { CurCharacterState = ECharacterState::Idle; });
+	AnimInstance->OnReloadFinished.BindLambda([&]() { 
+		CurCharacterState = ECharacterState::Idle;
+		CurGun.Get()->Reload();
+	});
 	AnimInstance.Get()->SetFootSound(FootStepSound);
 
 	StatComp->ForTest();
@@ -250,8 +253,8 @@ void AIFCharacterPlayer::Reload()
 	if (IsFiring) return;
 	CurCharacterState = ECharacterState::Reloading;
 	AnimInstance.Get()->SetCurSound(CurGun.Get()->ReloadSound);
-	AnimInstance.Get()->PlayReloadAnim();
-	CurGun->Reload();
+	AnimInstance.Get()->PlayReloadAnim(CurGun.Get()->GetWeaponType());
+	//CurGun->Reload();
 }
 
 void AIFCharacterPlayer::ChangeWeapon1()

@@ -136,10 +136,11 @@ void AIFGunBase::GiveDamage(TObjectPtr<AActor> HitActor, FCustomDamageEvent& Hit
 
 void AIFGunBase::FireProjectile()
 {
+	//FVector SpawnLocation = Mesh->GetSocketTransform(MuzzleSocket).GetLocation();
+	FTransform SpawnTransform = GetProjectileSpawnTransform();
 
-	FVector SpawnLocation = Mesh->GetSocketTransform(MuzzleSocket).GetLocation();
-
-	TObjectPtr<AIFProjectile> Projectile = GetWorld()->SpawnActor<AIFProjectile>(ProjectileBP, SpawnLocation, Owner.Get()->GetActorRotation());
+	//TObjectPtr<AIFProjectile> Projectile = GetWorld()->SpawnActor<AIFProjectile>(ProjectileBP, SpawnLocation, Owner.Get()->GetActorRotation());
+	TObjectPtr<AIFProjectile> Projectile = GetWorld()->SpawnActor<AIFProjectile>(ProjectileBP, SpawnTransform);
 	Projectile.Get()->Init(ProjectileSpeed);
 	Projectile.Get()->OnAttack.BindLambda([&](TObjectPtr<AActor> HitActor, FCustomDamageEvent CustomDamageEvent){
 		GiveDamage(HitActor, CustomDamageEvent);
@@ -177,44 +178,52 @@ void AIFGunBase::CachingOwner()
 
 void AIFGunBase::StartFire()
 {
+	if (!bIsCanFire) return;
+
 	if (CurrentAmmo <= 0) 
 	{ 
 		UGameplayStatics::SpawnSoundAttached(EmptySound, Mesh, MuzzleSocket);
 		return; 
 	}
-
-	ShootDelegate.ExecuteIfBound(CameraShake);
-
+	
 	CurrentAmmo--;
 	AmmoChangedDelegate.ExecuteIfBound(CurrentAmmo, TotalAmmo);
 
+	ShootDelegate.ExecuteIfBound(CameraShake);
 	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, Mesh, MuzzleSocket);
 	UGameplayStatics::SpawnSoundAttached(FireSound, Mesh, MuzzleSocket);
 
-	switch (WeaponType)
-	{
-	case ERangedWeaponType::Rifle:
-		FireRifle();
-
+	GetWorldTimerManager().SetTimer(FireTimerHandle, FTimerDelegate::CreateLambda([&]() {
+		bIsCanFire = true;
 		if (bIsAuto)
 		{
-			GetWorldTimerManager().SetTimer(FireTimerHandle, this, &AIFGunBase::StartFire, FireDelayTime, false);
+			StartFire();
 		}
-		break;
-	case ERangedWeaponType::Projectile:
-	case ERangedWeaponType::EnemyProjectile:
-		FireProjectile();
-		break;
+	}), FireDelayTime, false);
 
-	case ERangedWeaponType::ShotGun:
-		FireShotGun();
-		break;
+	switch (WeaponType)
+	{
+		case ERangedWeaponType::Rifle:
+			FireRifle();
+			break;
+
+		case ERangedWeaponType::Projectile:
+		case ERangedWeaponType::EnemyProjectile:
+			FireProjectile();
+			break;
+
+		case ERangedWeaponType::ShotGun:
+			FireShotGun();
+			break;
 	}
+
+	bIsCanFire = false;
 }
 
 void AIFGunBase::StopFire()
 {
 	GetWorldTimerManager().ClearTimer(FireTimerHandle);
+	bIsCanFire = true;
 	FireGunDelegate.Unbind();
 }
 

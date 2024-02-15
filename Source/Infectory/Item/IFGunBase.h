@@ -40,6 +40,9 @@ public:
 	UFUNCTION(Blueprintcallable)
 	FVector GetWeaponSocket();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	FTransform GetProjectileSpawnTransform();
+
 private:
 	bool GunTrace(FHitResult& Hit, FVector& ShotDirection);
 	void ShotGunTrace(FVector& ShotDirection);
@@ -131,11 +134,14 @@ protected:
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	TObjectPtr<UParticleSystem> BloodImpactEffect;
+	
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	bool bIsAuto = true;
 
 private:
-	bool bIsAuto = true;
 	bool bDoOnce = false;
-	
+	bool bIsCanFire = true;
+
 	FTimerHandle FireTimerHandle;
 	TArray<FHitResult> HitResults;
 
