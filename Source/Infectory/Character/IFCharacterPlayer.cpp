@@ -16,7 +16,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Item/IFInventory.h"
 #include "Animation/IFPlayerAnimInstance.h"
-
+#include "Components/SpotLightComponent.h"
 
 
 AIFCharacterPlayer::AIFCharacterPlayer()
@@ -32,6 +32,8 @@ AIFCharacterPlayer::AIFCharacterPlayer()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 
+	FlashLight = CreateDefaultSubobject<USpotLightComponent>(TEXT("FlashLight"));
+	FlashLight->SetupAttachment(CameraBoom);
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/ParagonWraith/Characters/Heroes/Wraith/Skins/ODGreen/Meshes/Wraith_ODGreen.Wraith_ODGreen'"));
 	if (CharacterMeshRef.Object)
