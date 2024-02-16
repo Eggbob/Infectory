@@ -57,10 +57,12 @@ void AIFAIController::SetTarget(TObjectPtr<AActor> Target)
 
 void AIFAIController::MoveToTarget(float Range)
 {
-	float ExceptRange = FMath::RandRange(50.f, Range - 150.f);
+	float ExceptRange = 10.f;//FMath::RandRange(100.f, 190.f);
 
 	TWeakObjectPtr<AActor> Target = Cast<AActor>(Blackboard.Get()->GetValueAsObject(BBKEY_TARGET));
 	MoveToActor(Target.Get(), ExceptRange, true, true, true, 0, true);
+
+	Blackboard.Get()->SetValueAsBool(BBKEY_ISMOVING, true);
 }
 
 void AIFAIController::UpdateControlRotation(float DeltaTime, bool bUpdatePawn)
@@ -78,6 +80,11 @@ void AIFAIController::UpdateControlRotation(float DeltaTime, bool bUpdatePawn)
 			GetPawn()->FaceRotation(SmoothTargetRotation, DeltaTime);
 		}
 	}*/
+}
+
+void AIFAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
+{
+	Blackboard.Get()->SetValueAsBool(BBKEY_ISMOVING, false);
 }
 
 void AIFAIController::OnPossess(APawn* InPawn)

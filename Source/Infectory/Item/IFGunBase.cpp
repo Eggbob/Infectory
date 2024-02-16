@@ -246,6 +246,18 @@ void AIFGunBase::Reload()
 
 }
 
+bool AIFGunBase::CanReload()
+{
+	if (TotalAmmo == 0)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
 FVector AIFGunBase::GetWeaponSocket()
 {
 	return Mesh->GetSocketTransform("LeftHandSocket").GetLocation();

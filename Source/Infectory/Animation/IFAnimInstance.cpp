@@ -58,15 +58,12 @@ void UIFAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	if (Movement)
 	{
-		CurVelocity = Movement->Velocity;
-		GroundSpeed = FMath::Lerp(GroundSpeed,FVector::DotProduct(CurVelocity, AnimOwner->GetActorForwardVector()), 0.05f);
+		//CurVelocity = Movement->Velocity;
+		//GroundSpeed = FMath::Lerp(GroundSpeed,FVector::DotProduct(CurVelocity, AnimOwner->GetActorForwardVector()), 0.05f);
 		bIsIdle = GroundSpeed < MovingThreshould;
 		bIsFalling = Movement->IsFalling();
 		bIsJumping = bIsFalling & (CurVelocity.Z > JumpingThreshould);
-		
-		/*CurRotation = FMath::Lerp(CurRotation,FVector::DotProduct(CurVelocity, AnimOwner->GetActorRightVector()), 0.05f);
-		bIsTurnRight = CurRotation > 0.3f ? true : false;
-		bIsTurnLeft = CurRotation < -0.3f ? true : false;*/
+
 	}
 
 	TickIKFoot();

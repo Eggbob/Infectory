@@ -28,6 +28,9 @@ public:
 
 private:
 	TObjectPtr<class IIFCharacterAIInterface> AIPawn;
+	TObjectPtr<APawn> TargetPawn;
+
 	bool bIsHit = false;
 	bool bIsReady = false;
+	bool bIsMoving = true;
 };

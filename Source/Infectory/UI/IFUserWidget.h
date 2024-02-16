@@ -17,6 +17,7 @@ class INFECTORY_API UIFUserWidget : public UUserWidget
 public:
 	void UpdateAmmoState(int32 CurAmmo, int32 TotalAmmo);
 	void UpdateCrossHair(bool bIsHit);
+	void ActiveCrossHair(bool bIsActive);
 
 protected:
 	virtual void NativeConstruct() override;

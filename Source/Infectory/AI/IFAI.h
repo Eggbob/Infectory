@@ -2,4 +2,5 @@
 #define BBKEY_HOMEPOS TEXT("HomePos")
 #define BBKEY_PATROLPOS TEXT("PatrolPos")
 #define BBKEY_ISHIT TEXT("bIsHit")
+#define BBKEY_ISMOVING TEXT("bIsMoving")
 #define BBKEY_ISFIRSTCONTACT TEXT("bIsFirstContact")

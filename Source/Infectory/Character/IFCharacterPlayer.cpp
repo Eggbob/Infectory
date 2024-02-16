@@ -142,7 +142,10 @@ void AIFCharacterPlayer::BeginPlay()
 
 	AnimInstance = Cast<UIFPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	AnimInstance->OnLeftIKChange.BindUObject(this, &AIFCharacterPlayer::GetGunHandPosition);
-	AnimInstance->OnHitAnimFinished.BindLambda([&]() { CurCharacterState = ECharacterState::Idle; });
+	AnimInstance->OnHitAnimFinished.BindLambda([&]() { 
+		CurCharacterState = ECharacterState::Idle; 
+		UserWidget->ActiveCrossHair(true);
+	});
 	AnimInstance->OnReloadFinished.BindLambda([&]() { 
 		CurCharacterState = ECharacterState::Idle;
 		CurGun.Get()->Reload();
@@ -221,6 +224,8 @@ void AIFCharacterPlayer::OnHitAction()
 {
 	PlayCameraShake(HitCameraShake);
 	CurCharacterState = ECharacterState::Hitting;
+	UserWidget->ActiveCrossHair(false);
+
 	AnimInstance.Get()->SetCurSound(HitSound);
 	AnimInstance.Get()->PlayHitAnim();
 
@@ -251,6 +256,8 @@ void AIFCharacterPlayer::Shoot()
 void AIFCharacterPlayer::Reload()
 {
 	if (IsFiring) return;
+	if (!CurGun.Get()->CanReload()) return;
+
 	CurCharacterState = ECharacterState::Reloading;
 	AnimInstance.Get()->SetCurSound(CurGun.Get()->ReloadSound);
 	AnimInstance.Get()->PlayReloadAnim(CurGun.Get()->GetWeaponType());
@@ -445,10 +452,12 @@ void AIFCharacterPlayer::PerformRun()
 	switch (CurMoveType)
 	{
 	case ECharacterMoveType::Walking:
+		UserWidget.Get()->ActiveCrossHair(false);
 		CurMoveType = ECharacterMoveType::Running;
 		break;
 	case ECharacterMoveType::Running:
 	case ECharacterMoveType::Sprinting:
+		UserWidget.Get()->ActiveCrossHair(true);
 		CurMoveType = ECharacterMoveType::Walking;
 		break;
 	case ECharacterMoveType::Crouching:

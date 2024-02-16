@@ -23,6 +23,7 @@ public:
 	void SetTarget(TObjectPtr<AActor> Target);
 	void MoveToTarget(float Range);
 	virtual void UpdateControlRotation(float DeltaTime, bool bUpdatePawn = true) override;
+	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
 
 protected:
 	virtual void OnPossess(APawn* InPawn) override;

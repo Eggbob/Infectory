@@ -274,6 +274,7 @@ void AIFCharacterNonPlayer::SetAIWaitingDelegate(const FAICharacterWaitingFinish
 void AIFCharacterNonPlayer::AttackByAI()
 {
 	CurNpcState = ENPCState::Attacking;
+	StopMoving();
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	AnimInstance.Get()->SetCurSound(AttackSound);
 	AnimInstance->PlayAttackAnimation(StatComp->GetBaseStat().AttackSpeed);
@@ -297,15 +298,14 @@ void AIFCharacterNonPlayer::PerformMoving()
 void AIFCharacterNonPlayer::StopMoving()
 {
 	AIController->StopMovement();
-	UE_LOG(LogTemp, Warning, TEXT("StopMoving"));
+	//UE_LOG(LogTemp, Warning, TEXT("StopMoving"));
 }
 
 void AIFCharacterNonPlayer::PerformWaiting(bool bIsFirstContact)
 {
 	CurNpcState = ENPCState::Idle;
-	float WaitTime = bIsFirstContact ? StatComp->GetBaseStat().EncounterTime : StatComp->GetBaseStat().WaitTime;
 	
-	WaitTime = 10.0f;
+	float WaitTime = bIsFirstContact ? StatComp->GetBaseStat().EncounterTime : StatComp->GetBaseStat().WaitTime;
 
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]() 
@@ -358,6 +358,9 @@ float AIFCharacterNonPlayer::TakeDamage(float Damage, FDamageEvent const& Damage
 {
 	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 
+	SetHitWalkSpeed();
+	FocusingTarget(DamageCauser);
+
 	if (const FCustomDamageEvent* CustomDamageEvent = static_cast<const FCustomDamageEvent*>(&DamageEvent))
 	{
 		if (CustomDamageEvent->DamageType == EDamageType::Explosive)
@@ -385,8 +388,8 @@ float AIFCharacterNonPlayer::TakeDamage(float Damage, FDamageEvent const& Damage
 		}
 		
 	}
-	//FocusingTarget(DamageCauser);
-	SetHitWalkSpeed();
+
+	
 	return Damage;
 }
 
@@ -424,11 +427,11 @@ void AIFCharacterNonPlayer::MeleeAttackCheck()
 
 #if ENABLE_DRAW_DEBUG
 
-	//FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
-	//float CapsuleHalfHeight = AttackRange * 0.5f;
-	//FColor DrawColor = HitDetected ? FColor::Green : FColor::Red;
+	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
+	float CapsuleHalfHeight = AttackRange * 0.5f;
+	FColor DrawColor = HitDetected ? FColor::Green : FColor::Red;
 
-	//DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 5.0f);
+	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 5.0f);
 
 #endif
 }

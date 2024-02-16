@@ -31,12 +31,6 @@ EBTNodeResult::Type UBTTask_FinishMove::ExecuteTask(UBehaviorTreeComponent& Owne
 		return EBTNodeResult::Failed;
 	}
 
-	FTimerHandle WaitHandle;
-	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]()
-		{
-			bIsReady = true;
-		}), 0.5f, false);
-
 	return EBTNodeResult::InProgress;
 }
 
@@ -46,9 +40,12 @@ void UBTTask_FinishMove::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
 	bIsHit = OwnerComp.GetBlackboardComponent()->GetValueAsBool(BBKEY_ISHIT);
-	
-	if (bIsReady && (bIsHit || MinSpeed >= OwnerComp.GetAIOwner()->GetPawn()->GetVelocity().Size()))
+	TargetPawn = Cast<APawn>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(BBKEY_TARGET));
+	bIsMoving = OwnerComp.GetBlackboardComponent()->GetValueAsBool(BBKEY_ISMOVING);
+
+	if (bIsHit || TargetPawn != nullptr || !bIsMoving)
 	{
+
 		//OwnerComp.GetBlackboardComponent()->SetValueAsBool(BBKEY_ISHIT, false);
 		AIPawn.Get()->StopMoving();
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);

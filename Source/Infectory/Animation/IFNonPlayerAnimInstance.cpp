@@ -124,6 +124,8 @@ void UIFNonPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	if (Movement)
 	{
+		CurVelocity = Movement->Velocity;
+		GroundSpeed = CurVelocity.Size();
 		RecoilAlpha = FMath::Lerp(RecoilAlpha, 0, 0.04f);
 		CurNpcState = DefineTypePawn.GetInterface()->GetNPCState();
 		CurNpcMoveType = DefineTypePawn.GetInterface()->GetNPCMoveType();

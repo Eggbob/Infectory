@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Character.h"
 #include "Animation/IFPlayerAnimInstance.h"
 
 
@@ -53,6 +55,8 @@ void UIFPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	if (Movement)
 	{
+		CurVelocity = Movement->Velocity;
+		GroundSpeed = FMath::Lerp(GroundSpeed,FVector::DotProduct(CurVelocity, AnimOwner->GetActorForwardVector()), 0.05f);
 		RecoilAlpha = FMath::Lerp(RecoilAlpha, 0, 0.04f);
 		CurMoveType = DefineTypePawn.GetInterface()->GetPlayerMoveType();
 		CurControlType = DefineTypePawn.GetInterface()->GetPlayerControlType();

@@ -22,6 +22,18 @@ void UIFUserWidget::UpdateCrossHair(bool bIsHit)
 	}
 }
 
+void UIFUserWidget::ActiveCrossHair(bool bIsActive)
+{
+	if (bIsActive)
+	{
+		CrossHairWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		CrossHairWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
 void UIFUserWidget::NativeConstruct()
 {
 	Super::NativeConstruct();

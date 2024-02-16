@@ -32,6 +32,7 @@ public:
 	void StartFire();
 	void StopFire();
 	void Reload();
+	bool CanReload();
 
 	FORCEINLINE int32 GetCurAmmo() const { return CurrentAmmo; }
 	FORCEINLINE int32 GetTotalAmmo() const { return TotalAmmo; }
