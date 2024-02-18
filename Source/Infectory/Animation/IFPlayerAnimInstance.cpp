@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
+#include "Animation/IFPlayerAnimInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Character.h"
-#include "Animation/IFPlayerAnimInstance.h"
 
 
 UIFPlayerAnimInstance::UIFPlayerAnimInstance()

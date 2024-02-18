@@ -17,6 +17,9 @@ public:
 	AIFShield();
 	void SetShieldDestoryedDelegate(const FOnShieldDestoryed& InOnShieldDestoryed);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void ShieldDestory();
+
 protected:
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
@@ -35,4 +38,6 @@ protected:
 
 private:
 	FOnShieldDestoryed OnShieldDestoryed;
+
+	bool bIsDestoryed = false;
 };

@@ -35,12 +35,14 @@ float AIFShield::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACont
 
 	ShieldHP -= Damage;
 
-	if (ShieldHP <= 0)
+	if (ShieldHP <= 0 && !bIsDestoryed)
 	{
 		OnShieldDestoryed.ExecuteIfBound();
-		SetActorHiddenInGame(true);
-		SetActorEnableCollision(false);
-		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		//SetActorHiddenInGame(true);
+	    //SetActorEnableCollision(false);
+		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::ProbeOnly);
+		ShieldDestory();
+		bIsDestoryed = true;
 		//Destroy();
 	}
 

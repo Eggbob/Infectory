@@ -454,6 +454,10 @@ void AIFCharacterPlayer::PerformRun()
 	case ECharacterMoveType::Walking:
 		UserWidget.Get()->ActiveCrossHair(false);
 		CurMoveType = ECharacterMoveType::Running;
+		if (CurControlType == ECharacterControlType::Zoom)
+		{
+			ChangeCharacterControl();
+		}
 		break;
 	case ECharacterMoveType::Running:
 	case ECharacterMoveType::Sprinting:

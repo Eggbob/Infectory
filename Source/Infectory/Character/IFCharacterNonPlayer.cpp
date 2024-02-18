@@ -150,7 +150,6 @@ void AIFCharacterNonPlayer::SetDead()
 	{
 		AIController.Get()->StopAI();
 	}
-	
 }
 
 void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
@@ -186,8 +185,8 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 
 		ShieldObject.Get()->SetShieldDestoryedDelegate(FOnShieldDestoryed::CreateLambda([&]()
 			{
-				AIController.Get()->StopAI();
-				GetCharacterMovement()->StopActiveMovement();
+				StopMoving();
+				AIController.Get()->GetBlackboardComponent()->SetValueAsBool(BBKEY_ISHIT, true);
 				AnimInstance.Get()->PlaySpecialHitAnimation();
 			}));
 	}
@@ -388,8 +387,6 @@ float AIFCharacterNonPlayer::TakeDamage(float Damage, FDamageEvent const& Damage
 		}
 		
 	}
-
-	
 	return Damage;
 }
 

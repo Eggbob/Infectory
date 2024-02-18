@@ -29,6 +29,7 @@ void AIFAIController::RunAI()
 	if (UseBlackboard(BBAsset, BlackboardPtr))
 	{
 		Blackboard.Get()->SetValueAsBool(BBKEY_ISFIRSTCONTACT, true);
+		Blackboard.Get()->SetValueAsBool(BBKEY_ISMOVING, true);
 		Blackboard.Get()->SetValueAsBool(BBKEY_ISHIT, false);
 		Blackboard->SetValueAsVector(BBKEY_HOMEPOS, GetPawn()->GetActorLocation());
 
@@ -57,12 +58,12 @@ void AIFAIController::SetTarget(TObjectPtr<AActor> Target)
 
 void AIFAIController::MoveToTarget(float Range)
 {
+
 	float ExceptRange = 10.f;//FMath::RandRange(100.f, 190.f);
 
 	TWeakObjectPtr<AActor> Target = Cast<AActor>(Blackboard.Get()->GetValueAsObject(BBKEY_TARGET));
 	MoveToActor(Target.Get(), ExceptRange, true, true, true, 0, true);
 
-	Blackboard.Get()->SetValueAsBool(BBKEY_ISMOVING, true);
 }
 
 void AIFAIController::UpdateControlRotation(float DeltaTime, bool bUpdatePawn)
