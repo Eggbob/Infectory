@@ -19,6 +19,9 @@ public:
 	void UpdateCrossHair(bool bIsHit);
 	void ActiveCrossHair(bool bIsActive);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayHitEffect();
+
 protected:
 	virtual void NativeConstruct() override;
 	

@@ -23,31 +23,16 @@ AIFProjectile::AIFProjectile()
 	StaticMeshComp->SetupAttachment(CapsuleComp);
 }
 
-void AIFProjectile::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	if (!bIsCollisioned && !bIsExplosive)
-	{
-		SetActorLocationAndRotation((GetActorLocation() + GetActorForwardVector() * (MoveSpeed * DeltaTime)), GetActorRotation());
-		checkTime += DeltaTime;
-	}
-
-	if (checkTime >= ReturnTime || bIsCollisioned)
-	{
-		DeInit();
-	}
-}
-
 
 void AIFProjectile::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
+	
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, GetActorLocation());
+	UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ProjectileSound, GetActorLocation());
 
 	if (bIsExplosive)
 	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, GetActorLocation());
-		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ProjectileSound, GetActorLocation());
 		OnShoot.ExecuteIfBound(CameraShake);
 		CheckAttackRange();
 	}
@@ -79,7 +64,6 @@ void AIFProjectile::ExcuteAttack(AActor* OtherActor)
 void AIFProjectile::Init(float Speed)
 {
 	SetActorEnableCollision(true);
-	SetActorTickEnabled(true);
 	checkTime = 0.f;
 	bIsDeInit = false;
 	bIsCollisioned = false;
@@ -95,6 +79,23 @@ void AIFProjectile::Init(float Speed)
 
 void AIFProjectile::DeInit()
 {
+}
+
+void AIFProjectile::SetLocation(FVector& TargetLoc)
+{
+	FVector LaunchDirec = TargetLoc - GetActorLocation();
+	LaunchDirec.Z = 0.f;
+
+	float ProjectileSpeed = 1000.f;
+	float Gravity = 980.f;
+	float TimeToTarget = LaunchDirec.Size() / ProjectileSpeed;
+	FVector LaunchVelocity = LaunchDirec / TimeToTarget;
+	LaunchVelocity.Z += 0.5f * Gravity * TimeToTarget;
+
+	ProjectileMovementComp->Velocity = LaunchVelocity;
+	ProjectileMovementComp->InitialSpeed = LaunchVelocity.Size();
+	ProjectileMovementComp->MaxSpeed = LaunchVelocity.Size();
+	//ProjectileMovementComp->MaxSpeed = LaunchVelocity;
 }
 
 void AIFProjectile::CheckAttackRange()
@@ -120,13 +121,13 @@ void AIFProjectile::CheckAttackRange()
 			if (Actor->IsA<AIFCharacterNonPlayer>())
 			{
 				ExcuteAttack(Actor.Get());
-				DrawDebugSphere(GetWorld(), GetActorLocation(), 300.f, 16, FColor::Green, false, 0.2f);
+			/*	DrawDebugSphere(GetWorld(), GetActorLocation(), 300.f, 16, FColor::Green, false, 0.2f);
 				DrawDebugPoint(GetWorld(), Actor.Get()->GetActorLocation(), 10.0f, FColor::Green, false, 0.2f);
-				DrawDebugLine(GetWorld(), GetActorLocation(), Actor->GetActorLocation(), FColor::Green, false, 0.27f);
+				DrawDebugLine(GetWorld(), GetActorLocation(), Actor->GetActorLocation(), FColor::Green, false, 0.27f);*/
 			}
 		}
 	}
 
-	DrawDebugSphere(GetWorld(), GetActorLocation(), 300.f, 16, FColor::Red, false, 0.2f);
+	//DrawDebugSphere(GetWorld(), GetActorLocation(), 300.f, 16, FColor::Red, false, 0.2f);
 }
 

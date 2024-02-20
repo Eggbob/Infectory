@@ -26,10 +26,10 @@ public:
 
 	void FireRifle();
 	void FireShotGun();
-	void FireProjectile();
+	void FireProjectile(FVector& TargetLoc);
 	void GiveDamage(TObjectPtr<AActor> HitActor, FCustomDamageEvent& Hit);
 	void CachingOwner();
-	void StartFire();
+	void StartFire(FVector TargetLoc);
 	void StopFire();
 	void Reload();
 	bool CanReload();

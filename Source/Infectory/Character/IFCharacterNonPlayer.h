@@ -116,6 +116,9 @@ private:
 	TObjectPtr<class AIFAIController> AIController;
 
 	UPROPERTY()
+	TObjectPtr<class AActor> TargetActor;
+
+	UPROPERTY()
 	TMap<ENPCBoneName, int32> BodyDamageCheckMap;
 
 };

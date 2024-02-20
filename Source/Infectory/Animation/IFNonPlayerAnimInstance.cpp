@@ -26,7 +26,7 @@ void UIFNonPlayerAnimInstance::PlayAttackAnimation(float AttackSpeed)
 			{
 				OnAttackEnd.ExecuteIfBound();
 			}
-		), AttackAnimation->GetPlayLength() - 2.0f, false);
+		), AttackAnimation->GetPlayLength(), false);
 	}
 }
 

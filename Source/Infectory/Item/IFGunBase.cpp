@@ -134,21 +134,26 @@ void AIFGunBase::GiveDamage(TObjectPtr<AActor> HitActor, FCustomDamageEvent& Hit
 	HitActor->TakeDamage(Damage, Hit, OwnerController, GetOwner());
 }
 
-void AIFGunBase::FireProjectile()
+void AIFGunBase::FireProjectile(FVector& TargetLoc)
 {
-	//FVector SpawnLocation = Mesh->GetSocketTransform(MuzzleSocket).GetLocation();
-	FTransform SpawnTransform = GetProjectileSpawnTransform();
-
-	//TObjectPtr<AIFProjectile> Projectile = GetWorld()->SpawnActor<AIFProjectile>(ProjectileBP, SpawnLocation, Owner.Get()->GetActorRotation());
+	FTransform SpawnTransform = WeaponType == ERangedWeaponType::Projectile ? GetProjectileSpawnTransform() : Mesh->GetSocketTransform("LeftHandSocket");
 	TObjectPtr<AIFProjectile> Projectile = GetWorld()->SpawnActor<AIFProjectile>(ProjectileBP, SpawnTransform);
-	Projectile.Get()->Init(ProjectileSpeed);
-	Projectile.Get()->OnAttack.BindLambda([&](TObjectPtr<AActor> HitActor, FCustomDamageEvent CustomDamageEvent){
+
+	if(Projectile == nullptr) return;
+
+	Projectile->Init(ProjectileSpeed);
+	Projectile->OnAttack.BindLambda([&](TObjectPtr<AActor> HitActor, FCustomDamageEvent CustomDamageEvent) {
 		GiveDamage(HitActor, CustomDamageEvent);
-	}); 
+	});
+
+	if (WeaponType == ERangedWeaponType::EnemyProjectile)
+	{
+		Projectile->SetLocation(TargetLoc);
+	}
 
 	if (ShootDelegate.IsBound())
 	{
-		Projectile.Get()->OnShoot.BindLambda([&](TSubclassOf<ULegacyCameraShake> CameraShake) {
+		Projectile->OnShoot.BindLambda([&](TSubclassOf<ULegacyCameraShake> CameraShake) {
 			ShootDelegate.ExecuteIfBound(CameraShake);
 		});
 	}
@@ -176,7 +181,7 @@ void AIFGunBase::CachingOwner()
 	CurrentAmmo = MagazineCapacity;
 }
 
-void AIFGunBase::StartFire()
+void AIFGunBase::StartFire(FVector TargetLoc)
 {
 	if (!bIsCanFire) return;
 
@@ -197,7 +202,7 @@ void AIFGunBase::StartFire()
 		bIsCanFire = true;
 		if (bIsAuto)
 		{
-			StartFire();
+			StartFire(TargetLoc);
 		}
 	}), FireDelayTime, false);
 
@@ -209,7 +214,7 @@ void AIFGunBase::StartFire()
 
 		case ERangedWeaponType::Projectile:
 		case ERangedWeaponType::EnemyProjectile:
-			FireProjectile();
+			FireProjectile(TargetLoc);
 			break;
 
 		case ERangedWeaponType::ShotGun:

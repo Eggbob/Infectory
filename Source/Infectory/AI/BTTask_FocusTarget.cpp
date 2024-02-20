@@ -36,9 +36,18 @@ EBTNodeResult::Type UBTTask_FocusTarget::ExecuteTask(UBehaviorTreeComponent& Own
 	}
 
 	FRotator LookRot = UKismetMathLibrary::FindLookAtRotation(ControllingPawn->GetActorLocation(), Target->GetActorLocation());
-	FRotator TargetRot = UKismetMathLibrary::RInterpTo(ControllingPawn->GetActorRotation(), LookRot, GetWorld()->GetDeltaSeconds(), 2.0f);
 
-	ControllingPawn->SetActorRotation(TargetRot);
+	if (bIsDirect)
+	{
+		ControllingPawn->SetActorRotation(LookRot);
+	}
+	else
+	{
+		FRotator TargetRot = UKismetMathLibrary::RInterpTo(ControllingPawn->GetActorRotation(), LookRot, GetWorld()->GetDeltaSeconds(), 2.0f);
+		ControllingPawn->SetActorRotation(TargetRot);
+
+	}
+
 	AIPawn->FocusingTarget(Target);
 
 	return EBTNodeResult::Succeeded;

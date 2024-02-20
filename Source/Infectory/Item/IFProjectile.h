@@ -18,11 +18,11 @@ class INFECTORY_API AIFProjectile : public AActor
 public:	
 	AIFProjectile();
 
-	virtual void Tick(float DeltaTime) override;
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 	void ExcuteAttack(AActor* OtherActor);
 	void Init(float Speed);
 	void DeInit();
+	void SetLocation(FVector& TargetLoc);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void LaunchEnemy(AActor* TargetActor);

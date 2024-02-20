@@ -224,7 +224,8 @@ void AIFCharacterPlayer::OnHitAction()
 {
 	PlayCameraShake(HitCameraShake);
 	CurCharacterState = ECharacterState::Hitting;
-	UserWidget->ActiveCrossHair(false);
+	UserWidget.Get()->ActiveCrossHair(false);
+	UserWidget.Get()->PlayHitEffect();
 
 	AnimInstance.Get()->SetCurSound(HitSound);
 	AnimInstance.Get()->PlayHitAnim();
@@ -245,7 +246,7 @@ void AIFCharacterPlayer::Shoot()
 	if (CurControlType == ECharacterControlType::Zoom && IsFiring && CurCharacterState == ECharacterState::Idle)
 	{
 		CurGun->FireGunDelegate.BindUObject(AnimInstance, &UIFPlayerAnimInstance::AddRecoil);
-		CurGun->StartFire();
+		CurGun->StartFire(FVector::ZeroVector);
 	}
 	else if(CurControlType == ECharacterControlType::Zoom && !IsFiring)
 	{

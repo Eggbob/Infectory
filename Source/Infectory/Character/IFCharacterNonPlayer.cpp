@@ -191,10 +191,6 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 			}));
 	}
 
-	//UE_LOG(LogTemp, Warning, TEXT("MaxWalkSpeed : %f"), GetCharacterMovement()->MaxWalkSpeed);
-	//UE_LOG(LogTemp, Warning, TEXT("MovementSpeed : %f"), StatComp->GetBaseStat().MovementSpeed);
-	//UE_LOG(LogTemp, Warning, TEXT("MaxWalkSpeed2 : %f"), GetCharacterMovement()->MaxWalkSpeed);
-
 	const UEnum* EnumPtr = StaticEnum<ENPCBoneName>();
 	BodyDamageCheckMap.Empty();
 
@@ -231,11 +227,11 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 /// AI가 Focus할 대상 지정
 /// </summary>
 /// <param name="TargetActor"></param>
-void AIFCharacterNonPlayer::FocusingTarget(TObjectPtr<AActor> TargetActor)
+void AIFCharacterNonPlayer::FocusingTarget(TObjectPtr<AActor> InTargetActor)
 {
+	TargetActor = InTargetActor;
+	AIController->SetTarget(InTargetActor);
 	//AIController->SetFocus(TargetActor, EAIFocusPriority::Gameplay);
-	AIController->SetTarget(TargetActor);
-	//AnimInstance.Get()->PlayTurnAnimation();
 }
 
 /// <summary>
@@ -394,7 +390,7 @@ void AIFCharacterNonPlayer::AttackHitCheck()
 {
 	if (CurNPCType == ENPCType::RangedParasite)
 	{
-		ProjectileWeapon->StartFire();
+		ProjectileWeapon->StartFire(TargetActor.Get()->GetActorLocation());
 		return;
 	}
 	else
@@ -417,7 +413,6 @@ void AIFCharacterNonPlayer::MeleeAttackCheck()
 	bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, Start, End, FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel3, FCollisionShape::MakeSphere(AttackRadius), Params);
 	if (HitDetected)
 	{
-		//TODO Check Damage
 		FDamageEvent DamageEvent;
 		OutHitResult.GetActor()->TakeDamage(StatComp->GetBaseStat().Attack, DamageEvent, GetController(), this);
 	}
