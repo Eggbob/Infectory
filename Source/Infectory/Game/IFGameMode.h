@@ -17,4 +17,10 @@ class INFECTORY_API AIFGameMode : public AGameModeBase
 public:
 	AIFGameMode();
 
+	virtual void Logout(AController* Exiting) override;
+	TObjectPtr<class AIFObjectPoolManager> GetPoolManager();
+
+private:
+	UPROPERTY()
+	TObjectPtr<class AIFObjectPoolManager> PoolManager;
 };

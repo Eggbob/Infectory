@@ -3,6 +3,7 @@
 
 #include "Game/IFGameInstance.h"
 #include "Engine/DataTable.h"
+#include "Game/IFObjectPoolManager.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 UIFGameInstance::UIFGameInstance()
@@ -21,6 +22,24 @@ UIFGameInstance::UIFGameInstance()
 			if (nullptr != CharacterStat)
 			{
 				CharacterStatMap.Add(TPair<FName, FName>(CharacterStat->Name, CharacterStat->NPCTier), *CharacterStat);
+			}
+		}
+	}
+
+	static ConstructorHelpers::FObjectFinder<UDataTable> GunDataTableRef(TEXT("/Script/Engine.DataTable'/Game/Assets/GameData/IFGunStatTable.IFGunStatTable'"));
+	if (GunDataTableRef.Object)
+	{
+		GunStatTable = GunDataTableRef.Object;
+
+		TArray<FName> RowNames = GunStatTable->GetRowNames();
+
+		for (FName& RName : RowNames)
+		{
+			FIFGunStat* GunStat = GunStatTable->FindRow<FIFGunStat>(RName, TEXT(""));
+
+			if (nullptr != GunStat)
+			{
+				GunStatMap.Add((FName)GunStat->Name, *GunStat);
 			}
 		}
 	}
@@ -43,10 +62,6 @@ FIFCharacterStat UIFGameInstance::GetCharacterStat(FName NpcName, FName NPCTier)
 	
 	if (CharacterStatMap.Contains(TPair<FName, FName>(NpcName, NPCTier)))
 	{
-		FString TestString = FString::Printf(TEXT("CharasteMap : %d"), CharacterStatMap.Num());
-
-		UKismetSystemLibrary::PrintString(this, TestString);
-
 		return CharacterStatMap[TPair<FName, FName>(NpcName, NPCTier)];
 	}
 	else
@@ -55,3 +70,18 @@ FIFCharacterStat UIFGameInstance::GetCharacterStat(FName NpcName, FName NPCTier)
 		return FIFCharacterStat();
 	}
 }
+
+FIFGunStat UIFGameInstance::GetGunStat(FName GunName) const
+{
+	if (GunStatMap.Contains(GunName))
+	{
+		return GunStatMap[GunName];
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invalid Gun Stat"));
+		return FIFGunStat();
+	}
+}
+
+

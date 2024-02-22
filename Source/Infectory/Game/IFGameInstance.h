@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "Stat/IFStatComponent.h"
+#include "Data/IFCharacterStat.h"
+#include "Data/IFGunStat.h"
 #include "Data/IFEnumDefine.h"
 #include "IFGameInstance.generated.h"
 
@@ -19,14 +21,25 @@ class INFECTORY_API UIFGameInstance : public UGameInstance
 public:
 	UIFGameInstance();
 
-
 	static UIFGameInstance& Get();
 
 public:
 	FIFCharacterStat GetCharacterStat(FName NpcName, FName NPCTier) const;
+	FIFGunStat GetGunStat(FName GunName) const;
+
 
 
 private:
-	TMap<TPair<FName, FName>, FIFCharacterStat> CharacterStatMap;
+	UPROPERTY()
 	TObjectPtr<class UDataTable> CharacterStatTable;
+
+	TMap<TPair<FName, FName>, FIFCharacterStat> CharacterStatMap;
+
+	UPROPERTY()
+	TObjectPtr<class AIFObjectPoolManager> PoolManager;
+
+	UPROPERTY()
+	TObjectPtr<class UDataTable> GunStatTable;
+
+	TMap<FName, FIFGunStat> GunStatMap;
 };

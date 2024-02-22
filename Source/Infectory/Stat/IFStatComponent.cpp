@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Character/IFBodyPartDamageData.h"
 #include "Data/IFGameSingleton.h"
+#include "Game/IFGameInstance.h"
 #include "Data/IFEnumDefine.h"
 
 UIFStatComponent::UIFStatComponent()

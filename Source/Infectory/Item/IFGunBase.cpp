@@ -8,8 +8,10 @@
 #include "DrawDebugHelpers.h"
 #include "GameFramework/Character.h"
 #include "NiagaraComponent.h"
-#include "Data/IFGameSingleton.h"
 #include "Item/IFProjectile.h"
+#include "Game/IFGameMode.h"
+#include "Data/IFGameSingleton.h"
+#include "Game/IFObjectPoolManager.h"
 
 
 
@@ -32,7 +34,17 @@ void AIFGunBase::FireRifle()
 
 	FVector SpawnLocation = Mesh->GetSocketLocation(MuzzleSocket);;
 	FVector Rot = ShotDirection * -1;
-	GetWorld()->SpawnActor<AActor>(TracerEffect, SpawnLocation, Rot.Rotation());
+
+	TObjectPtr<AIFProjectile> Tracer = Cast<AIFProjectile>(GameMode.Get()->GetPoolManager().Get()->Pop(TracerEffect, GetWorld()));
+	Tracer.Get()->SetActorRotation(Rot.Rotation());
+	Tracer.Get()->SetActorLocationAndRotation(SpawnLocation, Rot.Rotation());
+	Tracer.Get()->OnFinish.BindLambda([&](AActor* ReturnActor) {
+
+		TObjectPtr<AIFGameMode> GameMode = Cast<AIFGameMode>(GetWorld()->GetAuthGameMode());
+		GameMode.Get()->GetPoolManager().Get()->Push(ReturnActor);
+	});
+	Tracer.Get()->Init(7500);
+	Tracer.Get()->LaunchTracer();
 
 	if (bSuccess)
 	{
@@ -136,20 +148,39 @@ void AIFGunBase::GiveDamage(TObjectPtr<AActor> HitActor, FCustomDamageEvent& Hit
 
 void AIFGunBase::FireProjectile(FVector& TargetLoc)
 {
-	FTransform SpawnTransform = WeaponType == ERangedWeaponType::Projectile ? GetProjectileSpawnTransform() : Mesh->GetSocketTransform("LeftHandSocket");
-	TObjectPtr<AIFProjectile> Projectile = GetWorld()->SpawnActor<AIFProjectile>(ProjectileBP, SpawnTransform);
+	//FTransform SpawnTransform = WeaponType == ERangedWeaponType::Projectile ? GetProjectileSpawnTransform() : Mesh->GetSocketTransform(MuzzleSocket);
+	FTransform SpawnTransform = Mesh->GetSocketTransform(MuzzleSocket);
+	
+	TObjectPtr<AIFProjectile> Projectile = Cast<AIFProjectile>(GameMode.Get()->GetPoolManager().Get()->Pop(ProjectileBP, GetWorld()));
 
-	if(Projectile == nullptr) return;
+	if (Projectile == nullptr)
+	{
+		Projectile = GetWorld()->SpawnActor<AIFProjectile>(ProjectileBP, SpawnTransform);
+	}
+
+	Projectile.Get()->SetActorLocationAndRotation(SpawnTransform.GetLocation(), SpawnTransform.GetRotation());
 
 	Projectile->Init(ProjectileSpeed);
 	Projectile->OnAttack.BindLambda([&](TObjectPtr<AActor> HitActor, FCustomDamageEvent CustomDamageEvent) {
 		GiveDamage(HitActor, CustomDamageEvent);
 	});
+	Projectile.Get()->OnFinish.Unbind();
+	Projectile.Get()->OnFinish.BindLambda([&](AActor * ReturnActor) {
 
-	if (WeaponType == ERangedWeaponType::EnemyProjectile)
+		TObjectPtr<AIFGameMode> GameMode = Cast<AIFGameMode>(GetWorld()->GetAuthGameMode());
+		GameMode.Get()->GetPoolManager().Get()->Push(ReturnActor);
+	});
+
+	switch (WeaponType)
 	{
-		Projectile->SetLocation(TargetLoc);
+	case ERangedWeaponType::Projectile:
+		Projectile->LaunchExplosive();
+		break;
+	case ERangedWeaponType::EnemyProjectile:
+		Projectile->LaunchLight(TargetLoc);
+		break;
 	}
+
 
 	if (ShootDelegate.IsBound())
 	{
@@ -171,13 +202,13 @@ void AIFGunBase::CachingOwner()
 	ensure(OwnerController);
 
 	GunStat = UIFGameSingleton::Get().GetGunStat(*UIFEnumDefine::GetEnumName(WeaponType));
+	GameMode = Cast<AIFGameMode>(GetWorld()->GetAuthGameMode());
 	MaxRange = GunStat.MaxRange;
 	Damage = GunStat.Damage;
 	TotalAmmo = GunStat.MaxAmmo;
 	MagazineCapacity = GunStat.MaxCapacity;
 	FireDelayTime = GunStat.FireDelay;
 	ProjectileSpeed = GunStat.ProjectileSpeed;
-
 	CurrentAmmo = MagazineCapacity;
 }
 
@@ -265,7 +296,7 @@ bool AIFGunBase::CanReload()
 
 FVector AIFGunBase::GetWeaponSocket()
 {
-	return Mesh->GetSocketTransform("LeftHandSocket").GetLocation();
+	return Mesh->GetSocketTransform(LeftHandSocket).GetLocation();
 }
 
 bool AIFGunBase::GunTrace(FHitResult& Hit, FVector& ShotDirection)
@@ -275,7 +306,7 @@ bool AIFGunBase::GunTrace(FHitResult& Hit, FVector& ShotDirection)
 	FVector OwnerLocation;
 	FRotator OwnerRotation;
 
-	OwnerController->GetPlayerViewPoint(OwnerLocation, OwnerRotation);
+	OwnerController.Get()->GetPlayerViewPoint(OwnerLocation, OwnerRotation);
 	ShotDirection = -OwnerRotation.Vector();
 
 	FVector End = OwnerLocation + OwnerRotation.Vector() * MaxRange;
@@ -295,7 +326,7 @@ void AIFGunBase::ShotGunTrace(FVector& ShotDirection)
 	HitResults.Empty();
 	FVector OwnerLocation;
 	FRotator OwnerRotation;
-	OwnerController->GetPlayerViewPoint(OwnerLocation, OwnerRotation);
+	OwnerController.Get()->GetPlayerViewPoint(OwnerLocation, OwnerRotation);
 	ShotDirection = -OwnerRotation.Vector();
 	FVector End = OwnerLocation + OwnerRotation.Vector() * MaxRange;
 	FVector SpawnLocation = Mesh->GetSocketLocation(MuzzleSocket);
@@ -319,7 +350,14 @@ void AIFGunBase::ShotGunTrace(FVector& ShotDirection)
 		}
 		
 		FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(OwnerLocation, End);
-		GetWorld()->SpawnActor<AActor>(TracerEffect, SpawnLocation, Rotation);
+		TObjectPtr<AIFProjectile> Tracer = Cast<AIFProjectile>(GameMode.Get()->GetPoolManager().Get()->Pop(TracerEffect, GetWorld()));
+		Tracer.Get()->SetActorLocationAndRotation(SpawnLocation, Rotation);
+		Tracer.Get()->OnFinish.BindLambda([&](AActor* ReturnActor) {
+			TObjectPtr<AIFGameMode> GameMode = Cast<AIFGameMode>(GetWorld()->GetAuthGameMode());
+			GameMode.Get()->GetPoolManager().Get()->Push(ReturnActor);
+			});
+		Tracer.Get()->Init(7500);
+		Tracer.Get()->LaunchTracer();
 	}
 }
 

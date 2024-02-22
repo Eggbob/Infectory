@@ -15,6 +15,7 @@ DECLARE_DELEGATE_OneParam(FOnCrossHairDelegate, bool);
 DECLARE_DELEGATE_TwoParams(FOnReload, int32, int32); //현재 장탄수, 총 총알 수
 
 #define MuzzleSocket "MuzzleFlashSocket"
+#define LeftHandSocket "LeftHandSocket"
 
 UCLASS()
 class INFECTORY_API AIFGunBase : public AActor
@@ -73,6 +74,9 @@ public:
 	TObjectPtr<USoundBase> BodyImpactSound;
 
 protected:
+	UPROPERTY()
+	TObjectPtr<class AIFGameMode> GameMode;
+
 	UPROPERTY()
 	TObjectPtr<AController> OwnerController;
 

@@ -9,6 +9,7 @@
 
 DECLARE_DELEGATE_TwoParams(OnAttackDelegate, TObjectPtr<AActor>, FCustomDamageEvent)
 DECLARE_DELEGATE_OneParam(FOnShootDelegate, TSubclassOf<class ULegacyCameraShake>);
+DECLARE_DELEGATE_OneParam(FOnFinishDelegate, TObjectPtr<AActor>);
 
 UCLASS()
 class INFECTORY_API AIFProjectile : public AActor
@@ -17,12 +18,17 @@ class INFECTORY_API AIFProjectile : public AActor
 	
 public:	
 	AIFProjectile();
-
+	
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 	void ExcuteAttack(AActor* OtherActor);
 	void Init(float Speed);
 	void DeInit();
-	void SetLocation(FVector& TargetLoc);
+	void LaunchLight(FVector& TargetLoc);
+	void LaunchExplosive();
+	void LaunchTracer();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ResetTracer();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void LaunchEnemy(AActor* TargetActor);
@@ -33,6 +39,7 @@ private:
 public:
 	OnAttackDelegate OnAttack;
 	FOnShootDelegate OnShoot;
+	FOnFinishDelegate OnFinish;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ammo, Meta = (AllowPrivateAccess = true))
 	float ReturnTime = 3.f;
@@ -44,6 +51,9 @@ public:
 	TSubclassOf<class ULegacyCameraShake> CameraShake;
 
 protected:
+	UPROPERTY(EditAnywhere)
+	EProjectileDamageType DamageType;
+
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USoundBase> ProjectileSound;
 
@@ -62,8 +72,6 @@ protected:
 	bool bIsCollisioned;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	bool bIsDeInit;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
-	bool bIsExplosive;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	float checkTime = 0.f;
 

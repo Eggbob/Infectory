@@ -358,7 +358,7 @@ float AIFCharacterNonPlayer::TakeDamage(float Damage, FDamageEvent const& Damage
 
 	if (const FCustomDamageEvent* CustomDamageEvent = static_cast<const FCustomDamageEvent*>(&DamageEvent))
 	{
-		if (CustomDamageEvent->DamageType == EDamageType::Explosive)
+		if (CustomDamageEvent->DamageType == EProjectileDamageType::Explosive)
 		{
 			AIController.Get()->GetBlackboardComponent()->SetValueAsBool(BBKEY_ISHIT, true);
 			StopMoving();

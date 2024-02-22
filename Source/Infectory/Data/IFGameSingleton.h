@@ -32,6 +32,9 @@ private:
 	TMap<TPair<FName, FName>, FIFCharacterStat> CharacterStatMap;
 
 	UPROPERTY()
+	TObjectPtr<class AIFObjectPoolManager> PoolManager;
+
+	UPROPERTY()
 	TObjectPtr<class UDataTable> GunStatTable;
 
 	TMap<FName, FIFGunStat> GunStatMap;

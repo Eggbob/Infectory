@@ -3,6 +3,7 @@
 
 #include "IFGameMode.h"
 #include "Engine/DataTable.h"
+#include "Game/IFObjectPoolManager.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Player/IFPlayerController.h"
 
@@ -19,6 +20,30 @@ AIFGameMode::AIFGameMode()
 		PlayerControllerClass = PlayerControllerClassRef.Class;
 	}
 }
+
+void AIFGameMode::Logout(AController* Exiting)
+{
+	Super::Logout(Exiting);
+	PoolManager.Get()->Clear();
+	PoolManager.Get()->Destroy();
+}
+
+
+
+TObjectPtr<class AIFObjectPoolManager> AIFGameMode::GetPoolManager()
+{
+	if (PoolManager == nullptr)
+	{
+		PoolManager = NewObject<AIFObjectPoolManager>();// GetWorld()->SpawnActor<AIFObjectPoolManager>(AIFObjectPoolManager::StaticClass()); 
+		UE_LOG(LogTemp, Warning, TEXT("Create New Pool Manager"));
+	}
+
+	return PoolManager.Get();
+}
+
+
+
+
 
 
 

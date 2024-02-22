@@ -14,9 +14,9 @@ AIFProjectile::AIFProjectile()
 	PrimaryActorTick.bCanEverTick = true;
 	
 	CapsuleComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CAPSULECOMP"));
-	CapsuleComp->SetCapsuleHalfHeight(34.f);
-	CapsuleComp->SetCapsuleRadius(10.f);
-	CapsuleComp->SetGenerateOverlapEvents(true);
+	CapsuleComp.Get()->SetCapsuleHalfHeight(34.f);
+	CapsuleComp.Get()->SetCapsuleRadius(10.f);
+	CapsuleComp.Get()->SetGenerateOverlapEvents(false);
 	SetRootComponent(CapsuleComp);
 
 	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComp"));
@@ -28,21 +28,30 @@ void AIFProjectile::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 	
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, GetActorLocation());
-	UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ProjectileSound, GetActorLocation());
-
-	if (bIsExplosive)
+	if (ImpactEffect && ProjectileSound)
 	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, GetActorLocation());
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ProjectileSound, GetActorLocation());
+	}
+
+	switch (DamageType)
+	{
+	case EProjectileDamageType::Light:
+		ExcuteAttack(OtherActor);
+		break;
+	case EProjectileDamageType::Explosive:
 		OnShoot.ExecuteIfBound(CameraShake);
 		CheckAttackRange();
+		break;
+	default:
+		break;
 	}
-	else
-	{
-		ExcuteAttack(OtherActor);
-	}
-
+	
 	bIsCollisioned = true;
-	GetWorld()->DestroyActor(this);
+	SetActorEnableCollision(false);
+	CapsuleComp.Get()->SetGenerateOverlapEvents(false);
+	DeInit();
+
 }
 
 void AIFProjectile::ExcuteAttack(AActor* OtherActor)
@@ -51,19 +60,18 @@ void AIFProjectile::ExcuteAttack(AActor* OtherActor)
 
 	if (OtherActor != nullptr && !bIsCollisioned)
 	{
-		if (bIsExplosive)
+		if (DamageType == EProjectileDamageType::Explosive)
 		{
-			DamageEvent.DamageType = EDamageType::Explosive;
 			LaunchEnemy(OtherActor);
 		}
-
+		
+		DamageEvent.DamageType = DamageType;
 		OnAttack.ExecuteIfBound(OtherActor, DamageEvent);
 	}
 }
 
 void AIFProjectile::Init(float Speed)
 {
-	SetActorEnableCollision(true);
 	checkTime = 0.f;
 	bIsDeInit = false;
 	bIsCollisioned = false;
@@ -72,16 +80,25 @@ void AIFProjectile::Init(float Speed)
 	ProjectileMovementComp = GetComponentByClass<UProjectileMovementComponent>();
 	if(ProjectileMovementComp)
 	{
-		ProjectileMovementComp->InitialSpeed = Speed;
-		ProjectileMovementComp->MaxSpeed = Speed;
+		ProjectileMovementComp->InitialSpeed = MoveSpeed;
+		ProjectileMovementComp->MaxSpeed = MoveSpeed;
 	}
+	CapsuleComp.Get()->SetGenerateOverlapEvents(true);
 }
 
 void AIFProjectile::DeInit()
 {
+	if (ProjectileMovementComp)
+	{
+		ProjectileMovementComp->Velocity = FVector::ZeroVector;
+		ProjectileMovementComp->InitialSpeed = 0.f;
+		ProjectileMovementComp->MaxSpeed = 0.f;
+	}
+	bIsDeInit = true;
+	OnFinish.ExecuteIfBound(this);
 }
 
-void AIFProjectile::SetLocation(FVector& TargetLoc)
+void AIFProjectile::LaunchLight(FVector& TargetLoc)
 {
 	FVector LaunchDirec = TargetLoc - GetActorLocation();
 	LaunchDirec.Z = 0.f;
@@ -95,9 +112,33 @@ void AIFProjectile::SetLocation(FVector& TargetLoc)
 	ProjectileMovementComp->Velocity = LaunchVelocity;
 	ProjectileMovementComp->InitialSpeed = LaunchVelocity.Size();
 	ProjectileMovementComp->MaxSpeed = LaunchVelocity.Size();
-	//ProjectileMovementComp->MaxSpeed = LaunchVelocity;
 }
 
+void AIFProjectile::LaunchExplosive()
+{
+	float LaunchAngleDegrees = 45.0f; // 발사 각도 (45도로 설정)
+
+	// 발사 각도를 라디안으로 변환
+	float LaunchAngleRadians = FMath::DegreesToRadians(LaunchAngleDegrees);
+
+	// 투사체의 초기 속도 계산
+	FVector InitialVelocity = GetActorForwardVector().RotateAngleAxis(LaunchAngleDegrees, FVector::UpVector) * MoveSpeed;
+
+	// 투사체에 속도 설정
+	ProjectileMovementComp.Get()->Velocity = InitialVelocity;
+}
+
+void AIFProjectile::LaunchTracer()
+{
+	ResetTracer();
+
+	FVector InitialVelocity = GetActorForwardVector() * MoveSpeed;
+	ProjectileMovementComp.Get()->Velocity = InitialVelocity;
+}
+
+/// <summary>
+/// 폭발시 반경내의 액터에 데미지 추가
+/// </summary>
 void AIFProjectile::CheckAttackRange()
 {
 	TArray<FOverlapResult> OverlapResults;

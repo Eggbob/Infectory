@@ -246,7 +246,7 @@ void AIFCharacterPlayer::Shoot()
 	if (CurControlType == ECharacterControlType::Zoom && IsFiring && CurCharacterState == ECharacterState::Idle)
 	{
 		CurGun->FireGunDelegate.BindUObject(AnimInstance, &UIFPlayerAnimInstance::AddRecoil);
-		CurGun->StartFire(FVector::ZeroVector);
+		CurGun->StartFire(FollowCamera.Get()->GetForwardVector());
 	}
 	else if(CurControlType == ECharacterControlType::Zoom && !IsFiring)
 	{

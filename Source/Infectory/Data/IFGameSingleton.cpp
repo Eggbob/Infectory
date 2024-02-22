@@ -2,6 +2,7 @@
 
 
 #include "Data/IFGameSingleton.h"
+#include "Game/IFObjectPoolManager.h"
 
 UIFGameSingleton::UIFGameSingleton()
 {
@@ -43,6 +44,7 @@ UIFGameSingleton::UIFGameSingleton()
 	}
 }
 
+
 UIFGameSingleton& UIFGameSingleton::Get()
 {
 	UIFGameSingleton* Singleton = CastChecked<UIFGameSingleton>(GEngine->GameSingleton);
@@ -54,6 +56,8 @@ UIFGameSingleton& UIFGameSingleton::Get()
 	UE_LOG(LogTemp, Error, TEXT("Invalid Game Singleton"));
 	return *NewObject<UIFGameSingleton>();
 }
+
+
 
 FIFCharacterStat UIFGameSingleton::GetCharacterStat(FName NpcName, FName NPCTier) const
 {
@@ -80,5 +84,7 @@ FIFGunStat UIFGameSingleton::GetGunStat(FName GunName) const
 		return FIFGunStat();
 	}
 }
+
+
 
 

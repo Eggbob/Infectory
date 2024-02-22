@@ -58,8 +58,9 @@ enum class ENPCMoveType : uint8
 };
 
 UENUM()
-enum class EDamageType : uint8
+enum class EProjectileDamageType : uint8
 {
+	None,
 	Light,
 	Explosive,
 };
@@ -123,7 +124,7 @@ public:
 	FHitResult HitResult;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EDamageType DamageType = EDamageType::Light; 
+	EProjectileDamageType DamageType = EProjectileDamageType::Light; 
 
 };
 
