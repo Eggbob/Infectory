@@ -6,6 +6,12 @@
 #include "Components/CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Character/IFCharacterNonPlayer.h"
+#include "Game/IFGameMode.h"
+#include "Game/IFObjectPoolManager.h"
+#include "Item/IFProjectile.h"
+#include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "IFTurret.h"
 
 AIFTurret::AIFTurret()
 {
@@ -19,9 +25,26 @@ AIFTurret::AIFTurret()
 
 	TurretHeadMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TurretHeadMesh"));
 	TurretHeadMesh->SetupAttachment(TurretParentMesh);
+
+	TurretBarrelMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TurretBrrelMesh"));
+	TurretBarrelMesh->SetupAttachment(TurretHeadMesh);
 }
 
 
+
+void AIFTurret::BeginPlay()
+{
+	Super::BeginPlay();
+
+	for (int i = 1; i <= 4; i++)
+	{
+		FName MuzzleSocketName = FName(FString::Printf(TEXT("Muzzle%d"), i));
+
+		MuzzleSockets.Add(MuzzleSocketName);
+	}
+
+	GameMode = Cast<AIFGameMode>(GetWorld()->GetAuthGameMode());
+}
 
 void AIFTurret::Tick(float DeltaTime)
 {
@@ -89,6 +112,46 @@ void AIFTurret::AttackTarget()
 	LookRot.Yaw -= 60.f;
 
 	TurretHeadMesh.Get()->SetWorldRotation(LookRot);
+
+	if (bIsCanFire)
+	{
+		int Num = 1;
+
+		for (FName & Name : MuzzleSockets)
+		{
+			FTransform SpawnTransform = TurretBarrelMesh->GetSocketTransform(Name);
+
+			FHitResult Hit;
+
+			FVector End = SpawnTransform.GetLocation() + SpawnTransform.GetRotation().Vector() * MaxRange;
+			FCollisionQueryParams Params;
+			Params.AddIgnoredActor(this);
+
+			if (GetWorld()->LineTraceSingleByChannel(Hit, SpawnTransform.GetLocation(), End, ECollisionChannel::ECC_GameTraceChannel1, Params))
+			{
+				HitResults.Add(Hit);
+			}
+			UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, TurretBarrelMesh, Name);
+
+			/*TObjectPtr<AIFProjectile> Tracer = Cast<AIFProjectile>(GameMode.Get()->GetPoolManager().Get()->Pop(TracerEffect, GetWorld()));
+			Tracer.Get()->SetActorLocationAndRotation(Tr.GetLocation(), Tr.GetRotation());
+			Tracer.Get()->OnFinish.BindLambda([&](AActor* ReturnActor) {
+				TObjectPtr<AIFGameMode> GameMode = Cast<AIFGameMode>(GetWorld()->GetAuthGameMode());
+				GameMode.Get()->GetPoolManager().Get()->Push(ReturnActor);
+				});
+			Tracer.Get()->Init(7500);
+			Tracer.Get()->LaunchTracer();*/
+
+			DrawDebugLine(GetWorld(), SpawnTransform.GetLocation(), End, FColor::Red, true);
+			Num++;
+		}
+
+		bIsCanFire = false;
+
+		GetWorldTimerManager().SetTimer(FireTimerHandle, FTimerDelegate::CreateLambda([&]() {
+			bIsCanFire = true;
+			}), FireDelayTime, false);
+	}
 
 }
 

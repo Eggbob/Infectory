@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "IFTurret.generated.h"
 
+#define MuzzleSocket "Muzzle"
+
 UCLASS()
 class INFECTORY_API AIFTurret : public AActor
 {
@@ -15,11 +17,49 @@ public:
 	AIFTurret();
 
 protected:
+	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
 private:
 	void SearchTarget();
 	void AttackTarget();
+
+protected:
+	UPROPERTY()
+	TObjectPtr<class AIFGameMode> GameMode;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	TSubclassOf<class AIFProjectile> TracerEffect;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	TObjectPtr<UParticleSystem> MuzzleFlash;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	TObjectPtr<UParticleSystem> ImpactEffect;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	TObjectPtr<UParticleSystem> BloodImpactEffect;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	float FireDelayTime = 0.2f; //발사 딜레이
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	float FireTime = 5.0f; //발사 시간
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	int32 Damage = 10;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	int32 MaxRange = 10000;
+	
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> FireSound;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> ImpactSound;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> BodyImpactSound;
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
@@ -31,7 +71,18 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	TObjectPtr<class UStaticMeshComponent> TurretParentMesh;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
+	TObjectPtr<class UStaticMeshComponent> TurretBarrelMesh;
 
 	UPROPERTY()
 	TObjectPtr<class AActor> Target;
+
+	UPROPERTY()
+	TArray<FName> MuzzleSockets;
+
+	TArray<FHitResult> HitResults;
+	FTimerHandle FireTimerHandle;
+
+	bool bIsCanFire = true;
+	
 };

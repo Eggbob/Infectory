@@ -24,8 +24,13 @@ AIFGameMode::AIFGameMode()
 void AIFGameMode::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting);
-	PoolManager.Get()->Clear();
-	PoolManager.Get()->Destroy();
+
+	if (PoolManager != nullptr && IsValid(PoolManager))
+	{
+		PoolManager.Get()->Clear();
+		PoolManager.Get()->Destroy();
+	}
+
 }
 
 
