@@ -28,6 +28,8 @@ void AIFProjectile::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 	
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *OtherActor->GetName());
+
 	if (ImpactEffect && ProjectileSound)
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, GetActorLocation());

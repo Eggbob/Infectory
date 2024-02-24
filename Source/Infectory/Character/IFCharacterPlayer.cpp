@@ -16,6 +16,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Item/IFInventory.h"
 #include "Animation/IFPlayerAnimInstance.h"
+#include "Item/IFTurret.h"
 #include "Components/SpotLightComponent.h"
 
 
@@ -87,6 +88,12 @@ AIFCharacterPlayer::AIFCharacterPlayer()
 	if (nullptr != InputActionToggleAimRef.Object)
 	{
 		ToggleAimAction = InputActionToggleAimRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionSpawnTurret(TEXT("/Script/EnhancedInput.InputAction'/Game/Assets/Input/Actions/IA_SpawnTurret.IA_SpawnTurret'"));
+	if (nullptr != InputActionSpawnTurret.Object)
+	{
+		SpawnTurretAction = InputActionSpawnTurret.Object;
 	}
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> ChangeWeapon1Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/Assets/Input/Actions/IA_ChangeWeapon1.IA_ChangeWeapon1'"));
@@ -304,6 +311,11 @@ void AIFCharacterPlayer::ChangeWeaponBody(ERangedWeaponType NewWeaponType)
 		});
 }
 
+void AIFCharacterPlayer::SpawnTurret()
+{
+
+}
+
 /// <summary>
 /// 캐릭터 컨트롤러 데이터 설정
 /// </summary>
@@ -348,6 +360,7 @@ void AIFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(ChangeWeaponAction1, ETriggerEvent::Started, this, &AIFCharacterPlayer::ChangeWeapon1);
 	EnhancedInputComponent->BindAction(ChangeWeaponAction2, ETriggerEvent::Started, this, &AIFCharacterPlayer::ChangeWeapon2);
 	EnhancedInputComponent->BindAction(ChangeWeaponAction3, ETriggerEvent::Started, this, &AIFCharacterPlayer::ChangeWeapon3);
+	EnhancedInputComponent->BindAction(SpawnTurretAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::SpawnTurret);
 }
 
 FVector AIFCharacterPlayer::GetGunHandPosition()

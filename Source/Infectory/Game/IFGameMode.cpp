@@ -30,10 +30,7 @@ void AIFGameMode::Logout(AController* Exiting)
 		PoolManager.Get()->Clear();
 		PoolManager.Get()->Destroy();
 	}
-
 }
-
-
 
 TObjectPtr<class AIFObjectPoolManager> AIFGameMode::GetPoolManager()
 {

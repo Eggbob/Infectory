@@ -53,6 +53,8 @@ protected:
 	void ChangeWeapon3();
 	void ChangeWeaponBody(ERangedWeaponType NewWeaponType);
 
+	void SpawnTurret();
+
 private:
 	FVector GetGunHandPosition();
 	void SetGunPos();
@@ -108,6 +110,9 @@ protected:
 	TObjectPtr<class UInputAction> ChangeWeaponAction2;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class UInputAction> ChangeWeaponAction3;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
+	TObjectPtr<class UInputAction> SpawnTurretAction;
 
 	UPROPERTY(EditAnywhere, Category = CharacterControl, Meta = (AllowPrivateAccess = "true"))
 	TMap<ECharacterControlType, class UIFCharacterControlData*> CharacterControlManager;

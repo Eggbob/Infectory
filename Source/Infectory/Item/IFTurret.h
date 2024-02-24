@@ -15,6 +15,7 @@ class INFECTORY_API AIFTurret : public AActor
 	
 public:	
 	AIFTurret();
+	void SetOwnerController(AController* Controller) { OwnerController = Controller; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -23,6 +24,11 @@ protected:
 private:
 	void SearchTarget();
 	void AttackTarget();
+	void GiveDamage(FHitResult& Hit);
+	void RotateToTarget();
+	bool CheckCanFire();
+
+	void SpawnTarcerEffect(FTransform& SpawnTransform);
 
 protected:
 	UPROPERTY()
@@ -47,6 +53,9 @@ protected:
 	float FireTime = 5.0f; //발사 시간
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	float ReloadTime = 5.0f; //발사 대기 시간
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	int32 Damage = 10;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
@@ -62,6 +71,9 @@ protected:
 	TObjectPtr<USoundBase> BodyImpactSound;
 
 private:
+	UPROPERTY()
+	TObjectPtr<AController> OwnerController;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	TObjectPtr<class UCapsuleComponent> CapsuleComp;
 
@@ -79,10 +91,17 @@ private:
 
 	UPROPERTY()
 	TArray<FName> MuzzleSockets;
-
-	TArray<FHitResult> HitResults;
-	FTimerHandle FireTimerHandle;
-
-	bool bIsCanFire = true;
 	
+	UPROPERTY()
+	TArray<FHitResult> HitResults;
+
+	FTimerHandle FireTimerHandle;
+	FCollisionQueryParams Params;
+
+	bool bDoOnce = false;
+	bool bCanFire = true;
+	bool bRealoading = false;
+	bool bDoReload = false;
+	bool bStartFire = false;
+
 };
