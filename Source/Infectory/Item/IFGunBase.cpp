@@ -148,8 +148,8 @@ void AIFGunBase::GiveDamage(TObjectPtr<AActor> HitActor, FCustomDamageEvent& Hit
 
 void AIFGunBase::FireProjectile(FVector& TargetLoc)
 {
-	//FTransform SpawnTransform = WeaponType == ERangedWeaponType::Projectile ? GetProjectileSpawnTransform() : Mesh->GetSocketTransform(MuzzleSocket);
-	FTransform SpawnTransform = Mesh->GetSocketTransform(MuzzleSocket);
+	FTransform SpawnTransform = WeaponType == ERangedWeaponType::Projectile ? GetProjectileSpawnTransform() : Mesh->GetSocketTransform(MuzzleSocket);
+	
 	
 	TObjectPtr<AIFProjectile> Projectile = Cast<AIFProjectile>(GameMode.Get()->GetPoolManager().Get()->Pop(ProjectileBP, GetWorld()));
 
@@ -157,6 +157,7 @@ void AIFGunBase::FireProjectile(FVector& TargetLoc)
 	{
 		Projectile = GetWorld()->SpawnActor<AIFProjectile>(ProjectileBP, SpawnTransform);
 	}
+
 
 	Projectile.Get()->SetActorLocationAndRotation(SpawnTransform.GetLocation(), SpawnTransform.GetRotation());
 

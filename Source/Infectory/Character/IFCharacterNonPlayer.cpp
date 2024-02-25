@@ -406,7 +406,7 @@ void AIFCharacterNonPlayer::MeleeAttackCheck()
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
 
 	const float AttackRange = StatComp->GetBaseStat().AttackRange;
-	const float AttackRadius = 100.f;//StatComp->GetRadi;
+	const float AttackRadius = 50.f;//StatComp->GetRadi;
 	const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();
 	const FVector End = Start + GetActorForwardVector() * AttackRange;
 

@@ -55,7 +55,6 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 			TObjectPtr<APawn> Pawn = Cast<APawn>(OverlapResult.GetActor());
 			if (Pawn && Pawn.Get()->GetController()->IsPlayerController())
 			{
-				//OwnerComp.GetBlackboardComponent()->SetValueAsObject(BBKEY_TARGET, Pawn);
 				AIPawn->FocusingTarget(Pawn);
 				return;
 				//DrawDebugSphere(World, Center, DetectRadius, 16, FColor::Green, false, 0.2f);
@@ -65,7 +64,6 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 			}
 		}
 	}
-	//OwnerComp.GetBlackboardComponent()->SetValueAsObject(BBKEY_TARGET, nullptr);
 	//DrawDebugSphere(World, Center, DetectRadius, 16, FColor::Red, false, 0.2f);
 
 }

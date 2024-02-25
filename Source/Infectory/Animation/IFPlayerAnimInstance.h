@@ -30,6 +30,7 @@ public:
 	void AddRecoil(ERangedWeaponType RangedWeaponType);
 	void PlayReloadAnim(ERangedWeaponType RangedWeaponType);
 	void PlayWeaponChangeAnim();
+	void PlayFireAnimation();
 
 	UFUNCTION()
 	FORCEINLINE void AnimNotify_OnWeaponChange() { OnWeaponChangeFinished.ExecuteIfBound(); }
@@ -80,4 +81,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> WeaponChangeAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> FireAnimation;
 };

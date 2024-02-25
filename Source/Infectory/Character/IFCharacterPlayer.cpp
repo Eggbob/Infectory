@@ -250,12 +250,26 @@ void AIFCharacterPlayer::Shoot()
 
 	IsFiring = IsFiring ? false : true ;
 
-	if (CurControlType == ECharacterControlType::Zoom && IsFiring && CurCharacterState == ECharacterState::Idle)
+	if (IsFiring && CurCharacterState == ECharacterState::Idle)
 	{
-		CurGun->FireGunDelegate.BindUObject(AnimInstance, &UIFPlayerAnimInstance::AddRecoil);
+		CurGun->FireGunDelegate.Unbind();
+
+		switch (CurControlType)
+		{
+		case ECharacterControlType::Shoulder:
+			CurGun->FireGunDelegate.BindLambda([&](ERangedWeaponType RangedWeaponType) {
+				AnimInstance.Get()->PlayFireAnimation();
+				});
+			break;
+		case ECharacterControlType::Zoom:
+			CurGun->FireGunDelegate.BindUObject(AnimInstance, &UIFPlayerAnimInstance::AddRecoil);
+			break;
+		}
+
+		
 		CurGun->StartFire(FollowCamera.Get()->GetForwardVector());
 	}
-	else if(CurControlType == ECharacterControlType::Zoom && !IsFiring)
+	else if(!IsFiring)
 	{
 		CurGun->StopFire();
 	}
@@ -352,7 +366,7 @@ void AIFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(ShoulderMoveAction, ETriggerEvent::Completed, this, &AIFCharacterPlayer::ShoulderMoveFinish);
 	EnhancedInputComponent->BindAction(ShoulderLookAction, ETriggerEvent::Triggered, this, &AIFCharacterPlayer::ShoulderLook);
 	EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::PerformRun);
-	EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::PerformCrouch);
+	//EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::PerformCrouch);
 	EnhancedInputComponent->BindAction(ToggleAimAction, ETriggerEvent::Triggered, this, &AIFCharacterPlayer::ChangeCharacterControl);
 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::Shoot);
 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Completed, this, &AIFCharacterPlayer::Shoot);

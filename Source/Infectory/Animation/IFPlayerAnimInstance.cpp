@@ -47,6 +47,10 @@ void UIFPlayerAnimInstance::PlayReloadAnim(ERangedWeaponType RangedWeaponType)
 	}
 }
 
+void UIFPlayerAnimInstance::PlayFireAnimation()
+{
+	Montage_Play(FireAnimation, 1.0f);
+}
 
 
 void UIFPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
@@ -68,4 +72,5 @@ void UIFPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		LeftHandPosition = OnLeftIKChange.Execute();
 	}
 }
+
 
