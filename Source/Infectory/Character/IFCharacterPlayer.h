@@ -26,6 +26,9 @@ public:
 	FORCEINLINE class AIFGunBase* GetCurGun() { return CurGun.Get(); }
 
 	UFUNCTION(BlueprintImplementableEvent)
+	void SetBuildMode();
+
+	UFUNCTION(BlueprintImplementableEvent)
 	void PlayCameraShake(TSubclassOf<class ULegacyCameraShake> CameraShake);
 
 	UFUNCTION(BlueprintImplementableEvent)

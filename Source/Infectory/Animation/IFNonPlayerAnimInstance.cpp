@@ -146,7 +146,7 @@ void UIFNonPlayerAnimInstance::PlayHitAnim()
 	if (CurNpcState == ENPCState::Moving || CurNpcState == ENPCState::Idle)
 	{
 		RecoilAlpha = 1.0f;
-		RecoilRot = FRotator(FMath::RandRange(5.0f, 20.0f), FMath::RandRange(-20.0f, 20.0f), 0.f);
+		RecoilRot = FRotator(FMath::RandRange(20.0f, 50.0f), FMath::RandRange(-40.0f, 40.0f), 0.f);
 	}
 }
 
