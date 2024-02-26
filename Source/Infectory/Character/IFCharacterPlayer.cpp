@@ -279,11 +279,11 @@ void AIFCharacterPlayer::Reload()
 {
 	if (IsFiring) return;
 	if (!CurGun.Get()->CanReload()) return;
+	if(CurCharacterState == ECharacterState::Reloading) return;
 
 	CurCharacterState = ECharacterState::Reloading;
 	AnimInstance.Get()->SetCurSound(CurGun.Get()->ReloadSound);
 	AnimInstance.Get()->PlayReloadAnim(CurGun.Get()->GetWeaponType());
-	//CurGun->Reload();
 }
 
 void AIFCharacterPlayer::ChangeWeapon1()

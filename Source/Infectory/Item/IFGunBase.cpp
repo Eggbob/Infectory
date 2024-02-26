@@ -285,7 +285,7 @@ void AIFGunBase::Reload()
 
 bool AIFGunBase::CanReload()
 {
-	if (TotalAmmo == 0)
+	if (TotalAmmo == 0 || CurrentAmmo == MagazineCapacity)
 	{
 		return false;
 	}
