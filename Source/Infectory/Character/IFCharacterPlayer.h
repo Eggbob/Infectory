@@ -57,7 +57,6 @@ protected:
 	void OnLeftMouseClick();
 	void Shoot();
 	void Reload();
-	void ReadyBuildTurret();
 
 	void ChangeWeapon1();
 	void ChangeWeapon2();
@@ -67,7 +66,7 @@ protected:
 
 private:
 	FVector GetGunHandPosition();
-	void SetGunPos();
+	void SetWeapon();
 
 protected:
 	//카메라 Arm
@@ -106,7 +105,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<class ULegacyCameraShake> HitCameraShake;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class AIFTurret> TurretBP;
+
 	//재장전 인풋 액션
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class UInputAction> ReloadAction;

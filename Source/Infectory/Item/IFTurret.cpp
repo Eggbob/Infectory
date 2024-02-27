@@ -16,7 +16,7 @@
 
 AIFTurret::AIFTurret()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	CapsuleComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CAPSULECOMP"));
 	SetRootComponent(CapsuleComp);
@@ -33,7 +33,10 @@ AIFTurret::AIFTurret()
 
 void AIFTurret::InitTurret(TObjectPtr<AController> Controller)
 {
+	SetActorHiddenInGame(false);
+
 	OwnerController = Controller;
+
 	ProjectileMovementComp = GetComponentByClass<UProjectileMovementComponent>();
 
 	bDoOnce = false;
@@ -42,10 +45,11 @@ void AIFTurret::InitTurret(TObjectPtr<AController> Controller)
     bDoReload = false;
 	bStartFire = false;
 
-	FTimerHandle TimerHandle;
-	GetWorldTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]() {
-		PrimaryActorTick.bCanEverTick = true;
-		}), 2.f, false);
+	//FTimerHandle TimerHandle;
+	//GetWorldTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]() {
+	//	UE_LOG(LogTemp, Warning, TEXT("Turret Start"));
+	//	SetActorTickEnabled(true);
+	//	}), 0.5f, false);
 }
 
 void AIFTurret::LaunchTurret(FVector& TargetLoc)
@@ -62,6 +66,7 @@ void AIFTurret::LaunchTurret(FVector& TargetLoc)
 	ProjectileMovementComp->Velocity = LaunchVelocity;
 	ProjectileMovementComp->InitialSpeed = LaunchVelocity.Size();
 	ProjectileMovementComp->MaxSpeed = LaunchVelocity.Size();
+
 }
 
 
@@ -174,7 +179,7 @@ void AIFTurret::GiveDamage(FHitResult& Hit)
 		CustomDamageEvent.BoneName = Hit.BoneName;
 		CustomDamageEvent.HitResult = Hit;
 
-		//HitActor->TakeDamage(Damage, CustomDamageEvent, OwnerController, GetOwner());
+		HitActor->TakeDamage(Damage, CustomDamageEvent, OwnerController, GetOwner());
 	}
 
 	if (HitActor->IsA(AIFCharacterNonPlayer::StaticClass()))

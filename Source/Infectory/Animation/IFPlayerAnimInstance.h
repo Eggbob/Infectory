@@ -31,6 +31,7 @@ public:
 	void PlayReloadAnim(ERangedWeaponType RangedWeaponType);
 	void PlayWeaponChangeAnim();
 	void PlayFireAnimation();
+	void PlayThrowAnimation();
 
 	UFUNCTION()
 	FORCEINLINE void AnimNotify_OnWeaponChange() { OnWeaponChangeFinished.ExecuteIfBound(); }
@@ -84,4 +85,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> FireAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> ThrowAnimation;
 };

@@ -143,7 +143,7 @@ void AIFCharacterPlayer::BeginPlay()
 	Inventory = NewObject<UIFInventory>();
 	Inventory.Get()->InitInventory(GetWorld());
 
-	SetGunPos();
+	SetWeapon();
 	UserWidget->UpdateAmmoState(CurGun->GetCurAmmo(), CurGun->GetTotalAmmo());
 	CurGun.Get()->AmmoChangedDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateAmmoState);
 	CurGun.Get()->CrossHairDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateCrossHair);
@@ -252,6 +252,8 @@ void AIFCharacterPlayer::OnLeftMouseClick()
 		Shoot();
 		break;
 	case ECharacterState::Building:
+	
+
 		GetTurretLoc();
 		break;
 	}
@@ -302,19 +304,25 @@ void AIFCharacterPlayer::Reload()
 	AnimInstance.Get()->PlayReloadAnim(CurGun.Get()->GetWeaponType());
 }
 
-void AIFCharacterPlayer::ReadyBuildTurret()
-{
-	SetBuildMode();
-}
 
 void AIFCharacterPlayer::BuildTurret(FVector TurretLoc)
 {
-	TObjectPtr<AIFTurret> Turret = Inventory.Get()->GetTurret();
-	Turret.Get()->InitTurret(GetController());
+	IsFiring = IsFiring ? false : true;
 
-	Turret.Get()->SetActorHiddenInGame(false);
-	Turret.Get()->SetActorLocation(GetActorLocation());
-	Turret.Get()->LaunchTurret(TurretLoc);
+	if (IsFiring)
+	{
+		TObjectPtr<AIFTurret> Turret; //= Inventory.Get()->GetTurret();
+		if (Turret == nullptr)
+		{
+			Turret = GetWorld()->SpawnActor<AIFTurret>(TurretBP, GetActorLocation(), FRotator::ZeroRotator);
+		}
+
+		Turret.Get()->InitTurret(GetController());
+		Turret.Get()->LaunchTurret(TurretLoc);
+
+		AnimInstance.Get()->PlayThrowAnimation();
+	}
+	
 }
 
 
@@ -404,7 +412,7 @@ void AIFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(ChangeWeaponAction1, ETriggerEvent::Started, this, &AIFCharacterPlayer::ChangeWeapon1);
 	EnhancedInputComponent->BindAction(ChangeWeaponAction2, ETriggerEvent::Started, this, &AIFCharacterPlayer::ChangeWeapon2);
 	EnhancedInputComponent->BindAction(ChangeWeaponAction3, ETriggerEvent::Started, this, &AIFCharacterPlayer::ChangeWeapon3);
-	EnhancedInputComponent->BindAction(SpawnTurretAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::ReadyBuildTurret);
+	EnhancedInputComponent->BindAction(SpawnTurretAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::SetBuildMode);
 }
 
 FVector AIFCharacterPlayer::GetGunHandPosition()
@@ -412,7 +420,7 @@ FVector AIFCharacterPlayer::GetGunHandPosition()
 	return CurGun->GetWeaponSocket();
 }
 
-void AIFCharacterPlayer::SetGunPos()
+void AIFCharacterPlayer::SetWeapon()
 {
 	const UEnum* EnumPtr = StaticEnum<ERangedWeaponType>();
 

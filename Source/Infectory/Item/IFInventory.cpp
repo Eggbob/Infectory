@@ -41,7 +41,7 @@ void UIFInventory::InitInventory(UWorld* World)
 		RangedWeapon.Add(ERangedWeaponType::Rifle, Rifle);
 
 		TObjectPtr<AIFGunBase> ShotGun = World->SpawnActor<AIFGunBase>(RangedWeaponBP[ERangedWeaponType::ShotGun]);
-	ShotGun->SetActorHiddenInGame(true);
+		ShotGun->SetActorHiddenInGame(true);
 		RangedWeapon.Add(ERangedWeaponType::ShotGun, ShotGun);
 
 		TObjectPtr<AIFGunBase> Launcher = World->SpawnActor<AIFGunBase>(RangedWeaponBP[ERangedWeaponType::Projectile]);
@@ -49,7 +49,7 @@ void UIFInventory::InitInventory(UWorld* World)
 		RangedWeapon.Add(ERangedWeaponType::Projectile, Launcher);
 
 		SpawnedTurret = World->SpawnActor<AIFTurret>(TurretBP);
-		SpawnedTurret->SetActorHiddenInGame(true);
+		//SpawnedTurret->SetActorHiddenInGame(false);
 	}
 }
 
@@ -66,7 +66,9 @@ TObjectPtr<AIFGunBase> UIFInventory::GetRangedWeapon(ERangedWeaponType WeaponTyp
 TObjectPtr<class AIFTurret> UIFInventory::GetTurret()
 {
 	if (SpawnedTurret)
+	{
 		return SpawnedTurret;
+	}
 	else
 		return GetWorld()->SpawnActor<AIFTurret>(TurretBP);
 
