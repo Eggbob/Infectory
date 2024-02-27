@@ -134,6 +134,7 @@ AIFCharacterPlayer::AIFCharacterPlayer()
 	CurMoveType = ECharacterMoveType::Walking;
 }
 
+
 void AIFCharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
@@ -170,7 +171,6 @@ void AIFCharacterPlayer::BeginPlay()
 		CameraManager.Get()->ViewPitchMax = MaxPitchValue;
 		CameraManager.Get()->ViewPitchMin = MinPitchValue;
 	}
-
 }
 
 void AIFCharacterPlayer::Tick(float DeltaTime)
@@ -243,15 +243,31 @@ void AIFCharacterPlayer::OnHitAction()
 	}
 }
 
+
+void AIFCharacterPlayer::OnLeftMouseClick()
+{
+	switch (CurCharacterState)
+	{
+	case ECharacterState::Idle:
+		Shoot();
+		break;
+	case ECharacterState::Building:
+		GetTurretLoc();
+		break;
+	}
+}
+
+
 void AIFCharacterPlayer::Shoot()
 {
-	CurGun.Get()->ShootDelegate.Unbind();
-	CurGun.Get()->ShootDelegate.BindUObject(this, &AIFCharacterPlayer::PlayCameraShake);
+	if (CurCharacterState != ECharacterState::Idle) return;
 
 	IsFiring = IsFiring ? false : true ;
 
-	if (IsFiring && CurCharacterState == ECharacterState::Idle)
+	if (IsFiring)
 	{
+		CurGun.Get()->ShootDelegate.Unbind();
+		CurGun.Get()->ShootDelegate.BindUObject(this, &AIFCharacterPlayer::PlayCameraShake);
 		CurGun->FireGunDelegate.Unbind();
 
 		switch (CurControlType)
@@ -285,6 +301,23 @@ void AIFCharacterPlayer::Reload()
 	AnimInstance.Get()->SetCurSound(CurGun.Get()->ReloadSound);
 	AnimInstance.Get()->PlayReloadAnim(CurGun.Get()->GetWeaponType());
 }
+
+void AIFCharacterPlayer::ReadyBuildTurret()
+{
+	SetBuildMode();
+}
+
+void AIFCharacterPlayer::BuildTurret(FVector TurretLoc)
+{
+	TObjectPtr<AIFTurret> Turret = Inventory.Get()->GetTurret();
+	Turret.Get()->InitTurret(GetController());
+
+	Turret.Get()->SetActorHiddenInGame(false);
+	Turret.Get()->SetActorLocation(GetActorLocation());
+	Turret.Get()->LaunchTurret(TurretLoc);
+}
+
+
 
 void AIFCharacterPlayer::ChangeWeapon1()
 {
@@ -325,10 +358,7 @@ void AIFCharacterPlayer::ChangeWeaponBody(ERangedWeaponType NewWeaponType)
 		});
 }
 
-void AIFCharacterPlayer::SpawnTurret()
-{
 
-}
 
 /// <summary>
 /// 캐릭터 컨트롤러 데이터 설정
@@ -368,13 +398,13 @@ void AIFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::PerformRun);
 	//EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::PerformCrouch);
 	EnhancedInputComponent->BindAction(ToggleAimAction, ETriggerEvent::Triggered, this, &AIFCharacterPlayer::ChangeCharacterControl);
-	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::Shoot);
-	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Completed, this, &AIFCharacterPlayer::Shoot);
+	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::OnLeftMouseClick);
+	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Completed, this, &AIFCharacterPlayer::OnLeftMouseClick);
 	EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Triggered, this, &AIFCharacterPlayer::Reload);
 	EnhancedInputComponent->BindAction(ChangeWeaponAction1, ETriggerEvent::Started, this, &AIFCharacterPlayer::ChangeWeapon1);
 	EnhancedInputComponent->BindAction(ChangeWeaponAction2, ETriggerEvent::Started, this, &AIFCharacterPlayer::ChangeWeapon2);
 	EnhancedInputComponent->BindAction(ChangeWeaponAction3, ETriggerEvent::Started, this, &AIFCharacterPlayer::ChangeWeapon3);
-	EnhancedInputComponent->BindAction(SpawnTurretAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::SetBuildMode);
+	EnhancedInputComponent->BindAction(SpawnTurretAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::ReadyBuildTurret);
 }
 
 FVector AIFCharacterPlayer::GetGunHandPosition()
@@ -523,4 +553,5 @@ void AIFCharacterPlayer::PerformCrouch()
 
 	GetCharacterMovement()->MaxWalkSpeed = CharacterMovemntData->MoveSpeed[CurMoveType];
 }
+
 

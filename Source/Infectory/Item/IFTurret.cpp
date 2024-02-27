@@ -12,10 +12,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Character/IFCharacterNonPlayer.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 AIFTurret::AIFTurret()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	CapsuleComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CAPSULECOMP"));
 	SetRootComponent(CapsuleComp);
@@ -28,6 +29,39 @@ AIFTurret::AIFTurret()
 
 	TurretBarrelMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TurretBrrelMesh"));
 	TurretBarrelMesh->SetupAttachment(TurretHeadMesh);
+}
+
+void AIFTurret::InitTurret(TObjectPtr<AController> Controller)
+{
+	OwnerController = Controller;
+	ProjectileMovementComp = GetComponentByClass<UProjectileMovementComponent>();
+
+	bDoOnce = false;
+	bCanFire = true;
+	bRealoading = false;
+    bDoReload = false;
+	bStartFire = false;
+
+	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]() {
+		PrimaryActorTick.bCanEverTick = true;
+		}), 2.f, false);
+}
+
+void AIFTurret::LaunchTurret(FVector& TargetLoc)
+{
+	FVector LaunchDirec = TargetLoc - GetActorLocation();
+	LaunchDirec.Z = 0.f;
+
+	float ProjectileSpeed = 1000.f;
+	float Gravity = 980.f;
+	float TimeToTarget = LaunchDirec.Size() / ProjectileSpeed;
+	FVector LaunchVelocity = LaunchDirec / TimeToTarget;
+	LaunchVelocity.Z += 0.5f * Gravity * TimeToTarget;
+
+	ProjectileMovementComp->Velocity = LaunchVelocity;
+	ProjectileMovementComp->InitialSpeed = LaunchVelocity.Size();
+	ProjectileMovementComp->MaxSpeed = LaunchVelocity.Size();
 }
 
 

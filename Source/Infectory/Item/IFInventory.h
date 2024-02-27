@@ -21,9 +21,12 @@ public:
 	void InitInventory(UWorld * World);
 
 	TObjectPtr<class AIFGunBase> GetRangedWeapon(ERangedWeaponType WeaponType);
+	TObjectPtr<class AIFTurret> GetTurret();
 
 private:
 	TMap<ERangedWeaponType, TObjectPtr<class AIFGunBase>> RangedWeapon;
-
 	TMap<ERangedWeaponType, TSubclassOf<class AIFGunBase>> RangedWeaponBP;
+
+	TSubclassOf<class AIFTurret> TurretBP;
+	TObjectPtr<class AIFTurret> SpawnedTurret;
 };

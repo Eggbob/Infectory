@@ -15,7 +15,8 @@ class INFECTORY_API AIFTurret : public AActor
 	
 public:	
 	AIFTurret();
-	void SetOwnerController(AController* Controller) { OwnerController = Controller; }
+	void InitTurret(TObjectPtr<AController> Controller);
+	void LaunchTurret(FVector& TargetLoc);
 
 protected:
 	virtual void BeginPlay() override;
@@ -33,6 +34,9 @@ private:
 protected:
 	UPROPERTY()
 	TObjectPtr<class AIFGameMode> GameMode;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
+	TObjectPtr<class UProjectileMovementComponent> ProjectileMovementComp;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	TSubclassOf<class AIFProjectile> TracerEffect;
@@ -71,6 +75,7 @@ protected:
 	TObjectPtr<USoundBase> BodyImpactSound;
 
 private:
+
 	UPROPERTY()
 	TObjectPtr<AController> OwnerController;
 

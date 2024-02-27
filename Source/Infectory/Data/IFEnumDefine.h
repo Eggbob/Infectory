@@ -34,6 +34,7 @@ enum class ECharacterState : uint8
 	Attacking,
 	Reloading,
 	WeaponChanging,
+	Building,
 	Dead
 };
 

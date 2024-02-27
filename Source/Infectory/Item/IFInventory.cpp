@@ -3,6 +3,7 @@
 
 #include "Item/IFInventory.h"
 #include "Item/IFGunBase.h"
+#include "Item/IFTurret.h"
 
 UIFInventory::UIFInventory()
 {
@@ -24,6 +25,11 @@ UIFInventory::UIFInventory()
 		RangedWeaponBP.Add(ERangedWeaponType::Projectile, LauncherClassRef.Class);
 	}
 
+	static ConstructorHelpers::FClassFinder<AIFTurret> TurretClassRef(TEXT("/Game/Assets/Blueprint/Weapons/BP_Turret.BP_Turret_C"));
+	if (TurretClassRef.Class)
+	{
+		TurretBP = TurretClassRef.Class;
+	}
 }
 
 void UIFInventory::InitInventory(UWorld* World)
@@ -41,6 +47,9 @@ void UIFInventory::InitInventory(UWorld* World)
 		TObjectPtr<AIFGunBase> Launcher = World->SpawnActor<AIFGunBase>(RangedWeaponBP[ERangedWeaponType::Projectile]);
 		Launcher->SetActorHiddenInGame(true);
 		RangedWeapon.Add(ERangedWeaponType::Projectile, Launcher);
+
+		SpawnedTurret = World->SpawnActor<AIFTurret>(TurretBP);
+		SpawnedTurret->SetActorHiddenInGame(true);
 	}
 }
 
@@ -52,4 +61,13 @@ TObjectPtr<AIFGunBase> UIFInventory::GetRangedWeapon(ERangedWeaponType WeaponTyp
 	}
 
 	return nullptr;
+}
+
+TObjectPtr<class AIFTurret> UIFInventory::GetTurret()
+{
+	if (SpawnedTurret)
+		return SpawnedTurret;
+	else
+		return GetWorld()->SpawnActor<AIFTurret>(TurretBP);
+
 }

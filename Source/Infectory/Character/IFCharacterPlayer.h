@@ -30,9 +30,15 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayCameraShake(TSubclassOf<class ULegacyCameraShake> CameraShake);
-
+	
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetAudioLitener();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void GetTurretLoc();
+
+	UFUNCTION(BlueprintCallable)
+	void BuildTurret(FVector TurretLoc);
 
 protected:
 	virtual void BeginPlay() override;
@@ -48,15 +54,16 @@ protected:
 	void ShoulderMoveFinish();
 	void PerformRun();
 	void PerformCrouch();
+	void OnLeftMouseClick();
 	void Shoot();
 	void Reload();
+	void ReadyBuildTurret();
 
 	void ChangeWeapon1();
 	void ChangeWeapon2();
 	void ChangeWeapon3();
 	void ChangeWeaponBody(ERangedWeaponType NewWeaponType);
 
-	void SpawnTurret();
 
 private:
 	FVector GetGunHandPosition();
@@ -132,9 +139,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Camera, Meta = (AllowPrivateAccess = "true"))
 	float MinPitchValue;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterControl, Meta = (AllowPrivateAccess = "true"))
+	ECharacterState CurCharacterState;
+
 	ERangedWeaponType CurWeaponType;
 	ECharacterControlType CurControlType;
-	ECharacterState CurCharacterState;
 	
 private:
 	UPROPERTY()
