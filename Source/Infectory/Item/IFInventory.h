@@ -19,9 +19,11 @@ public:
 	UIFInventory();
 
 	void InitInventory(UWorld * World);
+	void RecallTurret();
 
 	TObjectPtr<class AIFGunBase> GetRangedWeapon(ERangedWeaponType WeaponType);
 	TObjectPtr<class AIFTurret> GetTurret();
+	
 
 private:
 	TMap<ERangedWeaponType, TObjectPtr<class AIFGunBase>> RangedWeapon;

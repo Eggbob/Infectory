@@ -33,11 +33,9 @@ AIFTurret::AIFTurret()
 
 void AIFTurret::InitTurret(TObjectPtr<AController> Controller)
 {
-	SetActorHiddenInGame(false);
-
 	OwnerController = Controller;
 
-	ProjectileMovementComp = GetComponentByClass<UProjectileMovementComponent>();
+	ProjectileMovementComp.Get()->Activate(true);
 
 	bDoOnce = false;
 	bCanFire = true;
@@ -45,29 +43,37 @@ void AIFTurret::InitTurret(TObjectPtr<AController> Controller)
     bDoReload = false;
 	bStartFire = false;
 
-	//FTimerHandle TimerHandle;
-	//GetWorldTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]() {
-	//	UE_LOG(LogTemp, Warning, TEXT("Turret Start"));
-	//	SetActorTickEnabled(true);
-	//	}), 0.5f, false);
+
+	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]() {
+		bIsStart = true;
+		}), 0.1f, false);
+}
+
+void AIFTurret::DeInitTurret()
+{
+	ProjectileMovementComp->Velocity = FVector::ZeroVector;
+	ProjectileMovementComp->InitialSpeed = 0.f;
+	ProjectileMovementComp->MaxSpeed = 0.f;
+	bIsStart = false;
+	ProjectileMovementComp.Get()->Deactivate();
 }
 
 void AIFTurret::LaunchTurret(FVector& TargetLoc)
 {
 	FVector LaunchDirec = TargetLoc - GetActorLocation();
-	LaunchDirec.Z = 0.f;
 
 	float ProjectileSpeed = 1000.f;
 	float Gravity = 980.f;
 	float TimeToTarget = LaunchDirec.Size() / ProjectileSpeed;
 	FVector LaunchVelocity = LaunchDirec / TimeToTarget;
 	LaunchVelocity.Z += 0.5f * Gravity * TimeToTarget;
-
+	
 	ProjectileMovementComp->Velocity = LaunchVelocity;
 	ProjectileMovementComp->InitialSpeed = LaunchVelocity.Size();
 	ProjectileMovementComp->MaxSpeed = LaunchVelocity.Size();
-
 }
+
 
 
 void AIFTurret::BeginPlay()
@@ -82,12 +88,15 @@ void AIFTurret::BeginPlay()
 	}
 	
 	GameMode = Cast<AIFGameMode>(GetWorld()->GetAuthGameMode());
+	ProjectileMovementComp = GetComponentByClass<UProjectileMovementComponent>();
 	Params.AddIgnoredActor(this);
 }
 
 void AIFTurret::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (!bIsStart) return;
 
 	if (CheckCanFire())
 	{
@@ -128,11 +137,9 @@ void AIFTurret::SearchTarget()
 	{
 		for (auto const& OverlapResult : OverlapResults)
 		{
-			TObjectPtr<APawn> Actor = Cast<APawn>(OverlapResult.GetActor());
-
-			if (Actor && !Actor.Get()->GetController()->IsPlayerController())
+			if (OverlapResult.GetActor()->IsA(AIFCharacterNonPlayer::StaticClass()))
 			{
-				Target = Actor;
+				Target = Cast<AIFCharacterNonPlayer>(OverlapResult.GetActor());
 				/*DrawDebugSphere(GetWorld(), GetActorLocation(), 1000.f, 16, FColor::Green, false, 0.2f);
 				DrawDebugPoint(GetWorld(), Actor.Get()->GetActorLocation(), 10.0f, FColor::Green, false, 0.2f);
 				DrawDebugLine(GetWorld(), GetActorLocation(), Actor->GetActorLocation(), FColor::Green, false, 0.27f);*/
@@ -157,11 +164,13 @@ void AIFTurret::AttackTarget()
 			}
 
 			UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, TurretBarrelMesh, Name);
+			
 			//SpawnTarcerEffect(SpawnTransform);
 			//DrawDebugLine(GetWorld(), SpawnTransform.GetLocation(), End, FColor::Red, true, 1.f);
 		}
 
 		bCanFire = false;
+		UGameplayStatics::SpawnSoundAttached(FireSound, TurretBarrelMesh, MuzzleSockets[0]);
 		GetWorldTimerManager().SetTimer(FireTimerHandle, FTimerDelegate::CreateLambda([&]() {
 			bCanFire = true;
 			}), FireDelayTime, false);
@@ -217,6 +226,12 @@ bool AIFTurret::CheckCanFire()
 {
 	if (Target)
 	{
+		if (Target.Get()->GetNPCState() == ENPCState::Dead)
+		{
+			Target = nullptr;
+			return false;
+		}
+
 		RotateToTarget();
 
 		if (!bRealoading)

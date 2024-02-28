@@ -54,6 +54,9 @@ public:
 	ECharacterControlType CurControlType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+	ECharacterState CurState;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	FVector LeftHandPosition;
 
 	FOnLeftIKChangeDelegate OnLeftIKChange;
@@ -68,8 +71,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	float AimYaw;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	float RecoilAlpha;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
+	float RightHandAlpha;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	FRotator RecoilRotation = FRotator(-5.0f, 0.0f, 0.0f);

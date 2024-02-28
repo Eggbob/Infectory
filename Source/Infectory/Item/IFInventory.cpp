@@ -49,7 +49,17 @@ void UIFInventory::InitInventory(UWorld* World)
 		RangedWeapon.Add(ERangedWeaponType::Projectile, Launcher);
 
 		SpawnedTurret = World->SpawnActor<AIFTurret>(TurretBP);
-		//SpawnedTurret->SetActorHiddenInGame(false);
+		SpawnedTurret->SetActorHiddenInGame(true);
+	}
+}
+
+void UIFInventory::RecallTurret()
+{
+	if (SpawnedTurret)
+	{
+		SpawnedTurret.Get()->SetActorHiddenInGame(true);
+		SpawnedTurret.Get()->DeInitTurret();
+		SpawnedTurret.Get()->SetActorEnableCollision(false);
 	}
 }
 
@@ -67,6 +77,9 @@ TObjectPtr<class AIFTurret> UIFInventory::GetTurret()
 {
 	if (SpawnedTurret)
 	{
+		SpawnedTurret.Get()->SetActorHiddenInGame(false);
+		SpawnedTurret.Get()->DeInitTurret();
+		SpawnedTurret.Get()->SetActorEnableCollision(true);
 		return SpawnedTurret;
 	}
 	else

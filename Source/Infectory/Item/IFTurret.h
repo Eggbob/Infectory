@@ -16,6 +16,7 @@ class INFECTORY_API AIFTurret : public AActor
 public:	
 	AIFTurret();
 	void InitTurret(TObjectPtr<AController> Controller);
+	void DeInitTurret();
 	void LaunchTurret(FVector& TargetLoc);
 
 protected:
@@ -64,7 +65,10 @@ protected:
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	int32 MaxRange = 10000;
-	
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	bool bIsStart = false;
+
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USoundBase> FireSound;
 
@@ -74,11 +78,11 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USoundBase> BodyImpactSound;
 
-private:
-
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<AController> OwnerController;
 
+
+private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	TObjectPtr<class UCapsuleComponent> CapsuleComp;
 
@@ -92,7 +96,7 @@ private:
 	TObjectPtr<class UStaticMeshComponent> TurretBarrelMesh;
 
 	UPROPERTY()
-	TObjectPtr<class AActor> Target;
+	TObjectPtr<class AIFCharacterNonPlayer> Target;
 
 	UPROPERTY()
 	TArray<FName> MuzzleSockets;
@@ -108,5 +112,6 @@ private:
 	bool bRealoading = false;
 	bool bDoReload = false;
 	bool bStartFire = false;
+	
 
 };

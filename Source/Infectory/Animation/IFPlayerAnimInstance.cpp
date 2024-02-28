@@ -69,6 +69,7 @@ void UIFPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		RecoilAlpha = FMath::Lerp(RecoilAlpha, 0, 0.04f);
 		CurMoveType = DefineTypePawn.GetInterface()->GetPlayerMoveType();
 		CurControlType = DefineTypePawn.GetInterface()->GetPlayerControlType();
+		CurState = DefineTypePawn.GetInterface()->GetPlayerStateType();
 		CurRotation = FMath::Lerp(CurRotation, FVector::DotProduct(CurVelocity, GetOwningActor()->GetActorRightVector()), 0.05f);
 	}
 

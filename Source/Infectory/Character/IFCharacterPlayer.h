@@ -21,6 +21,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	FORCEINLINE virtual ECharacterMoveType GetPlayerMoveType() override { return CurMoveType; }
 	FORCEINLINE virtual ECharacterControlType GetPlayerControlType() override { return CurControlType; }
+	FORCEINLINE virtual ECharacterState GetPlayerStateType() override { return CurCharacterState; }
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class AIFGunBase* GetCurGun() { return CurGun.Get(); }
@@ -38,7 +39,10 @@ public:
 	void GetTurretLoc();
 
 	UFUNCTION(BlueprintCallable)
-	void BuildTurret(FVector TurretLoc);
+	void BuildTurret(FVector TurretLoc, FVector SpawnLoc, bool bCanBuild);
+
+	UFUNCTION(BlueprintCallable)
+	void RecallTurret();
 
 protected:
 	virtual void BeginPlay() override;

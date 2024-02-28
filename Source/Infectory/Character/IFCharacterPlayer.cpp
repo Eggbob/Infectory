@@ -305,18 +305,21 @@ void AIFCharacterPlayer::Reload()
 }
 
 
-void AIFCharacterPlayer::BuildTurret(FVector TurretLoc)
+void AIFCharacterPlayer::BuildTurret(FVector TurretLoc, FVector SpawnLoc, bool bCanBuild)
 {
+	if (!bCanBuild) return;
+	
 	IsFiring = IsFiring ? false : true;
 
 	if (IsFiring)
 	{
-		TObjectPtr<AIFTurret> Turret; //= Inventory.Get()->GetTurret();
+		TObjectPtr<AIFTurret> Turret = Inventory.Get()->GetTurret();
 		if (Turret == nullptr)
 		{
-			Turret = GetWorld()->SpawnActor<AIFTurret>(TurretBP, GetActorLocation(), FRotator::ZeroRotator);
+			Turret = GetWorld()->SpawnActor<AIFTurret>(TurretBP, SpawnLoc, FRotator::ZeroRotator);
 		}
 
+		Turret.Get()->SetActorLocation(SpawnLoc);
 		Turret.Get()->InitTurret(GetController());
 		Turret.Get()->LaunchTurret(TurretLoc);
 
@@ -325,6 +328,10 @@ void AIFCharacterPlayer::BuildTurret(FVector TurretLoc)
 	
 }
 
+void AIFCharacterPlayer::RecallTurret()
+{
+	Inventory.Get()->RecallTurret();
+}
 
 
 void AIFCharacterPlayer::ChangeWeapon1()
