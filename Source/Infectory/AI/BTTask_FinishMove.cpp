@@ -45,7 +45,7 @@ void UBTTask_FinishMove::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* Node
 
 	if (bIsHit || TargetPawn != nullptr || !bIsMoving)
 	{
-		AIPawn.Get()->StopMoving();
+		AIPawn->StopMoving();
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}
 }

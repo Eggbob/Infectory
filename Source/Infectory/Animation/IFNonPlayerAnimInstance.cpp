@@ -44,12 +44,16 @@ void UIFNonPlayerAnimInstance::PlayBackJumpAnimation()
 	), BackJumpAnimation.Get()->GetPlayLength(), false);
 }
 
-void UIFNonPlayerAnimInstance::PlayRandomIdleAnimaiton()
+void UIFNonPlayerAnimInstance::PlayRandomIdleAnimaiton(int index)
 {
 	BlendWeight = 1.f; 
+	
+	if (index == 9)
+	{
+		index = FMath::RandRange(0, IdleAnimations.Num() - 1);
+	}
 
-	int Index = FMath::RandRange(0, IdleAnimations.Num() - 1);
-	Montage_Play(IdleAnimations[Index], 1.0f);
+	Montage_Play(IdleAnimations[index], 1.0f);
 
 	FTimerHandle TimerHandle;
 
@@ -58,7 +62,7 @@ void UIFNonPlayerAnimInstance::PlayRandomIdleAnimaiton()
 		{
 			OnBeforeMoving.ExecuteIfBound();
 		}
-	), IdleAnimations[Index].Get()->GetPlayLength(), false);
+	), IdleAnimations[index].Get()->GetPlayLength(), false);
 }
 
 void UIFNonPlayerAnimInstance::PlaySpecialHitAnimation()

@@ -10,22 +10,29 @@
 
 AIFAIController::AIFAIController()
 {
-	static ConstructorHelpers::FObjectFinder<UBlackboardData> BBAssetRef(TEXT("/Script/AIModule.BlackboardData'/Game/Assets/AI/BB_IFNPC.BB_IFNPC'"));
-	if (nullptr != BBAssetRef.Object)
+	static ConstructorHelpers::FObjectFinder<UBlackboardData> NpcBBAssetRef(TEXT("/Script/AIModule.BlackboardData'/Game/Assets/AI/BB_IFNPC.BB_IFNPC'"));
+	if (nullptr != NpcBBAssetRef.Object)
 	{
-		BBAsset = BBAssetRef.Object;
+		BBAsset = NpcBBAssetRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UBehaviorTree> BTAssetRef(TEXT("/Script/AIModule.BehaviorTree'/Game/Assets/AI/BT_IFNPC.BT_IFNPC'"));
-	if (nullptr != BTAssetRef.Object)
+	static ConstructorHelpers::FObjectFinder<UBehaviorTree> NPCBTAssetRef(TEXT("/Script/AIModule.BehaviorTree'/Game/Assets/AI/BT_IFNPC.BT_IFNPC'"));
+	if (nullptr != NPCBTAssetRef.Object)
 	{
-		BTAsset = BTAssetRef.Object;
+		BTAsset = NPCBTAssetRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UBehaviorTree> BombBTAssetRef(TEXT("/Script/AIModule.BehaviorTree'/Game/Assets/AI/BT_IFBoomer.BT_IFBoomer'"));
+	if (nullptr != BombBTAssetRef.Object)
+	{
+		BombBTAsset = BombBTAssetRef.Object;
 	}
 }
 
 void AIFAIController::RunAI()
 {
 	UBlackboardComponent* BlackboardPtr = Blackboard.Get();
+	
 	if (UseBlackboard(BBAsset, BlackboardPtr))
 	{
 		Blackboard.Get()->SetValueAsBool(BBKEY_ISFIRSTCONTACT, true);
@@ -34,7 +41,9 @@ void AIFAIController::RunAI()
 		Blackboard->SetValueAsVector(BBKEY_HOMEPOS, GetPawn()->GetActorLocation());
 
 		bHasTarget = false;
-		bool RunResult = RunBehaviorTree(BTAsset);
+
+		UBehaviorTree* TreeAsset = bIsBomb ? BombBTAsset : BTAsset;
+		bool RunResult = RunBehaviorTree(TreeAsset);
 		ensure(RunResult);
 	}
 }
@@ -48,6 +57,7 @@ void AIFAIController::StopAI()
 	}
 }
 
+
 void AIFAIController::SetTarget(TObjectPtr<AActor> Target)
 {
 	if (bHasTarget) return;
@@ -58,13 +68,12 @@ void AIFAIController::SetTarget(TObjectPtr<AActor> Target)
 
 void AIFAIController::MoveToTarget(float Range)
 {
-
 	float ExceptRange = 10.f;//FMath::RandRange(100.f, 190.f);
 
 	TWeakObjectPtr<AActor> Target = Cast<AActor>(Blackboard.Get()->GetValueAsObject(BBKEY_TARGET));
 	MoveToActor(Target.Get(), ExceptRange, true, true, true, 0, true);
-
 }
+
 
 void AIFAIController::UpdateControlRotation(float DeltaTime, bool bUpdatePawn)
 {
@@ -93,6 +102,7 @@ void AIFAIController::OnPossess(APawn* InPawn)
 	Super::OnPossess(InPawn);
 
 	RunAI();
+
 }
 
 

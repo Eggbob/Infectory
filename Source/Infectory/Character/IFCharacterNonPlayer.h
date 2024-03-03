@@ -22,7 +22,7 @@ public:
 	FORCEINLINE virtual ENPCState GetNPCState() { return CurNpcState; }
 	FORCEINLINE virtual ENPCMoveType GetNPCMoveType() { return CurNpcMoveType; }
 
-	void SetNPCType(ENPCType NpcName, FName NpcTier);
+	virtual void SetNPCType(ENPCType NpcName, FName NpcTier);
 	virtual float GetAIPatrolRadius() override;
 	virtual float GetAIDetectRange() override;
 	virtual float GetAIAttackRange() override;
@@ -30,6 +30,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void InitPhysicsAnimation();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayGlowEffect();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayHitReaction(FName BoneName, FHitResult HitResult);
@@ -47,6 +50,7 @@ protected:
 	virtual void PerformMoving() override;
 	virtual void StopMoving() override;
 	virtual void PerformWaiting(bool bIsFirstContact) override;
+	virtual void ChangeToBomb() override;
 
 	void StartBackJump();
 	void SetHitWalkSpeed();
@@ -63,9 +67,11 @@ protected:
 private:
 	void AttackHitCheck() override;
 	void MeleeAttackCheck();
+	void ExploseCharacter();
 
 	UFUNCTION(BlueprintCallable)
 	void ChangeNPCMoveMode();
+
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = NPC)
@@ -77,10 +83,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = NPC)
 	bool bIsJustSpawn;
 
-private:
-	ENPCState CurNpcState;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = NPC)
+	float GlowParam = 0;
 
-	ENPCMoveType CurNpcMoveType;
+protected:
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	TObjectPtr<UParticleSystem> ImpactEffect;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundBase> ProjectileSound;
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USoundBase> AttackSound;
@@ -105,15 +117,12 @@ private:
 
 	UPROPERTY()
 	TMap<ENPCType, TObjectPtr<class USkeletalMesh>> NPCSkeletalMeshes;
-	
-	UPROPERTY()
-	TMap<ENPCType, TSubclassOf<class UAnimInstance>> NPCAnimInstances;
-	
-	UPROPERTY()
-	TObjectPtr<class UIFNonPlayerAnimInstance> AnimInstance;
 
 	UPROPERTY()
-	TObjectPtr<class AIFAIController> AIController;
+	TMap<ENPCType, TSubclassOf<class UAnimInstance>> NPCAnimInstances;
+
+	UPROPERTY()
+	TObjectPtr<class UIFNonPlayerAnimInstance> AnimInstance;
 
 	UPROPERTY()
 	TObjectPtr<class AActor> TargetActor;
@@ -121,4 +130,15 @@ private:
 	UPROPERTY()
 	TMap<ENPCBoneName, int32> BodyDamageCheckMap;
 
+private:
+	bool bIsExplose = false;
+
+	UPROPERTY()
+	TObjectPtr<class AIFAIController> AIController;
+
+	FTimerHandle GlowTimerHandle;
+
+	ENPCState CurNpcState;
+
+	ENPCMoveType CurNpcMoveType;
 };

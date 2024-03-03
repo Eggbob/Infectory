@@ -27,7 +27,7 @@ public:
 	float MinSpeed = 50.0f;
 
 private:
-	TObjectPtr<class IIFCharacterAIInterface> AIPawn;
+	class IIFCharacterAIInterface* AIPawn;
 	TObjectPtr<APawn> TargetPawn;
 
 	bool bIsHit = false;

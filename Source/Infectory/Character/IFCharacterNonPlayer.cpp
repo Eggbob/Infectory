@@ -18,8 +18,6 @@
 AIFCharacterNonPlayer::AIFCharacterNonPlayer()
 {
 #pragma region MeshSet
-
-
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> TestMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Assets/Characters/Test/Parasite_L_Starkie.Parasite_L_Starkie'"));
 	if (TestMeshRef.Object)
 	{
@@ -45,6 +43,7 @@ AIFCharacterNonPlayer::AIFCharacterNonPlayer()
 	if (HunterMeshRef.Object)
 	{
 		NPCSkeletalMeshes.Add(ENPCType::Hunter, HunterMeshRef.Object);
+		NPCSkeletalMeshes.Add(ENPCType::Boss, HunterMeshRef.Object);
 	}
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> HunterMiniMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/ParasiteZombieBundle01/ParasiteZombie01/ParasiteZombie01_Character/SK_HunterMini.SK_HunterMini'"));
@@ -57,6 +56,7 @@ AIFCharacterNonPlayer::AIFCharacterNonPlayer()
 	if (BoomerMeshRef.Object)
 	{
 		NPCSkeletalMeshes.Add(ENPCType::Boomer, BoomerMeshRef.Object);
+		NPCSkeletalMeshes.Add(ENPCType::MiniBoomer, BoomerMeshRef.Object);
 	}
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> BigBoomerMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/ParasiteZombieBundle01/ParasiteZombie03/ParasiteZombie03_Character/SM_BoomerShield.SM_BoomerShield'"));
@@ -112,10 +112,21 @@ AIFCharacterNonPlayer::AIFCharacterNonPlayer()
 		NPCAnimInstances.Add(ENPCType::BigBoomer, BigBoomerAnimInstanceClassRef.Class);
 	}
 
+	static ConstructorHelpers::FClassFinder<UAnimInstance> MiniBoomerAnimInstanceClassRef(TEXT("/Game/Assets/Animation/Enemy/ABP_MiniBoomer.ABP_MiniBoomer_C"));
+	if (MiniBoomerAnimInstanceClassRef.Class)
+	{
+		NPCAnimInstances.Add(ENPCType::MiniBoomer, MiniBoomerAnimInstanceClassRef.Class);
+	}
+
+	static ConstructorHelpers::FClassFinder<UAnimInstance> BossAnimInstanceClassRef(TEXT("/Game/Assets/Animation/Enemy/ABP_Boss.ABP_Boss_C"));
+	if (BossAnimInstanceClassRef.Class)
+	{
+		NPCAnimInstances.Add(ENPCType::Boss, BossAnimInstanceClassRef.Class);
+	}
+
 #pragma endregion
 
 	AIControllerClass = AIFAIController::StaticClass();
-	
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	CurNpcState = ENPCState::Idle;
 	CurNpcMoveType = ENPCMoveType::Walking;
@@ -136,6 +147,14 @@ void AIFCharacterNonPlayer::BeginPlay()
 
 void AIFCharacterNonPlayer::SetDead()
 {
+	if (CurNPCType == ENPCType::MiniBoomer && !bIsExplose)
+	{
+		bIsExplose = true;
+		ExploseCharacter();
+
+		return;
+	}
+
 	Super::SetDead();
 	CurNpcState = ENPCState::Dead;
 
@@ -169,16 +188,17 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 	GetCapsuleComponent()->SetCapsuleHalfHeight(MeshExtent.Z);
 	GetCapsuleComponent()->SetCapsuleRadius(FMath::Max(MeshExtent.X, MeshExtent.Y));
 
-	if (CurNPCType == ENPCType::RangedParasite)
+	switch (CurNPCType)
 	{
+	case ENPCType::RangedParasite:
 		ProjectileWeapon = GetWorld()->SpawnActor<AIFGunBase>(GunClass);
 		ProjectileWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("spine_03"));
 		ProjectileWeapon->SetOwner(this);
 		ProjectileWeapon->CachingOwner();
 		ProjectileWeapon->SetActorRotation(FRotator(0.f, 0.f, 90.f));
-	}
-	else if (CurNPCType == ENPCType::BigBoomer)
-	{
+		break;
+
+	case ENPCType::BigBoomer:
 		ShieldObject = GetWorld()->SpawnActor<AIFShield>(ShieldClass);
 		ShieldObject.Get()->SetOwner(this);
 		ShieldObject.Get()->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("shieldsocket"));
@@ -189,7 +209,12 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 				AIController.Get()->GetBlackboardComponent()->SetValueAsBool(BBKEY_ISHIT, true);
 				AnimInstance.Get()->PlaySpecialHitAnimation();
 			}));
+		break;
+		
+	case ENPCType::MiniBoomer:
+		CurNpcMoveType = ENPCMoveType::Crawling;
 	}
+
 
 	const UEnum* EnumPtr = StaticEnum<ENPCBoneName>();
 	BodyDamageCheckMap.Empty();
@@ -217,7 +242,7 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 			AIController.Get()->GetBlackboardComponent()->SetValueAsBool(BBKEY_ISHIT, false);
 		});
 	}
-
+	
 	InitPhysicsAnimation();
 }
 
@@ -287,7 +312,10 @@ void AIFCharacterNonPlayer::NotifyAttackActionEnd()
 
 void AIFCharacterNonPlayer::PerformMoving()
 {
-	AIController->MoveToTarget(GetAIAttackRange());
+	if (CurNpcState != ENPCState::Dead)
+	{
+		AIController->MoveToTarget(GetAIAttackRange());
+	}
 }
 
 void AIFCharacterNonPlayer::StopMoving()
@@ -316,6 +344,32 @@ void AIFCharacterNonPlayer::PerformWaiting(bool bIsFirstContact)
 	}
 }
 
+void AIFCharacterNonPlayer::ChangeToBomb()
+{
+	if(CurNpcState == ENPCState::Dead) { return; }
+	
+	CurNpcState = ENPCState::Dead;
+	StopMoving();
+	AIController.Get()->StopAI();
+	GlowParam = 0;
+	bIsExplose = false;
+
+	AnimInstance.Get()->PlayRandomIdleAnimaiton(2);
+
+	GetWorld()->GetTimerManager().SetTimer(GlowTimerHandle, FTimerDelegate::CreateLambda([&]()
+		{
+			GlowParam += 3;
+			PlayGlowEffect();
+		}), 0.5f, true);
+
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
+		{
+			GetWorld()->GetTimerManager().ClearTimer(GlowTimerHandle);
+			ExploseCharacter();
+		}), 2.0f, false);
+}
+
 /// <summary>
 /// BackJump 실행
 /// </summary>
@@ -342,7 +396,6 @@ void AIFCharacterNonPlayer::SetHitWalkSpeed()
 	), 0.3f, false);
 }
 
-
 void AIFCharacterNonPlayer::NotifyBeforeMovingActionEnd()
 {
 	CurNpcState = ENPCState::Moving;
@@ -351,8 +404,10 @@ void AIFCharacterNonPlayer::NotifyBeforeMovingActionEnd()
 
 float AIFCharacterNonPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+	if (CurNpcState == ENPCState::Dead) { return Damage; }
 
+	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+	
 	SetHitWalkSpeed();
 	FocusingTarget(DamageCauser);
 
@@ -381,7 +436,6 @@ float AIFCharacterNonPlayer::TakeDamage(float Damage, FDamageEvent const& Damage
 				AnimInstance.Get()->PlaySpecialHitAnimation();
 			}
 		}
-		
 	}
 	return Damage;
 }
@@ -419,11 +473,11 @@ void AIFCharacterNonPlayer::MeleeAttackCheck()
 
 #if ENABLE_DRAW_DEBUG
 
-	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
+	/*FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
 	float CapsuleHalfHeight = AttackRange * 0.5f;
 	FColor DrawColor = HitDetected ? FColor::Green : FColor::Red;
 
-	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 5.0f);
+	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 5.0f);*/
 
 #endif
 }
@@ -435,6 +489,53 @@ void AIFCharacterNonPlayer::ChangeNPCMoveMode()
 	AnimInstance.Get()->StopAllMontages(0.0f);
 	AnimInstance.Get()->SetFootSound(CrawlSound);
 	
+}
+
+void AIFCharacterNonPlayer::ExploseCharacter()
+{
+	GlowParam = 0;
+
+	TArray<FOverlapResult> OverlapResults;
+
+	FCollisionQueryParams CollisionQueryParam(SCENE_QUERY_STAT(Detect), false, this);
+	bool bResult = GetWorld()->OverlapMultiByChannel(
+		OverlapResults,
+		GetActorLocation(),
+		FQuat::Identity,
+		ECollisionChannel::ECC_GameTraceChannel8,
+		FCollisionShape::MakeSphere(400.f),
+		CollisionQueryParam
+	);
+
+	if (bResult)
+	{
+		for (auto const& OverlapResult : OverlapResults)
+		{
+			TObjectPtr<AActor> Actor = Cast<AActor>(OverlapResult.GetActor());
+
+			if (!Actor->IsA<AIFCharacterNonPlayer>())
+			{
+				FDamageEvent DamageEvent;
+				Actor.Get()->TakeDamage(StatComp->GetBaseStat().Attack, DamageEvent, GetController(), this);
+
+				//ExcuteAttack(Actor.Get());
+				DrawDebugSphere(GetWorld(), GetActorLocation(), 300.f, 16, FColor::Green, false, 0.2f);
+				DrawDebugPoint(GetWorld(), Actor.Get()->GetActorLocation(), 10.0f, FColor::Green, false, 0.2f);
+				DrawDebugLine(GetWorld(), GetActorLocation(), Actor->GetActorLocation(), FColor::Green, false, 0.27f);
+			}
+		}
+	}
+
+	if (ImpactEffect && ProjectileSound)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, GetActorLocation());
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ProjectileSound, GetActorLocation());
+	}
+
+	PlayGlowEffect();
+	SetDead();
+
+	DrawDebugSphere(GetWorld(), GetActorLocation(), 300.f, 16, FColor::Red, false, 0.2f);
 }
 
 float AIFCharacterNonPlayer::GetAIPatrolRadius()

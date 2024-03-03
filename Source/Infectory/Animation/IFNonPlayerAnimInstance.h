@@ -29,7 +29,7 @@ public:
 	virtual void PlayHitAnim() override;
 	void PlayAttackAnimation(float AttackSpeed);
 	void PlayBackJumpAnimation();
-	void PlayRandomIdleAnimaiton();
+	void PlayRandomIdleAnimaiton(int index = 9);
 	void PlaySpecialHitAnimation();
 	void PlayLyingAnimation();
 	void PlayStandUpAnimation();

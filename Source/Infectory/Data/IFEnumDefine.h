@@ -67,6 +67,13 @@ enum class EProjectileDamageType : uint8
 };
 
 UENUM()
+enum class EBossPattern : uint8
+{
+	Idle = 0,
+	Pierce = 1,
+};
+
+UENUM()
 enum class ENPCType : uint8
 {
 	Test,
@@ -75,7 +82,9 @@ enum class ENPCType : uint8
 	Boomer,
 	MiniHunter,
 	RangedParasite,
-	BigBoomer
+	BigBoomer,
+	MiniBoomer,
+	Boss
 };
 
 UENUM()

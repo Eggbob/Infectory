@@ -18,12 +18,14 @@ class INFECTORY_API AIFAIController : public AAIController
 public:
 	AIFAIController();
 	
-	void RunAI();
-	void StopAI();
+	virtual void RunAI();
+	virtual void StopAI();
 	void SetTarget(TObjectPtr<AActor> Target);
 	void MoveToTarget(float Range);
+
 	virtual void UpdateControlRotation(float DeltaTime, bool bUpdatePawn = true) override;
 	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
+
 
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
@@ -33,14 +35,18 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float SmoothFocusInterpSpeed = 60.0f;
 
-private:
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<class UBlackboardData> BBAsset;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<class UBehaviorTree> BTAsset;
 
-	FRotator SmoothTargetRotation;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<class UBehaviorTree> BombBTAsset;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsBomb = false;
+
+	FRotator SmoothTargetRotation;
 	bool bHasTarget = false;
 };
