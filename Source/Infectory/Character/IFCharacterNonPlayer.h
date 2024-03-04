@@ -50,10 +50,11 @@ protected:
 	virtual void PerformMoving() override;
 	virtual void StopMoving() override;
 	virtual void PerformWaiting(bool bIsFirstContact) override;
-	virtual void ChangeToBomb() override;
+	virtual void ReadyToExplosion() override;
 
 	void StartBackJump();
 	void SetHitWalkSpeed();
+	void ChangeToBomb();
 
 	FAICharacterAttackFinished OnAttackFinished;
 	FAICharacterBackJumpFinished OnBackJumpFinished;
@@ -132,6 +133,7 @@ protected:
 
 private:
 	bool bIsExplose = false;
+	bool bJustExplose = false;
 
 	UPROPERTY()
 	TObjectPtr<class AIFAIController> AIController;

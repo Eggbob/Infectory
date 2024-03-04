@@ -26,7 +26,7 @@ EBTNodeResult::Type UBTTask_ChangeBomb::ExecuteTask(UBehaviorTreeComponent& Owne
 		return EBTNodeResult::Failed;
 	}
 
-	AIPawn->ChangeToBomb();
+	AIPawn->ReadyToExplosion();
 
 	return EBTNodeResult::Succeeded;
 }

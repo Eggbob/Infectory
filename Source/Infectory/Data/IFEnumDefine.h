@@ -47,6 +47,7 @@ enum class ENPCState : uint8
 	Jumping,
 	Attacking,
 	Lying,
+	BeforeDead,
 	Dead
 };
 
@@ -64,6 +65,7 @@ enum class EProjectileDamageType : uint8
 	None,
 	Light,
 	Explosive,
+	BossAttack,
 };
 
 UENUM()

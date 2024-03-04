@@ -52,7 +52,6 @@ float AIFTentalce::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACo
 {
 	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 
-
 	if (const FCustomDamageEvent* CustomDamageEvent = static_cast<const FCustomDamageEvent*>(&DamageEvent))
 	{
 		if (CustomDamageEvent->DamageType == EProjectileDamageType::Explosive)

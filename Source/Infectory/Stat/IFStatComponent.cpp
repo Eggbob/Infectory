@@ -49,10 +49,10 @@ void UIFStatComponent::SetStat(FName NPCName, FName NPCTier)
 
 float UIFStatComponent::ApplyDamage(float InDamage, FName BoneName)
 {
-	if (CurrentHp <= KINDA_SMALL_NUMBER)
-	{
-		return 0.0f;
-	}
+	//if (CurrentHp <= KINDA_SMALL_NUMBER)
+	//{
+	//	return 0.0f;
+	//}
 
 	const float PrevHp = CurrentHp;
 	float RealDamage = InDamage;

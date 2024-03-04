@@ -149,8 +149,14 @@ void AIFCharacterNonPlayer::SetDead()
 {
 	if (CurNPCType == ENPCType::MiniBoomer && !bIsExplose)
 	{
-		bIsExplose = true;
-		ExploseCharacter();
+		if (bJustExplose)
+		{
+			ExploseCharacter();
+		}
+		else
+		{
+			ChangeToBomb();
+		}
 
 		return;
 	}
@@ -344,9 +350,9 @@ void AIFCharacterNonPlayer::PerformWaiting(bool bIsFirstContact)
 	}
 }
 
-void AIFCharacterNonPlayer::ChangeToBomb()
+void AIFCharacterNonPlayer::ReadyToExplosion()
 {
-	if(CurNpcState == ENPCState::Dead) { return; }
+	if(CurNpcState == ENPCState::BeforeDead || CurNpcState == ENPCState::Dead) { return; }
 	
 	CurNpcState = ENPCState::Dead;
 	StopMoving();
@@ -396,6 +402,26 @@ void AIFCharacterNonPlayer::SetHitWalkSpeed()
 	), 0.3f, false);
 }
 
+void AIFCharacterNonPlayer::ChangeToBomb()
+{
+	if (CurNpcState != ENPCState::BeforeDead && CurNpcState != ENPCState::Dead)
+	{
+		CurNpcState = ENPCState::BeforeDead;
+		StopMoving();
+		AIController.Get()->StopAI();
+		GlowParam = 0;
+
+		return;
+	}
+	else
+	{
+		CurNpcState = ENPCState::Dead;
+		bIsExplose = true;
+		ExploseCharacter();
+	}
+
+}
+
 void AIFCharacterNonPlayer::NotifyBeforeMovingActionEnd()
 {
 	CurNpcState = ENPCState::Moving;
@@ -405,20 +431,24 @@ void AIFCharacterNonPlayer::NotifyBeforeMovingActionEnd()
 float AIFCharacterNonPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	if (CurNpcState == ENPCState::Dead) { return Damage; }
-
-	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 	
 	SetHitWalkSpeed();
 	FocusingTarget(DamageCauser);
 
 	if (const FCustomDamageEvent* CustomDamageEvent = static_cast<const FCustomDamageEvent*>(&DamageEvent))
 	{
-		if (CustomDamageEvent->DamageType == EProjectileDamageType::Explosive)
+		switch (CustomDamageEvent->DamageType)
 		{
-			AIController.Get()->GetBlackboardComponent()->SetValueAsBool(BBKEY_ISHIT, true);
-			StopMoving();
-			CurNpcState = ENPCState::Lying;
-			AnimInstance.Get()->PlayLyingAnimation();
+			case EProjectileDamageType::Explosive:
+				AIController.Get()->GetBlackboardComponent()->SetValueAsBool(BBKEY_ISHIT, true);
+				StopMoving();
+				CurNpcState = ENPCState::Lying;
+				AnimInstance.Get()->PlayLyingAnimation();
+				break;
+
+			case EProjectileDamageType::BossAttack:
+				bJustExplose = true;
+				break;
 		}
 
 		//TODO Fix Enum
@@ -437,6 +467,9 @@ float AIFCharacterNonPlayer::TakeDamage(float Damage, FDamageEvent const& Damage
 			}
 		}
 	}
+
+	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+
 	return Damage;
 }
 
@@ -494,6 +527,7 @@ void AIFCharacterNonPlayer::ChangeNPCMoveMode()
 void AIFCharacterNonPlayer::ExploseCharacter()
 {
 	GlowParam = 0;
+	bIsExplose = true;
 
 	TArray<FOverlapResult> OverlapResults;
 

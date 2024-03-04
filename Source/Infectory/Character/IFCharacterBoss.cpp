@@ -83,6 +83,7 @@ void AIFCharacterBoss::GiveDamage(TObjectPtr<AActor> Target)
 		FCustomDamageEvent CustomDamageEvent;
 
 		CustomDamageEvent.BoneName = "spine_01";
+		CustomDamageEvent.DamageType = EProjectileDamageType::BossAttack;
 
 		Target->TakeDamage(StatComp->GetBaseStat().Attack, CustomDamageEvent, GetController(), this);
 	}
