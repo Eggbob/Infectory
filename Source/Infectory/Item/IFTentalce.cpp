@@ -4,6 +4,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Data/IFEnumDefine.h"
 
 AIFTentalce::AIFTentalce()
 {
@@ -35,7 +36,6 @@ void AIFTentalce::BeginPlay()
 void AIFTentalce::PierceAttack(FVector TargetLoc)
 {
 	SetActorLocation(TargetLoc);
-	//DangerCircle.Get()->SetVisibility(true);
 	DangerCircle.Get()->SetWorldLocation(TargetLoc);
 
 	TargetLoc.Z -= CapsuleComp.Get()->GetScaledCapsuleHalfHeight() * 2;
@@ -43,7 +43,7 @@ void AIFTentalce::PierceAttack(FVector TargetLoc)
 	PlayPierceing();
 }
 
-void AIFTentalce::InitTentacle(float InDamage)
+void AIFTentalce::InitTentacle()
 {
 
 }
@@ -52,9 +52,22 @@ float AIFTentalce::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACo
 {
 	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 
-	UE_LOG(LogTemp, Warning, TEXT("Tentacle TakeDamage"));
 
-	return 0.0f;
+	if (const FCustomDamageEvent* CustomDamageEvent = static_cast<const FCustomDamageEvent*>(&DamageEvent))
+	{
+		if (CustomDamageEvent->DamageType == EProjectileDamageType::Explosive)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Tentacle TakeDamage"));
+			TentacleDestroy();
+			bIsDestroyed = true;
+		}
+		else
+		{
+			return Damage;
+		}
+	}
+
+	return Damage;
 }
 
 void AIFTentalce::NotifyActorBeginOverlap(AActor* OtherActor)

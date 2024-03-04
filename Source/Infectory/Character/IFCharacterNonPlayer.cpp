@@ -515,7 +515,9 @@ void AIFCharacterNonPlayer::ExploseCharacter()
 
 			if (!Actor->IsA<AIFCharacterNonPlayer>())
 			{
-				FDamageEvent DamageEvent;
+				FCustomDamageEvent DamageEvent;
+				DamageEvent.DamageType = EProjectileDamageType::Explosive;
+
 				Actor.Get()->TakeDamage(StatComp->GetBaseStat().Attack, DamageEvent, GetController(), this);
 
 				//ExcuteAttack(Actor.Get());

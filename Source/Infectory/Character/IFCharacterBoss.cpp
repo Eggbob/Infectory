@@ -37,7 +37,16 @@ void AIFCharacterBoss::PerformPierceAttack()
 		float HalfHeight = CapsuleComp.Get()->GetScaledCapsuleHalfHeight();
 		BottomLoc.Z -= HalfHeight;
 
-		TentalceArray[0].Get()->PierceAttack(BottomLoc);
+		for (AIFTentalce* Tentacle : TentacleArray)
+		{
+			if (!Tentacle->GetIsDestroy())
+			{
+				Tentacle->PierceAttack(BottomLoc);
+				return;
+			}
+		}
+
+		//TentacleArray[0].Get()->PierceAttack(BottomLoc);
 	}
 }
 
@@ -59,9 +68,9 @@ void AIFCharacterBoss::SetNPCType(ENPCType NpcName, FName NpcTier)
 
 	for (int i = 0; i < 5; i++)
 	{
-		TentalceArray[i].Get()->SetActorLocation(TentacleLocArray[i]);
+		TentacleArray[i].Get()->SetActorLocation(TentacleLocArray[i]);
 
-		TentalceArray[i].Get()->OnGiveDamage.BindUObject(this, &AIFCharacterBoss::GiveDamage);
+		TentacleArray[i].Get()->OnGiveDamage.BindUObject(this, &AIFCharacterBoss::GiveDamage);
 	}
 
 	//Tentalce.Get()->SetActorLocation(TentacleLocArray[i]);
@@ -71,7 +80,10 @@ void AIFCharacterBoss::GiveDamage(TObjectPtr<AActor> Target)
 {
 	if (Target)
 	{
-		FDamageEvent DamageEvent;
-		Target->TakeDamage(StatComp->GetBaseStat().Attack, DamageEvent, GetController(), this);
+		FCustomDamageEvent CustomDamageEvent;
+
+		CustomDamageEvent.BoneName = "spine_01";
+
+		Target->TakeDamage(StatComp->GetBaseStat().Attack, CustomDamageEvent, GetController(), this);
 	}
 }

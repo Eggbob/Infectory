@@ -28,7 +28,7 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
-	TArray<TObjectPtr<class AIFTentalce>> TentalceArray;
+	TArray<TObjectPtr<class AIFTentalce>> TentacleArray;
 
 private:
 	void GiveDamage(TObjectPtr<AActor> Target);

@@ -20,12 +20,21 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayPierceing();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void TentacleDestroy();
+
 	void PierceAttack(FVector TargetLoc);
-	void InitTentacle(float InDamage);
+	void InitTentacle();
 
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	
+	FORCEINLINE bool GetIsDestroy() { return bIsDestroyed; }
+
 private:
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
+
+public:
+	OnGiveDamageDelegate OnGiveDamage;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
@@ -40,7 +49,6 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USceneComponent> RootComp;
 
-public:
-	OnGiveDamageDelegate OnGiveDamage;
-
+private:
+	bool bIsDestroyed = false;
 };
