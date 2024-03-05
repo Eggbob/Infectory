@@ -43,6 +43,7 @@ void AIFTurret::InitTurret(TObjectPtr<AController> Controller)
     bDoReload = false;
 	bStartFire = false;
 
+	SetActorTickEnabled(true);
 
 	FTimerHandle TimerHandle;
 	GetWorldTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]() {
@@ -56,6 +57,7 @@ void AIFTurret::DeInitTurret()
 	ProjectileMovementComp->InitialSpeed = 0.f;
 	ProjectileMovementComp->MaxSpeed = 0.f;
 	bIsStart = false;
+	SetActorTickEnabled(false);
 	ProjectileMovementComp.Get()->Deactivate();
 }
 
@@ -96,6 +98,8 @@ void AIFTurret::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	UE_LOG(LogTemp, Warning, TEXT("Tick"));
+
 	if (!bIsStart) return;
 
 	if (CheckCanFire())
@@ -123,15 +127,6 @@ void AIFTurret::SearchTarget()
 		CollisionQueryParam
 	);
 
-	//FCollisionQueryParams CollisionQueryParam(SCENE_QUERY_STAT(Detect), false, this);
-	//bool bResult = GetWorld()->OverlapMultiByChannel(
-	//	OverlapResults,
-	//	GetActorLocation(),
-	//	FQuat::Identity,
-	//	ECollisionChannel::ECC_GameTraceChannel1,
-	//	FCollisionShape::MakeSphere(1000.f),
-	//	CollisionQueryParam
-	//);
 
 	if (bResult)
 	{
