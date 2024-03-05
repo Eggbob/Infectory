@@ -197,11 +197,13 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 	switch (CurNPCType)
 	{
 	case ENPCType::RangedParasite:
+	case ENPCType::Boss:
 		ProjectileWeapon = GetWorld()->SpawnActor<AIFGunBase>(GunClass);
-		ProjectileWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("spine_03"));
+		ProjectileWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("weaponsocket"));
 		ProjectileWeapon->SetOwner(this);
 		ProjectileWeapon->CachingOwner();
-		ProjectileWeapon->SetActorRotation(FRotator(0.f, 0.f, 90.f));
+		//ProjectileWeapon->SetActorRotation(FRotator(0.f, 0.f, 90.f));
+		
 		break;
 
 	case ENPCType::BigBoomer:

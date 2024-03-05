@@ -19,16 +19,18 @@ public:
 	UIFInventory();
 
 	void InitInventory(UWorld * World);
-	void RecallTurret();
+	void RecallGadget(EGadgetType GadgetType);
 
 	TObjectPtr<class AIFGunBase> GetRangedWeapon(ERangedWeaponType WeaponType);
-	TObjectPtr<class AIFTurret> GetTurret();
+	TObjectPtr<class AIFGadget> GetGadget(EGadgetType GadgetType);
 	
-
 private:
 	TMap<ERangedWeaponType, TObjectPtr<class AIFGunBase>> RangedWeapon;
 	TMap<ERangedWeaponType, TSubclassOf<class AIFGunBase>> RangedWeaponBP;
 
-	TSubclassOf<class AIFTurret> TurretBP;
-	TObjectPtr<class AIFTurret> SpawnedTurret;
+	TMap<EGadgetType, TSubclassOf<class AIFGadget>> GadgetBP;
+	TMap<EGadgetType, TObjectPtr<class AIFGadget>> GadgetMap;
+
+	TSubclassOf<class AIFGadget> TurretBP;
+	TObjectPtr<class AIFGadget> SpawnedTurret;
 };

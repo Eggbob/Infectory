@@ -21,10 +21,15 @@ public:
 	virtual void BeginPlay() override;
 	virtual void SetDead() override;
 	virtual void PerformPierceAttack() override;
+	virtual void PerformRangeAttack() override;
+	virtual void AttackByAI() override;
 	virtual void SetNPCType(ENPCType NpcName, FName NpcTier) override;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetTentacleActor();
+
+private:
+	void AttackHitCheck() override;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))

@@ -3,7 +3,7 @@
 
 #include "Item/IFInventory.h"
 #include "Item/IFGunBase.h"
-#include "Item/IFTurret.h"
+#include "Item/IFGadget.h"
 
 UIFInventory::UIFInventory()
 {
@@ -25,10 +25,17 @@ UIFInventory::UIFInventory()
 		RangedWeaponBP.Add(ERangedWeaponType::Projectile, LauncherClassRef.Class);
 	}
 
-	static ConstructorHelpers::FClassFinder<AIFTurret> TurretClassRef(TEXT("/Game/Assets/Blueprint/Weapons/BP_Turret.BP_Turret_C"));
+	static ConstructorHelpers::FClassFinder<AIFGadget> TurretClassRef(TEXT("/Game/Assets/Blueprint/Weapons/BP_Turret.BP_Turret_C"));
 	if (TurretClassRef.Class)
 	{
 		TurretBP = TurretClassRef.Class;
+		GadgetBP.Add(EGadgetType::Turret, TurretClassRef.Class);
+	}
+
+	static ConstructorHelpers::FClassFinder<AIFGadget> ShieldClassRef(TEXT("/Game/Assets/Blueprint/Weapons/BP_DeployShield.BP_DeployShield_C"));
+	if (ShieldClassRef.Class)
+	{
+		GadgetBP.Add(EGadgetType::Shield, ShieldClassRef.Class);
 	}
 }
 
@@ -48,19 +55,25 @@ void UIFInventory::InitInventory(UWorld* World)
 		Launcher->SetActorHiddenInGame(true);
 		RangedWeapon.Add(ERangedWeaponType::Projectile, Launcher);
 
-		SpawnedTurret = World->SpawnActor<AIFTurret>(TurretBP);
-		SpawnedTurret->SetActorHiddenInGame(true);
+		TObjectPtr<AIFGadget> Turret = World->SpawnActor<AIFGadget>(GadgetBP[EGadgetType::Turret]);
+		Turret->SetActorHiddenInGame(true);
+		GadgetMap.Add(EGadgetType::Turret, Turret);
+
+		TObjectPtr<AIFGadget> Shield = World->SpawnActor<AIFGadget>(GadgetBP[EGadgetType::Shield]);
+		Shield->SetActorHiddenInGame(true);
+		GadgetMap.Add(EGadgetType::Shield, Shield);
+
+	/*	SpawnedTurret = World->SpawnActor<AIFGadget>(TurretBP);
+		SpawnedTurret->SetActorHiddenInGame(true);*/
 	}
 }
 
-void UIFInventory::RecallTurret()
+void UIFInventory::RecallGadget(EGadgetType GadgetType)
 {
-	if (SpawnedTurret)
-	{
-		SpawnedTurret.Get()->SetActorHiddenInGame(true);
-		SpawnedTurret.Get()->DeInitTurret();
-		SpawnedTurret.Get()->SetActorEnableCollision(false);
-	}
+	GadgetMap[GadgetType].Get()->SetActorHiddenInGame(true);
+	GadgetMap[GadgetType].Get()->DeInitGadget();
+	GadgetMap[GadgetType].Get()->SetActorTickEnabled(false);
+	GadgetMap[GadgetType].Get()->SetActorEnableCollision(false);
 }
 
 TObjectPtr<AIFGunBase> UIFInventory::GetRangedWeapon(ERangedWeaponType WeaponType)
@@ -73,16 +86,30 @@ TObjectPtr<AIFGunBase> UIFInventory::GetRangedWeapon(ERangedWeaponType WeaponTyp
 	return nullptr;
 }
 
-TObjectPtr<class AIFTurret> UIFInventory::GetTurret()
+TObjectPtr<class AIFGadget> UIFInventory::GetGadget(EGadgetType GadgetType)
 {
-	if (SpawnedTurret)
+	if (GadgetMap.Contains(GadgetType))
+	{
+		GadgetMap[GadgetType].Get()->SetActorHiddenInGame(false);
+		GadgetMap[GadgetType].Get()->DeInitGadget();
+		GadgetMap[GadgetType].Get()->SetActorEnableCollision(true);
+
+		return GadgetMap[GadgetType];
+	}
+	else
+	{
+		return GetWorld()->SpawnActor<AIFGadget>(GadgetBP[GadgetType]);
+	}
+
+
+	/*if (SpawnedTurret)
 	{
 		SpawnedTurret.Get()->SetActorHiddenInGame(false);
-		SpawnedTurret.Get()->DeInitTurret();
+		SpawnedTurret.Get()->DeInitGadget();
 		SpawnedTurret.Get()->SetActorEnableCollision(true);
 		return SpawnedTurret;
 	}
 	else
-		return GetWorld()->SpawnActor<AIFTurret>(TurretBP);
+		return GetWorld()->SpawnActor<AIFGadget>(TurretBP);*/
 
 }

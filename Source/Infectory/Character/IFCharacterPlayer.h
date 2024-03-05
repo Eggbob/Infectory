@@ -39,10 +39,10 @@ public:
 	void GetTurretLoc();
 
 	UFUNCTION(BlueprintCallable)
-	void BuildTurret(FVector TurretLoc, FVector SpawnLoc, bool bCanBuild);
+	void BuildGadget(FVector TurretLoc, FVector SpawnLoc, bool bCanBuild);
 
 	UFUNCTION(BlueprintCallable)
-	void RecallTurret();
+	void RecallTurret(EGadgetType GadgetType);
 
 protected:
 	virtual void BeginPlay() override;
@@ -111,7 +111,7 @@ protected:
 	TSubclassOf<class ULegacyCameraShake> HitCameraShake;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<class AIFTurret> TurretBP;
+	TSubclassOf<class AIFGadget> TurretBP;
 
 	//재장전 인풋 액션
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))

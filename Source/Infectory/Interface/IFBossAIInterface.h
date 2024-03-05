@@ -23,4 +23,5 @@ class INFECTORY_API IIFBossAIInterface
 public:
 
 	virtual void PerformPierceAttack() = 0;
+	virtual void PerformRangeAttack() = 0;
 };

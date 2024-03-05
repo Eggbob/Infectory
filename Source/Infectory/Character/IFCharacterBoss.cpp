@@ -6,6 +6,8 @@
 #include "Item/IFTentalce.h"
 #include "Data/IFEnumDefine.h"
 #include "Stat/IFStatComponent.h"
+#include "Item/IFGunBase.h"
+#include "Animation/IFNonPlayerAnimInstance.h"
 
 AIFCharacterBoss::AIFCharacterBoss()
 {
@@ -50,6 +52,12 @@ void AIFCharacterBoss::PerformPierceAttack()
 	}
 }
 
+void AIFCharacterBoss::AttackByAI()
+{
+	AnimInstance.Get()->SetCurSound(AttackSound);
+	AnimInstance->PlayAttackAnimation(StatComp->GetBaseStat().AttackSpeed);
+}
+
 void AIFCharacterBoss::SetNPCType(ENPCType NpcName, FName NpcTier)
 {
 	Super::SetNPCType(NpcName, NpcTier);
@@ -74,6 +82,19 @@ void AIFCharacterBoss::SetNPCType(ENPCType NpcName, FName NpcTier)
 	}
 
 	//Tentalce.Get()->SetActorLocation(TentacleLocArray[i]);
+}
+
+void AIFCharacterBoss::AttackHitCheck()
+{
+	ProjectileWeapon->StartFire(TargetActor.Get()->GetActorLocation());
+}
+
+void AIFCharacterBoss::PerformRangeAttack()
+{
+	AnimInstance.Get()->SetCurSound(AttackSound);
+	AnimInstance->PlayAttackAnimation(StatComp->GetBaseStat().AttackSpeed);
+
+	//ProjectileWeapon->StartFire(TargetActor.Get()->GetActorLocation());
 }
 
 void AIFCharacterBoss::GiveDamage(TObjectPtr<AActor> Target)

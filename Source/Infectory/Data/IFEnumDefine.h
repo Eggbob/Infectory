@@ -73,6 +73,7 @@ enum class EBossPattern : uint8
 {
 	Idle = 0,
 	Pierce = 1,
+	Range = 2,
 };
 
 UENUM()
@@ -87,6 +88,13 @@ enum class ENPCType : uint8
 	BigBoomer,
 	MiniBoomer,
 	Boss
+};
+
+UENUM()
+enum class EGadgetType : uint8
+{
+	Turret,
+	Shield,
 };
 
 UENUM()

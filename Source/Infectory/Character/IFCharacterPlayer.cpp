@@ -16,7 +16,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Item/IFInventory.h"
 #include "Animation/IFPlayerAnimInstance.h"
-#include "Item/IFTurret.h"
+#include "Item/IFGadget.h"
 #include "Components/SpotLightComponent.h"
 
 
@@ -305,7 +305,7 @@ void AIFCharacterPlayer::Reload()
 }
 
 
-void AIFCharacterPlayer::BuildTurret(FVector TurretLoc, FVector SpawnLoc, bool bCanBuild)
+void AIFCharacterPlayer::BuildGadget(FVector TurretLoc, FVector SpawnLoc, bool bCanBuild)
 {
 	if (!bCanBuild) return;
 	
@@ -313,24 +313,26 @@ void AIFCharacterPlayer::BuildTurret(FVector TurretLoc, FVector SpawnLoc, bool b
 
 	if (IsFiring)
 	{
-		TObjectPtr<AIFTurret> Turret = Inventory.Get()->GetTurret();
-		if (Turret == nullptr)
+		TObjectPtr<AIFGadget> Gadget = Inventory.Get()->GetGadget(EGadgetType::Shield);
+		if (Gadget == nullptr)
 		{
-			Turret = GetWorld()->SpawnActor<AIFTurret>(TurretBP, SpawnLoc, FRotator::ZeroRotator);
+			Gadget = GetWorld()->SpawnActor<AIFGadget>(TurretBP, SpawnLoc, FRotator::ZeroRotator);
 		}
 
-		Turret.Get()->SetActorLocation(SpawnLoc);
-		Turret.Get()->InitTurret(GetController());
-		Turret.Get()->LaunchTurret(TurretLoc);
+		Gadget.Get()->SetActorLocation(SpawnLoc);
+		Gadget.Get()->InitGadget(GetController());
+		Gadget.Get()->LaunchGadget(TurretLoc);
+		Gadget.Get()->GadgetDeInitDelegate.BindLambda([&]() {
+			RecallTurret(EGadgetType::Shield);
+		});
 
 		AnimInstance.Get()->PlayThrowAnimation();
 	}
-	
 }
 
-void AIFCharacterPlayer::RecallTurret()
+void AIFCharacterPlayer::RecallTurret(EGadgetType GadgetType)
 {
-	Inventory.Get()->RecallTurret();
+	Inventory.Get()->RecallGadget(GadgetType);
 }
 
 

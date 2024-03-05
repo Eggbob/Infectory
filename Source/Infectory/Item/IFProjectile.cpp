@@ -103,7 +103,7 @@ void AIFProjectile::DeInit()
 void AIFProjectile::LaunchLight(FVector& TargetLoc)
 {
 	FVector LaunchDirec = TargetLoc - GetActorLocation();
-	LaunchDirec.Z = 0.f;
+	//LaunchDirec.Z = 0.f;
 
 	float ProjectileSpeed = 1000.f;
 	float Gravity = 980.f;
