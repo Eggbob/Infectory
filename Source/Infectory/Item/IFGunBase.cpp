@@ -58,20 +58,22 @@ void AIFGunBase::FireRifle()
 			CustomDamageEvent.HitResult = Hit;
 
 			GiveDamage(HitActor, CustomDamageEvent);
+
+			if (HitActor->IsA(ACharacter::StaticClass()))
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodImpactEffect, Hit.Location, ShotDirection.Rotation());
+				UGameplayStatics::SpawnSoundAtLocation(GetWorld(), BodyImpactSound, Hit.Location, ShotDirection.Rotation());
+				CrossHairDelegate.ExecuteIfBound(true);
+			}
+			else
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.Location, ShotDirection.Rotation());
+				UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ImpactSound, Hit.Location, ShotDirection.Rotation());
+				CrossHairDelegate.ExecuteIfBound(false);
+			}
 		}
 
-		if (HitActor->IsA(ACharacter::StaticClass()))
-		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodImpactEffect, Hit.Location, ShotDirection.Rotation());
-			UGameplayStatics::SpawnSoundAtLocation(GetWorld(), BodyImpactSound, Hit.Location, ShotDirection.Rotation());
-			CrossHairDelegate.ExecuteIfBound(true);
-		}
-		else
-		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.Location, ShotDirection.Rotation());
-			UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ImpactSound, Hit.Location, ShotDirection.Rotation());
-			CrossHairDelegate.ExecuteIfBound(false);
-		}
+		
 	}
 
 	if (FireGunDelegate.IsBound())
@@ -87,7 +89,7 @@ void AIFGunBase::FireShotGun()
 	ShotGunTrace(ShotDirection);
 	bDoOnce = false;
 
-	for (FHitResult Hit : HitResults)
+	for (const FHitResult& Hit : HitResults)
 	{
 		TWeakObjectPtr<AActor> HitActor = Hit.GetActor();
 
@@ -167,7 +169,6 @@ void AIFGunBase::FireProjectile(FVector& TargetLoc)
 	});
 	Projectile.Get()->OnFinish.Unbind();
 	Projectile.Get()->OnFinish.BindLambda([&](AActor * ReturnActor) {
-
 		TObjectPtr<AIFGameMode> GameMode = Cast<AIFGameMode>(GetWorld()->GetAuthGameMode());
 		GameMode.Get()->GetPoolManager().Get()->Push(ReturnActor);
 	});
@@ -194,6 +195,11 @@ void AIFGunBase::FireProjectile(FVector& TargetLoc)
 	{
 		FireGunDelegate.Execute(WeaponType);
 	}
+}
+
+void AIFGunBase::FireThrower()
+{
+	UGameplayStatics::SpawnEmitterAttached(BreathEffect, Mesh, MuzzleSocket);
 }
 
 void AIFGunBase::CachingOwner()
@@ -251,6 +257,10 @@ void AIFGunBase::StartFire(FVector TargetLoc)
 
 		case ERangedWeaponType::ShotGun:
 			FireShotGun();
+			break;
+
+		case ERangedWeaponType::Thrower:
+			FireThrower();
 			break;
 	}
 

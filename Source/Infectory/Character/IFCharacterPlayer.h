@@ -30,9 +30,6 @@ public:
 	void SetBuildMode();
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void PlayCameraShake(TSubclassOf<class ULegacyCameraShake> CameraShake);
-	
-	UFUNCTION(BlueprintImplementableEvent)
 	void SetAudioLitener();
 
 	UFUNCTION(BlueprintImplementableEvent)
@@ -167,6 +164,8 @@ private:
 	UPROPERTY()
 	TObjectPtr<UIFUserWidget> UserWidget;
 
+	UPROPERTY()
+	TObjectPtr<class AIFGameMode> GameMode;
 
 	bool IsFiring = false;
 

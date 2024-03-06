@@ -100,6 +100,12 @@ void UIFNonPlayerAnimInstance::PlayStandUpAnimation()
 	Montage_Play(StandUpAnimation[CurNpcMoveType], 1.0f);
 }
 
+void UIFNonPlayerAnimInstance::PlayBreathAttackAnimation()
+{
+	BlendWeight = 0.f;
+	Montage_Play(BreathAttackAnimation, 1.0f);
+}
+
 
 
 void UIFNonPlayerAnimInstance::NativeInitializeAnimation()

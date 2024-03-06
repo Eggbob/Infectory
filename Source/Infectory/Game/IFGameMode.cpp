@@ -6,6 +6,7 @@
 #include "Game/IFObjectPoolManager.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Player/IFPlayerController.h"
+#include "LegacyCameraShake.h"
 
 AIFGameMode::AIFGameMode()
 {

@@ -33,7 +33,7 @@ public:
 	void PlaySpecialHitAnimation();
 	void PlayLyingAnimation();
 	void PlayStandUpAnimation();
-
+	void PlayBreathAttackAnimation();
 
 protected:
 	virtual void NativeInitializeAnimation() override;
@@ -87,6 +87,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> AttackAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> BreathAttackAnimation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> BackJumpAnimation;

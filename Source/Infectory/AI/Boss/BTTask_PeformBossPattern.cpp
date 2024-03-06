@@ -26,7 +26,8 @@ EBTNodeResult::Type UBTTask_PeformBossPattern::ExecuteTask(UBehaviorTreeComponen
 	}
 
 	//AIPawn->PerformPierceAttack();
-	AIPawn->PerformRangeAttack();
+	//AIPawn->PerformRangeAttack();
+	AIPawn->PeformBreathAttack();
 
 	return EBTNodeResult::Succeeded;
 }

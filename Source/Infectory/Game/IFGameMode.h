@@ -20,6 +20,9 @@ public:
 	virtual void Logout(AController* Exiting) override;
 	TObjectPtr<class AIFObjectPoolManager> GetPoolManager();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayCameraShake(TSubclassOf<class ULegacyCameraShake> CameraShake);
+
 private:
 	UPROPERTY()
 	TObjectPtr<class AIFObjectPoolManager> PoolManager;

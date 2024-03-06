@@ -7,6 +7,7 @@
 #include "Data/IFEnumDefine.h"
 #include "Stat/IFStatComponent.h"
 #include "Item/IFGunBase.h"
+#include "Game/IFGameMode.h"
 #include "Animation/IFNonPlayerAnimInstance.h"
 
 AIFCharacterBoss::AIFCharacterBoss()
@@ -19,9 +20,11 @@ void AIFCharacterBoss::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AIController = Cast<AIFBossAIController>(GetController());
+	BossAIController = Cast<AIFBossAIController>(GetController());
 	StatComp->OnHpZero.AddUObject(this, &AIFCharacterBoss::SetDead);
 	StatComp->bIsNPC = true;
+
+	GameMode = Cast<AIFGameMode>(GetWorld()->GetAuthGameMode());
 }
 
 void AIFCharacterBoss::SetDead()
@@ -47,22 +50,20 @@ void AIFCharacterBoss::PerformPierceAttack()
 				return;
 			}
 		}
-
-		//TentacleArray[0].Get()->PierceAttack(BottomLoc);
 	}
 }
 
-void AIFCharacterBoss::AttackByAI()
-{
-	AnimInstance.Get()->SetCurSound(AttackSound);
-	AnimInstance->PlayAttackAnimation(StatComp->GetBaseStat().AttackSpeed);
-}
 
 void AIFCharacterBoss::SetNPCType(ENPCType NpcName, FName NpcTier)
 {
 	Super::SetNPCType(NpcName, NpcTier);
 
 	SetTentacleActor();
+
+	BossBreathGun = GetWorld()->SpawnActor<AIFGunBase>(BreathGunClass);
+	BossBreathGun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("weaponsocket"));
+	BossBreathGun->SetOwner(this);
+	BossBreathGun->CachingOwner();
 
 	for (int i = 0; i < BossMaterialArray.Num(); i++)
 	{
@@ -80,21 +81,31 @@ void AIFCharacterBoss::SetNPCType(ENPCType NpcName, FName NpcTier)
 
 		TentacleArray[i].Get()->OnGiveDamage.BindUObject(this, &AIFCharacterBoss::GiveDamage);
 	}
-
-	//Tentalce.Get()->SetActorLocation(TentacleLocArray[i]);
 }
 
 void AIFCharacterBoss::AttackHitCheck()
 {
-	ProjectileWeapon->StartFire(TargetActor.Get()->GetActorLocation());
+	/*ProjectileWeapon.Get()->ShootDelegate.Unbind();
+	ProjectileWeapon.Get()->ShootDelegate.BindLambda([&](TSubclassOf<ULegacyCameraShake> CameraShake) {
+		GameMode.Get()->PlayCameraShake(CameraShake);
+	});
+
+	ProjectileWeapon->StartFire(TargetActor.Get()->GetActorLocation());*/
+
+
+	BossBreathGun.Get()->StartFire(TargetActor.Get()->GetActorLocation());
 }
 
 void AIFCharacterBoss::PerformRangeAttack()
 {
 	AnimInstance.Get()->SetCurSound(AttackSound);
 	AnimInstance->PlayAttackAnimation(StatComp->GetBaseStat().AttackSpeed);
+}
 
-	//ProjectileWeapon->StartFire(TargetActor.Get()->GetActorLocation());
+void AIFCharacterBoss::PeformBreathAttack()
+{
+	AnimInstance.Get()->SetCurSound(AttackSound);
+	AnimInstance.Get()->PlayBreathAttackAnimation();
 }
 
 void AIFCharacterBoss::GiveDamage(TObjectPtr<AActor> Target)

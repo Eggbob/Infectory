@@ -28,6 +28,7 @@ public:
 	void FireRifle();
 	void FireShotGun();
 	void FireProjectile(FVector& TargetLoc);
+	void FireThrower();
 	void GiveDamage(TObjectPtr<AActor> HitActor, FCustomDamageEvent& Hit);
 	void CachingOwner();
 	void StartFire(FVector TargetLoc);
@@ -140,6 +141,9 @@ protected:
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	TObjectPtr<UParticleSystem> BloodImpactEffect;
 	
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	TObjectPtr<UParticleSystem> BreathEffect;
+
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	bool bIsAuto = true;
 

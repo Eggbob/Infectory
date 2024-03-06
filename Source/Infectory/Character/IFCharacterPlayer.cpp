@@ -17,6 +17,7 @@
 #include "Item/IFInventory.h"
 #include "Animation/IFPlayerAnimInstance.h"
 #include "Item/IFGadget.h"
+#include "Game/IFGameMode.h"
 #include "Components/SpotLightComponent.h"
 
 
@@ -165,6 +166,8 @@ void AIFCharacterPlayer::BeginPlay()
 	StatComp->OnHit.AddUObject(this, &AIFCharacterPlayer::OnHitAction);
 	StatComp->OnHpZero.AddUObject(AnimInstance, &UIFPlayerAnimInstance::PlayDeadAnim);
 	
+	GameMode = Cast<AIFGameMode>(GetWorld()->GetAuthGameMode());
+
 	TWeakObjectPtr<APlayerCameraManager> CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
 	if (CameraManager != nullptr)
 	{
@@ -229,7 +232,7 @@ void AIFCharacterPlayer::SetCharacterControl(ECharacterControlType NewCharacterC
 
 void AIFCharacterPlayer::OnHitAction()
 {
-	PlayCameraShake(HitCameraShake);
+	GameMode.Get()->PlayCameraShake(HitCameraShake);
 	CurCharacterState = ECharacterState::Hitting;
 	UserWidget.Get()->ActiveCrossHair(false);
 	UserWidget.Get()->PlayHitEffect();
@@ -269,7 +272,9 @@ void AIFCharacterPlayer::Shoot()
 	if (IsFiring)
 	{
 		CurGun.Get()->ShootDelegate.Unbind();
-		CurGun.Get()->ShootDelegate.BindUObject(this, &AIFCharacterPlayer::PlayCameraShake);
+		CurGun.Get()->ShootDelegate.BindLambda([&](TSubclassOf<ULegacyCameraShake> CameraShake) {
+			GameMode.Get()->PlayCameraShake(CameraShake);
+			}); 
 		CurGun->FireGunDelegate.Unbind();
 
 		switch (CurControlType)

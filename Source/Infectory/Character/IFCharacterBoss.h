@@ -22,7 +22,7 @@ public:
 	virtual void SetDead() override;
 	virtual void PerformPierceAttack() override;
 	virtual void PerformRangeAttack() override;
-	virtual void AttackByAI() override;
+	virtual void PeformBreathAttack() override;
 	virtual void SetNPCType(ENPCType NpcName, FName NpcTier) override;
 
 	UFUNCTION(BlueprintImplementableEvent)
@@ -38,8 +38,20 @@ protected:
 private:
 	void GiveDamage(TObjectPtr<AActor> Target);
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<class AIFGunBase> BreathGunClass;
+
 private:
-	TObjectPtr<class AIFBossAIController> AIController;
+
+	UPROPERTY()
+	TObjectPtr<class AIFGunBase> BossBreathGun;
+
+	UPROPERTY()
+	TObjectPtr<class AIFBossAIController> BossAIController;
+	
+	UPROPERTY()
+	TObjectPtr<class AIFGameMode> GameMode;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	TArray<TObjectPtr<UMaterial>> BossMaterialArray;

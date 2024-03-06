@@ -42,12 +42,12 @@ void AIFProjectile::NotifyActorBeginOverlap(AActor* OtherActor)
 		ExcuteAttack(OtherActor);
 		break;
 	case EProjectileDamageType::Explosive:
-		OnShoot.ExecuteIfBound(CameraShake);
 		CheckAttackRange();
 		break;
 	default:
 		break;
 	}
+	OnShoot.ExecuteIfBound(CameraShake);
 	
 	bIsCollisioned = true;
 	SetActorEnableCollision(false);
