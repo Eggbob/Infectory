@@ -143,7 +143,7 @@ void AIFGunBase::FireShotGun()
 	}
 }
 
-void AIFGunBase::GiveDamage(TObjectPtr<AActor> HitActor, FCustomDamageEvent& Hit)
+void AIFGunBase::GiveDamage(AActor* HitActor, FCustomDamageEvent& Hit)
 {
 	HitActor->TakeDamage(Damage, Hit, OwnerController, GetOwner());
 }
@@ -199,7 +199,50 @@ void AIFGunBase::FireProjectile(FVector& TargetLoc)
 
 void AIFGunBase::FireThrower()
 {
-	UGameplayStatics::SpawnEmitterAttached(BreathEffect, Mesh, MuzzleSocket);
+	FTransform SpawnTransform = Mesh->GetSocketTransform("BreathSocket");
+	FVector ParticleScale = FVector(1.f, 1.f, 1.f);
+
+	BreathEffectComp = UGameplayStatics::SpawnEmitterAttached( BreathEffect,
+		Mesh,
+		"BreathSocket");
+
+	/*BreathEffectComp = UGameplayStatics::SpawnEmitterAttached(
+		BreathEffect,
+		Mesh,
+		"BreathSocket",
+		SpawnTransform.GetLocation(),
+		SpawnTransform.GetRotation().Rotator()
+	);*/
+
+	//FHitResult Hit;
+
+	//bool bSuccess = BreathTrace(Hit);
+	StartBreathTrace();
+
+	FTimerHandle Handler;
+	GetWorldTimerManager().SetTimer(Handler, FTimerDelegate::CreateLambda([&]() {
+		FinishBreathTrace();
+		BreathEffectComp->Deactivate();
+	}), 3.f, false);
+
+
+	//if (bSuccess)
+	//{
+	//	AActor* HitActor = Hit.GetActor();
+
+	//	if (HitActor != nullptr)
+	//	{
+	//		FCustomDamageEvent CustomDamageEvent;
+	//		
+	//		GiveDamage(HitActor, CustomDamageEvent);
+	//	}
+	//}
+
+	//if (FireGunDelegate.IsBound())
+	//{
+	//	FireGunDelegate.Execute(WeaponType);
+	//}
+
 }
 
 void AIFGunBase::CachingOwner()

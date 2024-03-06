@@ -61,7 +61,7 @@ void AIFCharacterBoss::SetNPCType(ENPCType NpcName, FName NpcTier)
 	SetTentacleActor();
 
 	BossBreathGun = GetWorld()->SpawnActor<AIFGunBase>(BreathGunClass);
-	BossBreathGun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("weaponsocket"));
+	BossBreathGun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("breathsocket"));
 	BossBreathGun->SetOwner(this);
 	BossBreathGun->CachingOwner();
 

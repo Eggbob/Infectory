@@ -102,7 +102,7 @@ void UIFNonPlayerAnimInstance::PlayStandUpAnimation()
 
 void UIFNonPlayerAnimInstance::PlayBreathAttackAnimation()
 {
-	BlendWeight = 0.f;
+	BlendWeight = 1.f;
 	Montage_Play(BreathAttackAnimation, 1.0f);
 }
 

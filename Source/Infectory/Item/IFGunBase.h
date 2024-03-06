@@ -29,7 +29,7 @@ public:
 	void FireShotGun();
 	void FireProjectile(FVector& TargetLoc);
 	void FireThrower();
-	void GiveDamage(TObjectPtr<AActor> HitActor, FCustomDamageEvent& Hit);
+	
 	void CachingOwner();
 	void StartFire(FVector TargetLoc);
 	void StopFire();
@@ -41,10 +41,22 @@ public:
 	FORCEINLINE ERangedWeaponType GetWeaponType() const { return WeaponType; }
 
 	UFUNCTION(Blueprintcallable)
+	void GiveDamage(AActor* HitActor, FCustomDamageEvent& Hit);
+
+	UFUNCTION(Blueprintcallable)
 	FVector GetWeaponSocket();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	FTransform GetProjectileSpawnTransform();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	bool BreathTrace(FHitResult& Hit);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void FinishBreathTrace();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void StartBreathTrace();
 
 private:
 	bool GunTrace(FHitResult& Hit, FVector& ShotDirection);
@@ -154,4 +166,6 @@ private:
 	FTimerHandle FireTimerHandle;
 	TArray<FHitResult> HitResults;
 
+	UPROPERTY()
+	TObjectPtr<UParticleSystemComponent> BreathEffectComp;
 };
