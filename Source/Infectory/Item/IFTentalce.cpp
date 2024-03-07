@@ -59,6 +59,8 @@ float AIFTentalce::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACo
 			UE_LOG(LogTemp, Warning, TEXT("Tentacle TakeDamage"));
 			TentacleDestroy();
 			bIsDestroyed = true;
+
+			OnTentacleDestory.ExecuteIfBound();
 		}
 		else
 		{

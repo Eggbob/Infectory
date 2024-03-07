@@ -7,6 +7,7 @@
 #include "IFTentalce.generated.h"
 
 DECLARE_DELEGATE_OneParam(OnGiveDamageDelegate, TObjectPtr<AActor>)
+DECLARE_DELEGATE(OnTentacleDestroyed)
 
 UCLASS()
 class INFECTORY_API AIFTentalce : public APawn
@@ -35,6 +36,7 @@ private:
 
 public:
 	OnGiveDamageDelegate OnGiveDamage;
+	OnTentacleDestroyed OnTentacleDestory;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))

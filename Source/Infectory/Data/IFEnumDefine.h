@@ -73,7 +73,9 @@ enum class EBossPattern : uint8
 {
 	Idle = 0,
 	Pierce = 1,
-	Range = 2,
+	Spawn = 2,
+	Range = 3,
+	Breath = 4
 };
 
 UENUM()

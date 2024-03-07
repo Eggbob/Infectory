@@ -5,6 +5,7 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "AI/IFAI.h"
 
 AIFBossAIController::AIFBossAIController()
 {
@@ -24,11 +25,18 @@ AIFBossAIController::AIFBossAIController()
 void AIFBossAIController::RunAI()
 {
 	Super::RunAI();
+
+	Blackboard.Get()->SetValueAsInt(BBKEY_BOSSPASE, 1);
 }
 
 void AIFBossAIController::StopAI()
 {
 	Super::StopAI();
+}
+
+void AIFBossAIController::PerformNextPhase()
+{
+	Blackboard.Get()->SetValueAsInt(BBKEY_BOSSPASE, 2);
 }
 
 void AIFBossAIController::OnPossess(APawn* InPawn)

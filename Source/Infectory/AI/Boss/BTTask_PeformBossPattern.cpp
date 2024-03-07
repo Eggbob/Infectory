@@ -3,7 +3,10 @@
 
 #include "AI/Boss/BTTask_PeformBossPattern.h"
 #include "Interface/IFBossAIInterface.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "AIController.h"
+#include "AI/IFAI.h"
+#include "Data/IFEnumDefine.h"
 
 UBTTask_PeformBossPattern::UBTTask_PeformBossPattern()
 {
@@ -25,15 +28,35 @@ EBTNodeResult::Type UBTTask_PeformBossPattern::ExecuteTask(UBehaviorTreeComponen
 		return EBTNodeResult::Failed;
 	}
 
+	int32 BossPatternNum = OwnerComp.GetBlackboardComponent()->GetValueAsInt(BBKEY_BOSSPATTERN);
+
+	EBossPattern BossPattern = static_cast<EBossPattern>(BossPatternNum);
+
+	switch (BossPattern)
+	{
+		case EBossPattern::Pierce:
+			AIPawn->PerformPierceAttack();
+			break;
+
+		case EBossPattern::Spawn:
+			AIPawn->PerformSpawnBoomer();
+			break;
+
+		case EBossPattern::Range:
+			AIPawn->PerformRangeAttack();
+			break;
+
+		case EBossPattern::Breath:
+			AIPawn->PeformBreathAttack();
+			break;
+	}
+
+
 	//AIPawn->PerformPierceAttack();
 	//AIPawn->PerformRangeAttack();
-	AIPawn->PeformBreathAttack();
+	//AIPawn->PeformBreathAttack();
 
 	return EBTNodeResult::Succeeded;
 }
 
-void UBTTask_PeformBossPattern::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
-{
-	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
-	
-}
+

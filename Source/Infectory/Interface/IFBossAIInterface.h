@@ -24,4 +24,5 @@ public:
 	virtual void PerformPierceAttack() = 0;
 	virtual void PerformRangeAttack() = 0;
 	virtual void PeformBreathAttack() = 0;
+	virtual void PerformSpawnBoomer() = 0;
 };

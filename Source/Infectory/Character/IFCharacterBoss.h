@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/IFCharacterNonPlayer.h"
+#include "Data/IFEnumDefine.h"
 #include "Interface/IFBossAIInterface.h"
 #include "IFCharacterBoss.generated.h"
 
@@ -23,6 +24,7 @@ public:
 	virtual void PerformPierceAttack() override;
 	virtual void PerformRangeAttack() override;
 	virtual void PeformBreathAttack() override;
+	virtual void PerformSpawnBoomer() override;
 	virtual void SetNPCType(ENPCType NpcName, FName NpcTier) override;
 
 	UFUNCTION(BlueprintImplementableEvent)
@@ -30,6 +32,7 @@ public:
 
 private:
 	void AttackHitCheck() override;
+	void CheckTentacle();
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
@@ -45,6 +48,11 @@ protected:
 private:
 
 	UPROPERTY()
+	TSubclassOf<class AIFCharacterNonPlayer> BoomerClass;
+
+	int32 TentacleCount = 0;
+
+	UPROPERTY()
 	TObjectPtr<class AIFGunBase> BossBreathGun;
 
 	UPROPERTY()
@@ -57,4 +65,6 @@ private:
 	TArray<TObjectPtr<UMaterial>> BossMaterialArray;
 
 	TArray<FVector> TentacleLocArray;
+
+	EBossPattern CurBossPattern;
 };
