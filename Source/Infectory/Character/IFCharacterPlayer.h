@@ -9,6 +9,7 @@
 #include "Interface/IFUserWidgetInterface.h"
 #include "IFCharacterPlayer.generated.h"
 
+DECLARE_DELEGATE(FOnRegistGrabDelegate)
 
 UCLASS()
 class INFECTORY_API AIFCharacterPlayer : public AIFCharacterBase, public IIFGetDefineTypeInterface, public IIFUserWidgetInterface
@@ -34,6 +35,14 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void GetTurretLoc();
+
+	UFUNCTION(BlueprintCallable)
+	void StartGrabbing();
+
+	void ResistGrabbing();
+
+	UFUNCTION(BlueprintCallable)
+	void ClearGrab(bool bIsThrowing);
 
 	UFUNCTION(BlueprintCallable)
 	void BuildGadget(FVector TurretLoc, FVector SpawnLoc, bool bCanBuild);
@@ -69,6 +78,9 @@ private:
 	FVector GetGunHandPosition();
 	void SetWeapon();
 
+public:
+	FOnRegistGrabDelegate RegistGrabDelegate;
+
 protected:
 	//카메라 Arm
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAcess = "true"))
@@ -103,6 +115,9 @@ protected:
 	//공격 인풋 액션
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class UInputAction> AttackAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
+	TObjectPtr<class UInputAction> RegistAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<class ULegacyCameraShake> HitCameraShake;
@@ -168,7 +183,7 @@ private:
 	TObjectPtr<class AIFGameMode> GameMode;
 
 	bool IsFiring = false;
-
+	int32 ResistCnt = 0;
 
 
 };

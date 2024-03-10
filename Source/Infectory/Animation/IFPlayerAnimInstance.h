@@ -32,6 +32,7 @@ public:
 	void PlayWeaponChangeAnim();
 	void PlayFireAnimation();
 	void PlayThrowAnimation();
+	void PlayRecoverAnimation();
 
 	UFUNCTION()
 	FORCEINLINE void AnimNotify_OnWeaponChange() { OnWeaponChangeFinished.ExecuteIfBound(); }
@@ -94,4 +95,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> ThrowAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> RecoverAnimation;
 };

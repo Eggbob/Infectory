@@ -17,7 +17,7 @@ AIFTentalce::AIFTentalce()
 	CapsuleComp->SetupAttachment(RootComp);
 
 	SkeletalMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("TentacleMesh"));
-	SkeletalMeshComp->SetupAttachment(CapsuleComp);
+	SkeletalMeshComp->SetupAttachment(RootComp);
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> TentacleMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Assets/Art/Tentacle/SM_Tentacle.SM_Tentacle'"));
 	if (TentacleMeshRef.Succeeded())
@@ -35,6 +35,8 @@ void AIFTentalce::BeginPlay()
 
 void AIFTentalce::PierceAttack(FVector TargetLoc)
 {
+	CurPattern = ETentaclePattern::Pierce;
+
 	SetActorLocation(TargetLoc);
 	DangerCircle.Get()->SetWorldLocation(TargetLoc);
 
@@ -56,10 +58,8 @@ float AIFTentalce::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACo
 	{
 		if (CustomDamageEvent->DamageType == EProjectileDamageType::Explosive)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Tentacle TakeDamage"));
 			TentacleDestroy();
 			bIsDestroyed = true;
-
 			OnTentacleDestory.ExecuteIfBound();
 		}
 		else
@@ -75,8 +75,13 @@ void AIFTentalce::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
-	OnGiveDamage.ExecuteIfBound(OtherActor);
+	if (CurPattern == ETentaclePattern::Pierce)
+	{
+		OnGiveDamage.ExecuteIfBound(OtherActor);
+	}
 }
+
+
 
 
 

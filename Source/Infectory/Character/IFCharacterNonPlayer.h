@@ -125,7 +125,7 @@ protected:
 	UPROPERTY()
 	TObjectPtr<class UIFNonPlayerAnimInstance> AnimInstance;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<class AActor> TargetActor;
 
 	UPROPERTY()

@@ -57,6 +57,11 @@ void UIFPlayerAnimInstance::PlayThrowAnimation()
 	Montage_Play(ThrowAnimation, 1.0f);
 }
 
+void UIFPlayerAnimInstance::PlayRecoverAnimation()
+{
+	Montage_Play(RecoverAnimation, 1.0f);
+}
+
 
 void UIFPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
@@ -78,4 +83,5 @@ void UIFPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		LeftHandPosition = OnLeftIKChange.Execute();
 	}
 }
+
 

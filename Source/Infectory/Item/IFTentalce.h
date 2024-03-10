@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "Data/IFEnumDefine.h"
 #include "IFTentalce.generated.h"
 
 DECLARE_DELEGATE_OneParam(OnGiveDamageDelegate, TObjectPtr<AActor>)
@@ -24,23 +25,34 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void TentacleDestroy();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void ActiveTentacle(ACharacter * Target);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void ReleaseTentacle();
+
 	void PierceAttack(FVector TargetLoc);
 	void InitTentacle();
 
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	
-	FORCEINLINE bool GetIsDestroy() { return bIsDestroyed; }
+	FORCEINLINE bool GetIsDestroy() {
+		return bIsDestroyed; 
+	}
 
 private:
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
+	TObjectPtr<class USkeletalMeshComponent> SkeletalMeshComp;
+
 	OnGiveDamageDelegate OnGiveDamage;
 	OnTentacleDestroyed OnTentacleDestory;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
-	TObjectPtr<class USkeletalMeshComponent> SkeletalMeshComp;
+	ETentaclePattern CurPattern = ETentaclePattern::None;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	TObjectPtr<class UCapsuleComponent> CapsuleComp;

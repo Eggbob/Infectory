@@ -113,6 +113,12 @@ AIFCharacterPlayer::AIFCharacterPlayer()
 		ChangeWeaponAction3 = ChangeWeapon3Ref.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> RegistRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Assets/Input/Actions/IA_Regist.IA_Regist'"));
+	if (nullptr != RegistRef.Object)
+	{
+		RegistAction = RegistRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UIFCharacterControlData> ShoulderDataRef(TEXT("/Script/Infectory.IFCharacterControlData'/Game/Assets/CharacterControl/ABC_Shoulder.ABC_Shoulder'"));
 	if (ShoulderDataRef.Object)
 	{
@@ -239,6 +245,7 @@ void AIFCharacterPlayer::OnHitAction()
 
 	AnimInstance.Get()->SetCurSound(HitSound);
 	AnimInstance.Get()->PlayHitAnim();
+	IsFiring = false;
 
 	if (CurControlType == ECharacterControlType::Zoom)
 	{
@@ -309,6 +316,50 @@ void AIFCharacterPlayer::Reload()
 	AnimInstance.Get()->PlayReloadAnim(CurGun.Get()->GetWeaponType());
 }
 
+
+void AIFCharacterPlayer::StartGrabbing()
+{
+	CurCharacterState = ECharacterState::Grabbing;
+	IsFiring = false;
+
+	UserWidget.Get()->EnableGrabBar(true);
+
+	if (CurControlType == ECharacterControlType::Zoom)
+	{
+		ChangeCharacterControl();
+	}
+}
+
+void AIFCharacterPlayer::ResistGrabbing()
+{
+ 	ResistCnt++;
+	ResistCnt = FMath::Clamp(ResistCnt, 0, 10);
+
+	UserWidget.Get()->UpdateGrabBarCount(ResistCnt);
+	
+	if (ResistCnt >= 10)
+	{
+		ClearGrab(false);
+	}
+}
+
+void AIFCharacterPlayer::ClearGrab(bool bIsThrowing)
+{
+	ResistCnt = 0;
+	UserWidget.Get()->EnableGrabBar(false);
+	CurCharacterState = ECharacterState::Idle;
+	RegistGrabDelegate.ExecuteIfBound();
+
+	if (bIsThrowing)
+	{
+		CurCharacterState = ECharacterState::Lying;
+
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]() {
+			AnimInstance.Get()->PlayRecoverAnimation();
+			}), 2.0f, false);
+	}
+}
 
 void AIFCharacterPlayer::BuildGadget(FVector TurretLoc, FVector SpawnLoc, bool bCanBuild)
 {
@@ -426,6 +477,7 @@ void AIFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(ChangeWeaponAction1, ETriggerEvent::Started, this, &AIFCharacterPlayer::ChangeWeapon1);
 	EnhancedInputComponent->BindAction(ChangeWeaponAction2, ETriggerEvent::Started, this, &AIFCharacterPlayer::ChangeWeapon2);
 	EnhancedInputComponent->BindAction(ChangeWeaponAction3, ETriggerEvent::Started, this, &AIFCharacterPlayer::ChangeWeapon3);
+	EnhancedInputComponent->BindAction(RegistAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::ResistGrabbing);
 	EnhancedInputComponent->BindAction(SpawnTurretAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::SetBuildMode);
 }
 
@@ -468,6 +520,8 @@ void AIFCharacterPlayer::SetupUserWidget(TObjectPtr<UIFUserWidget> InUserWidget)
 
 void AIFCharacterPlayer::ShoulderMove(const FInputActionValue& Value)
 {
+	if (CurCharacterState == ECharacterState::Grabbing) return;
+
 	//입력값에서 이동 벡터를 추출
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
@@ -477,7 +531,6 @@ void AIFCharacterPlayer::ShoulderMove(const FInputActionValue& Value)
 	// 이동 방향이 존재하고, 전방으로 이동할 때만
 	if (!MovementDirection.IsNearlyZero() && MovementVector.Y < KINDA_SMALL_NUMBER )
 	{
-
 		// 이동 방향을 현재 카메라의 방향으로 회전
 		FRotator NewYawRotation = Controller->GetControlRotation();
 		NewYawRotation.Pitch = 0.0f;
@@ -509,6 +562,8 @@ void AIFCharacterPlayer::ShoulderMove(const FInputActionValue& Value)
 
 void AIFCharacterPlayer::ShoulderLook(const FInputActionValue& Value)
 {
+	if (CurCharacterState == ECharacterState::Grabbing) return;
+
 	//입력값에서 시선 조절 벡터를 추출
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 

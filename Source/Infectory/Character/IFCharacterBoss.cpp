@@ -7,6 +7,7 @@
 #include "Stat/IFStatComponent.h"
 #include "Item/IFGunBase.h"
 #include "Game/IFGameMode.h"
+#include "IFCharacterPlayer.h"
 #include "Animation/IFNonPlayerAnimInstance.h"
 
 AIFCharacterBoss::AIFCharacterBoss()
@@ -93,6 +94,12 @@ void AIFCharacterBoss::SetNPCType(ENPCType NpcName, FName NpcTier)
 	}
 }
 
+void AIFCharacterBoss::ReleaseGrabTentacle()
+{
+	TentacleArray[CurTentacleIdx]->ReleaseTentacle(); 
+} 
+
+
 void AIFCharacterBoss::AttackHitCheck()
 {
 	switch (CurBossPattern)
@@ -142,6 +149,21 @@ void AIFCharacterBoss::PerformSpawnBoomer()
 	SpawnVector.Z += 100.f;
 
 	GetWorld()->SpawnActor<AIFCharacterNonPlayer>(BoomerClass, SpawnVector, GetActorRotation());
+}
+
+void AIFCharacterBoss::PerformGrabAttack()
+{
+	Cast<AIFCharacterPlayer>(TargetActor)->RegistGrabDelegate.BindUObject(this, &AIFCharacterBoss::ReleaseGrabTentacle);
+
+	for (int i = 0; i < TentacleArray.Num(); i++)
+	{
+		if (!TentacleArray[i]->GetIsDestroy())
+		{
+			TentacleArray[i]->ActiveTentacle(Cast<ACharacter>(TargetActor));
+			CurTentacleIdx = i;
+			return;
+		}
+	}
 }
 
 void AIFCharacterBoss::GiveDamage(TObjectPtr<AActor> Target)

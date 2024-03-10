@@ -25,10 +25,15 @@ public:
 	virtual void PerformRangeAttack() override;
 	virtual void PeformBreathAttack() override;
 	virtual void PerformSpawnBoomer() override;
+	virtual void PerformGrabAttack() override;
 	virtual void SetNPCType(ENPCType NpcName, FName NpcTier) override;
+	void ReleaseGrabTentacle();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetTentacleActor();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void TestTentacleActive();
 
 private:
 	void AttackHitCheck() override;
@@ -51,6 +56,7 @@ private:
 	TSubclassOf<class AIFCharacterNonPlayer> BoomerClass;
 
 	int32 TentacleCount = 0;
+	int32 CurTentacleIdx = -1;
 
 	UPROPERTY()
 	TObjectPtr<class AIFGunBase> BossBreathGun;

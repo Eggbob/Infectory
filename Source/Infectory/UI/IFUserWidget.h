@@ -20,7 +20,13 @@ public:
 	void ActiveCrossHair(bool bIsActive);
 
 	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateGrabBarCount(int32 InPressCnt);
+
+	UFUNCTION(BlueprintImplementableEvent)
 	void PlayHitEffect();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void EnableGrabBar(bool bIsEnable);
 
 protected:
 	virtual void NativeConstruct() override;

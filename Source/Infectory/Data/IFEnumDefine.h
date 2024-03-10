@@ -35,6 +35,8 @@ enum class ECharacterState : uint8
 	Reloading,
 	WeaponChanging,
 	Building,
+	Grabbing,
+	Lying,
 	Dead
 };
 
@@ -97,6 +99,14 @@ enum class EGadgetType : uint8
 {
 	Turret,
 	Shield,
+};
+
+UENUM()
+enum class ETentaclePattern : uint8
+{
+	None,
+	Pierce,
+	Grab,
 };
 
 UENUM()

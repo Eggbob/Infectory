@@ -32,7 +32,7 @@ EBTNodeResult::Type UBTTask_PeformBossPattern::ExecuteTask(UBehaviorTreeComponen
 
 	EBossPattern BossPattern = static_cast<EBossPattern>(BossPatternNum);
 
-	switch (BossPattern)
+	/*switch (BossPattern)
 	{
 		case EBossPattern::Pierce:
 			AIPawn->PerformPierceAttack();
@@ -49,8 +49,9 @@ EBTNodeResult::Type UBTTask_PeformBossPattern::ExecuteTask(UBehaviorTreeComponen
 		case EBossPattern::Breath:
 			AIPawn->PeformBreathAttack();
 			break;
-	}
+	}*/
 
+	AIPawn->PerformGrabAttack();
 
 	//AIPawn->PerformPierceAttack();
 	//AIPawn->PerformRangeAttack();
