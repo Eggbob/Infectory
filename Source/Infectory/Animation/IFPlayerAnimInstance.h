@@ -14,6 +14,7 @@ DECLARE_DELEGATE_RetVal(FVector, FOnLeftIKChangeDelegate)
 DECLARE_DELEGATE(FOnHitAnimFinishedDelegate)
 DECLARE_DELEGATE(FOnReloadFinishedDelegate)
 DECLARE_DELEGATE(FOnWeaponChangeFinishedDelegate)
+DECLARE_DELEGATE(FOnRecoverDelegate)
 
 /**
  * 
@@ -33,6 +34,7 @@ public:
 	void PlayFireAnimation();
 	void PlayThrowAnimation();
 	void PlayRecoverAnimation();
+	void PlayStunAnimation();
 
 	UFUNCTION()
 	FORCEINLINE void AnimNotify_OnWeaponChange() { OnWeaponChangeFinished.ExecuteIfBound(); }
@@ -42,6 +44,8 @@ public:
 	FORCEINLINE void AnimNotify_PlaySound() { PlaySound(); }
 	UFUNCTION()
 	FORCEINLINE void AnimNotify_PlayFootStep() { PlayFootSound(); }
+	UFUNCTION()
+	FORCEINLINE void AnimNotify_Recover() { OnRecover.ExecuteIfBound(); }
 
 protected:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
@@ -64,6 +68,7 @@ public:
 	FOnHitAnimFinishedDelegate OnHitAnimFinished;
 	FOnReloadFinishedDelegate OnReloadFinished;
 	FOnWeaponChangeFinishedDelegate OnWeaponChangeFinished;
+	FOnRecoverDelegate OnRecover;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
@@ -95,6 +100,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> ThrowAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> StunAnimation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> RecoverAnimation;

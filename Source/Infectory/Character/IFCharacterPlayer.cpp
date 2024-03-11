@@ -350,15 +350,25 @@ void AIFCharacterPlayer::ClearGrab(bool bIsThrowing)
 	CurCharacterState = ECharacterState::Idle;
 	RegistGrabDelegate.ExecuteIfBound();
 
+
 	if (bIsThrowing)
 	{
 		CurCharacterState = ECharacterState::Lying;
 
-		FTimerHandle TimerHandle;
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
+		AnimInstance.Get()->StopAllMontages(0.f);
+		AnimInstance.Get()->PlayStunAnimation();
+
+	/*	FTimerHandle TimerHandle;
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]() {
 			AnimInstance.Get()->PlayRecoverAnimation();
-			}), 2.0f, false);
+			}), 2.0f, false);*/
+
+	/*	AnimInstance.Get()->OnRecover.BindLambda([&]() {
+			ClearGrab(false);
+		});*/
 	}
+	
 }
 
 void AIFCharacterPlayer::BuildGadget(FVector TurretLoc, FVector SpawnLoc, bool bCanBuild)
@@ -520,7 +530,7 @@ void AIFCharacterPlayer::SetupUserWidget(TObjectPtr<UIFUserWidget> InUserWidget)
 
 void AIFCharacterPlayer::ShoulderMove(const FInputActionValue& Value)
 {
-	if (CurCharacterState == ECharacterState::Grabbing) return;
+	if (CurCharacterState == ECharacterState::Grabbing || CurCharacterState == ECharacterState::Lying) return;
 
 	//입력값에서 이동 벡터를 추출
 	FVector2D MovementVector = Value.Get<FVector2D>();
@@ -562,7 +572,7 @@ void AIFCharacterPlayer::ShoulderMove(const FInputActionValue& Value)
 
 void AIFCharacterPlayer::ShoulderLook(const FInputActionValue& Value)
 {
-	if (CurCharacterState == ECharacterState::Grabbing) return;
+	if (CurCharacterState == ECharacterState::Grabbing || CurCharacterState == ECharacterState::Lying) return;
 
 	//입력값에서 시선 조절 벡터를 추출
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
