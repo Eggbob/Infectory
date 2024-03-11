@@ -33,6 +33,12 @@ void AIFTentalce::BeginPlay()
 	DangerCircle = GetComponentByClass<UStaticMeshComponent>();
 }
 
+void AIFTentalce::ResetTentacle()
+{
+	CurPattern = ETentaclePattern::None;
+	SetActorLocationAndRotation(TentacleBasicLoc, FRotator::ZeroRotator);
+}
+
 void AIFTentalce::PierceAttack(FVector TargetLoc)
 {
 	CurPattern = ETentaclePattern::Pierce;
@@ -45,9 +51,9 @@ void AIFTentalce::PierceAttack(FVector TargetLoc)
 	PlayPierceing();
 }
 
-void AIFTentalce::InitTentacle()
+void AIFTentalce::InitTentacle(FVector TentacleLoc)
 {
-
+	TentacleBasicLoc = TentacleLoc;
 }
 
 float AIFTentalce::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

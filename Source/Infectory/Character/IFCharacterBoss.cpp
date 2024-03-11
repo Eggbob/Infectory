@@ -89,6 +89,7 @@ void AIFCharacterBoss::SetNPCType(ENPCType NpcName, FName NpcTier)
 	for (int i = 0; i < 5; i++)
 	{
 		TentacleArray[i].Get()->SetActorLocation(TentacleLocArray[i]);
+		TentacleArray[i].Get()->InitTentacle(TentacleLocArray[i]);
 		TentacleArray[i].Get()->OnGiveDamage.BindUObject(this, &AIFCharacterBoss::GiveDamage);
 		TentacleArray[i].Get()->OnTentacleDestory.BindUObject(this, &AIFCharacterBoss::CheckTentacle);
 	}

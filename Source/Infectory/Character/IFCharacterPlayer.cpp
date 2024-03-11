@@ -165,6 +165,12 @@ void AIFCharacterPlayer::BeginPlay()
 		CurCharacterState = ECharacterState::Idle;
 		CurGun.Get()->Reload();
 	});
+
+	AnimInstance->OnRecover.BindLambda([&]() {
+		CurCharacterState = ECharacterState::Idle;
+		CameraBoom.Get()->SetRelativeLocation(FVector(0.f, 44.0f, 52.f));
+	});
+
 	AnimInstance.Get()->SetFootSound(FootStepSound);
 
 	StatComp->ForTest();
@@ -262,8 +268,6 @@ void AIFCharacterPlayer::OnLeftMouseClick()
 		Shoot();
 		break;
 	case ECharacterState::Building:
-	
-
 		GetTurretLoc();
 		break;
 	}
@@ -355,14 +359,16 @@ void AIFCharacterPlayer::ClearGrab(bool bIsThrowing)
 	{
 		CurCharacterState = ECharacterState::Lying;
 
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]() {
+			GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+			}), 1.0f, false);
+
 		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
 		AnimInstance.Get()->StopAllMontages(0.f);
 		AnimInstance.Get()->PlayStunAnimation();
 
-	/*	FTimerHandle TimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]() {
-			AnimInstance.Get()->PlayRecoverAnimation();
-			}), 2.0f, false);*/
+		CameraBoom.Get()->SetRelativeLocation(FVector(-100.f, 44.0f, 0.f));
 
 	/*	AnimInstance.Get()->OnRecover.BindLambda([&]() {
 			ClearGrab(false);
@@ -619,7 +625,6 @@ void AIFCharacterPlayer::PerformRun()
 
 	GetCharacterMovement()->MaxWalkSpeed = CharacterMovemntData->MoveSpeed[CurMoveType]; //600.f;
 }
-
 
 void AIFCharacterPlayer::PerformCrouch()
 {

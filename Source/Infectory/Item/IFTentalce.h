@@ -31,8 +31,12 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void ReleaseTentacle();
 
+	UFUNCTION(BlueprintCallable)
+	void ResetTentacle();
+
 	void PierceAttack(FVector TargetLoc);
-	void InitTentacle();
+
+	void InitTentacle(FVector TentacleLoc);
 
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	
@@ -65,4 +69,5 @@ protected:
 
 private:
 	bool bIsDestroyed = false;
+	FVector TentacleBasicLoc;
 };

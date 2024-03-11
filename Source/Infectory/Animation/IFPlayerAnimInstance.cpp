@@ -60,12 +60,21 @@ void UIFPlayerAnimInstance::PlayThrowAnimation()
 void UIFPlayerAnimInstance::PlayRecoverAnimation()
 {
 	Montage_Play(RecoverAnimation, 1.0f);
+
+	OnRecover.ExecuteIfBound();
 }
 
 void UIFPlayerAnimInstance::PlayStunAnimation()
 {
 	Montage_Play(StunAnimation, 1.0f);
-	RightHandAlpha = 0.f;
+
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda(
+		[&]()
+		{
+			PlayRecoverAnimation();
+		}
+	), 2.f, false);
 }
 
 
