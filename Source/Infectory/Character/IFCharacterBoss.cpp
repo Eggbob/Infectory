@@ -8,6 +8,7 @@
 #include "Item/IFGunBase.h"
 #include "Game/IFGameMode.h"
 #include "IFCharacterPlayer.h"
+#include "Item/IFTumor.h"
 #include "Animation/IFNonPlayerAnimInstance.h"
 
 AIFCharacterBoss::AIFCharacterBoss()
@@ -19,6 +20,12 @@ AIFCharacterBoss::AIFCharacterBoss()
 	if (BoomerClassRef.Class)
 	{
 		BoomerClass = BoomerClassRef.Class;
+	}
+
+	static ConstructorHelpers::FClassFinder<AIFTumor> TumorClassRef(TEXT("/Game/Assets/Blueprint/ETC/BP_Tumor.BP_Tumor_C"));
+	if (TumorClassRef.Class)
+	{
+		TumorClass = TumorClassRef.Class;
 	}
 }
 
@@ -93,6 +100,17 @@ void AIFCharacterBoss::SetNPCType(ENPCType NpcName, FName NpcTier)
 		TentacleArray[i].Get()->OnGiveDamage.BindUObject(this, &AIFCharacterBoss::GiveDamage);
 		TentacleArray[i].Get()->OnTentacleDestory.BindUObject(this, &AIFCharacterBoss::CheckTentacle);
 	}
+
+	for (int i = 1; i < 6; i++)
+	{
+		FTransform SocketTr = GetMesh()->GetSocketTransform(FName("eggsocket" + FString::FromInt(i)));
+		TObjectPtr<AIFTumor> Tumor = GetWorld()->SpawnActor<AIFTumor>(TumorClass, SocketTr);
+		Tumor.Get()->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
+			FName("eggsocket" + FString::FromInt(i)));
+
+		TumorArray.Add(Tumor);
+	}
+
 }
 
 void AIFCharacterBoss::ReleaseGrabTentacle()

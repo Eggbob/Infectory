@@ -3,6 +3,7 @@
 
 #include "AI/BTService_Detect.h"
 #include "IFAI.h"
+#include "Character/IFCharacterPlayer.h"
 #include "AIController.h"
 #include "Interface/IFCharacterAIInterface.h"
 #include "DrawDebugHelpers.h"
@@ -53,7 +54,8 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 		for (auto const& OverlapResult : OverlapResults)
 		{
 			TObjectPtr<APawn> Pawn = Cast<APawn>(OverlapResult.GetActor());
-			if (Pawn && Pawn.Get()->GetController()->IsPlayerController())
+			//if (Pawn && Pawn.Get()->GetController()->IsPlayerController())
+			if (Pawn && Pawn.Get()->IsA<AIFCharacterPlayer>())
 			{
 				AIPawn->FocusingTarget(Pawn);
 				return;

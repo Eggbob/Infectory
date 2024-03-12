@@ -43,6 +43,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	TArray<TObjectPtr<class AIFTentalce>> TentacleArray;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
+	TArray<TObjectPtr<class AIFTumor>> TumorArray;
+
 private:
 	void GiveDamage(TObjectPtr<AActor> Target);
 
@@ -54,6 +57,9 @@ private:
 
 	UPROPERTY()
 	TSubclassOf<class AIFCharacterNonPlayer> BoomerClass;
+
+	UPROPERTY()
+	TSubclassOf<class AIFTumor> TumorClass;
 
 	int32 TentacleCount = 0;
 	int32 CurTentacleIdx = -1;
