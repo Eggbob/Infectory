@@ -51,12 +51,12 @@ EBTNodeResult::Type UBTTask_PeformBossPattern::ExecuteTask(UBehaviorTreeComponen
 			break;
 	}*/
 
-	AIPawn->PerformGrabAttack();
+	//AIPawn->PerformGrabAttack();
 
 	//AIPawn->PerformPierceAttack();
 	//AIPawn->PerformRangeAttack();
 	//AIPawn->PeformBreathAttack();
-
+	//AIPawn->PerformSpawnBoomer();
 	return EBTNodeResult::Succeeded;
 }
 

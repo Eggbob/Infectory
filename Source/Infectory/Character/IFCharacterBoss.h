@@ -28,6 +28,8 @@ public:
 	virtual void PerformGrabAttack() override;
 	virtual void SetNPCType(ENPCType NpcName, FName NpcTier) override;
 	void ReleaseGrabTentacle();
+	void CheckAcitveTumor();
+	bool TumorActive();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetTentacleActor();

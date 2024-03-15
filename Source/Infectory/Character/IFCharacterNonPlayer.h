@@ -134,6 +134,7 @@ protected:
 private:
 	bool bIsExplose = false;
 	bool bJustExplose = false;
+	bool bIsWaitTime = false;
 
 	UPROPERTY()
 	TObjectPtr<class AIFAIController> AIController;

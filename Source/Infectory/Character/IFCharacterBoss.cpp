@@ -103,20 +103,80 @@ void AIFCharacterBoss::SetNPCType(ENPCType NpcName, FName NpcTier)
 
 	for (int i = 1; i < 6; i++)
 	{
-		FTransform SocketTr = GetMesh()->GetSocketTransform(FName("eggsocket" + FString::FromInt(i)));
-		TObjectPtr<AIFTumor> Tumor = GetWorld()->SpawnActor<AIFTumor>(TumorClass, SocketTr);
-		Tumor.Get()->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale,
-			FName("eggsocket" + FString::FromInt(i)));
+		FTransform SocketTr = GetMesh()->GetSocketTransform(FName("eggsocket" + FString::FromInt(i)), ERelativeTransformSpace::RTS_World);
 
+		TObjectPtr<AIFTumor> Tumor = GetWorld()->SpawnActor<AIFTumor>(TumorClass, SocketTr);
+		Tumor->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("eggsocket" + FString::FromInt(i))); 
+		Tumor->InitTumor(100);
+		Tumor->OnTumorFinish.BindUObject(this, &AIFCharacterBoss::CheckAcitveTumor);
 		TumorArray.Add(Tumor);
 	}
 
+	TumorActive();
 }
 
 void AIFCharacterBoss::ReleaseGrabTentacle()
 {
 	TentacleArray[CurTentacleIdx]->ReleaseTentacle(); 
-} 
+}
+
+void AIFCharacterBoss::CheckAcitveTumor()
+{
+	if (TumorActive())
+	{
+
+	}
+}
+
+bool AIFCharacterBoss::TumorActive()
+{
+	TArray<AIFTumor *> TumorActiveArray;
+
+	for (int i = 0; i < TumorArray.Num(); i++)
+	{
+		if (TumorArray[i]->bCanActive)
+		{
+			TumorActiveArray.Add(TumorArray[i]);
+		}
+	}
+
+	if (TumorActiveArray.Num() == 0)
+	{
+		return false;
+	}
+
+	int32 interation = 0;
+	while (interation < 10)
+	{
+		int32 Num = FMath::RandRange(0, TumorActiveArray.Num()-1);
+
+		if (!TumorActiveArray[Num]->bIsActivate)
+		{
+			TumorActiveArray[Num]->ActiveTumor();
+			break;
+		}
+		interation++;
+	}
+
+	if (interation < 10)
+	{
+		return true;
+	}
+	else
+	{
+		for (int i = 0; i < TumorActiveArray.Num(); i++)
+		{
+			if (!TumorActiveArray[i]->bIsActivate)
+			{
+				TumorActiveArray[i]->ActiveTumor();
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 
 
 void AIFCharacterBoss::AttackHitCheck()

@@ -39,15 +39,22 @@ void AIFTentalce::ResetTentacle()
 	SetActorLocationAndRotation(TentacleBasicLoc, FRotator::ZeroRotator);
 }
 
+void AIFTentalce::GiveDamage(AActor* Target)
+{
+	if (CurPattern == ETentaclePattern::Pierce)
+	{
+		OnGiveDamage.ExecuteIfBound(Target);
+	}
+}
+
 void AIFTentalce::PierceAttack(FVector TargetLoc)
 {
+	FVector TargetLocRef = TargetLoc;
+	
 	CurPattern = ETentaclePattern::Pierce;
+	SetActorLocation(TargetLoc - FVector(0, 0, CapsuleComp.Get()->GetUnscaledCapsuleHalfHeight() * 3));
 
-	SetActorLocation(TargetLoc);
-	DangerCircle.Get()->SetWorldLocation(TargetLoc);
-
-	TargetLoc.Z -= CapsuleComp.Get()->GetScaledCapsuleHalfHeight() * 2;
-	CapsuleComp.Get()->SetWorldLocation(TargetLoc);
+	DangerCircle.Get()->SetWorldLocation(TargetLocRef);
 	PlayPierceing();
 }
 
@@ -77,15 +84,7 @@ float AIFTentalce::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACo
 	return Damage;
 }
 
-void AIFTentalce::NotifyActorBeginOverlap(AActor* OtherActor)
-{
-	Super::NotifyActorBeginOverlap(OtherActor);
 
-	if (CurPattern == ETentaclePattern::Pierce)
-	{
-		OnGiveDamage.ExecuteIfBound(OtherActor);
-	}
-}
 
 
 

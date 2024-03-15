@@ -254,8 +254,6 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 	InitPhysicsAnimation();
 }
 
-
-
 /// <summary>
 /// AI가 Focus할 대상 지정
 /// </summary>
@@ -352,6 +350,9 @@ void AIFCharacterNonPlayer::PerformWaiting(bool bIsFirstContact)
 	}
 }
 
+/// <summary>
+/// 플레이어 근처에서 바로 터질때
+/// </summary>
 void AIFCharacterNonPlayer::ReadyToExplosion()
 {
 	if(CurNpcState == ENPCState::BeforeDead || CurNpcState == ENPCState::Dead) { return; }
@@ -361,6 +362,7 @@ void AIFCharacterNonPlayer::ReadyToExplosion()
 	AIController.Get()->StopAI();
 	GlowParam = 0;
 	bIsExplose = false;
+	bIsWaitTime = false;
 
 	AnimInstance.Get()->PlayRandomIdleAnimaiton(2);
 
@@ -404,21 +406,30 @@ void AIFCharacterNonPlayer::SetHitWalkSpeed()
 	), 0.3f, false);
 }
 
+/// <summary>
+/// 공격으로 인해 사망 후 폭발하게 변경
+/// </summary>
 void AIFCharacterNonPlayer::ChangeToBomb()
 {
 	if (CurNpcState != ENPCState::BeforeDead && CurNpcState != ENPCState::Dead)
 	{
+		bIsWaitTime = true;
 		CurNpcState = ENPCState::BeforeDead;
 		StopMoving();
 		AIController.Get()->StopAI();
 		GlowParam = 0;
+
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
+			{
+				bIsWaitTime = false;
+			}), 2.0f, false);
 
 		return;
 	}
 	else
 	{
 		CurNpcState = ENPCState::Dead;
-		bIsExplose = true;
 		ExploseCharacter();
 	}
 
@@ -528,6 +539,8 @@ void AIFCharacterNonPlayer::ChangeNPCMoveMode()
 
 void AIFCharacterNonPlayer::ExploseCharacter()
 {
+	if(bIsWaitTime) { return; }
+
 	GlowParam = 0;
 	bIsExplose = true;
 

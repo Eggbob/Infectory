@@ -6,6 +6,8 @@
 #include "GameFramework/Pawn.h"
 #include "IFTumor.generated.h"
 
+DECLARE_DELEGATE(FOnTumorFinishDelegate)
+
 UCLASS()
 class INFECTORY_API AIFTumor : public APawn
 {
@@ -25,6 +27,8 @@ protected:
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 public:
+	FOnTumorFinishDelegate OnTumorFinish;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	bool bIsActivate;
 

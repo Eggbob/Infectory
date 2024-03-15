@@ -1,4 +1,3 @@
-
 #include "Item/IFTumor.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SphereComponent.h"
@@ -25,12 +24,18 @@ void AIFTumor::InitTumor(int32 InHP)
 
 float AIFTumor::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	if (!bIsActivate)
+	{
+		return 0;
+	}
+
 	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 
 	TumorCurHP -= Damage;
 
 	if (TumorCurHP <= 0)
 	{
+		OnTumorFinish.ExecuteIfBound();
 		DeActiveTumor();
 	}
 

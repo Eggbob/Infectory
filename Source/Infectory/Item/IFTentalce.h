@@ -34,6 +34,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ResetTentacle();
 
+	UFUNCTION(BlueprintCallable)
+	void GiveDamage(AActor* Target);
+	
 	void PierceAttack(FVector TargetLoc);
 
 	void InitTentacle(FVector TentacleLoc);
@@ -44,8 +47,6 @@ public:
 		return bIsDestroyed; 
 	}
 
-private:
-	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
