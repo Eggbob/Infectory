@@ -56,7 +56,6 @@ protected:
 	TSubclassOf<class AIFGunBase> BreathGunClass;
 
 private:
-
 	UPROPERTY()
 	TSubclassOf<class AIFCharacterNonPlayer> BoomerClass;
 
@@ -65,6 +64,7 @@ private:
 
 	int32 TentacleCount = 0;
 	int32 CurTentacleIdx = -1;
+	int32 CurTumorCount = 0;
 
 	UPROPERTY()
 	TObjectPtr<class AIFGunBase> BossBreathGun;

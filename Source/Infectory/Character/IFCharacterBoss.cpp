@@ -112,6 +112,8 @@ void AIFCharacterBoss::SetNPCType(ENPCType NpcName, FName NpcTier)
 		TumorArray.Add(Tumor);
 	}
 
+	CurTumorCount = 5;
+
 	TumorActive();
 }
 
@@ -124,7 +126,7 @@ void AIFCharacterBoss::CheckAcitveTumor()
 {
 	if (TumorActive())
 	{
-
+		CurTumorCount--;
 	}
 }
 

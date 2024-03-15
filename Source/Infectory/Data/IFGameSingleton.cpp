@@ -42,6 +42,24 @@ UIFGameSingleton::UIFGameSingleton()
 			}
 		}
 	}
+
+	static ConstructorHelpers::FObjectFinder<UDataTable> BossTableRef(TEXT("/Script/Engine.DataTable'/Game/Assets/GameData/IFBossPatternTable.IFBossPatternTable'"));
+	if (BossTableRef.Object)
+	{
+		BossPatternTable = BossTableRef.Object;
+
+		TArray<FName> RowNames = BossPatternTable->GetRowNames();
+
+		for (FName& RName : RowNames)
+		{
+			FIFBossPatternData* BossPatternData = BossPatternTable->FindRow<FIFBossPatternData>(RName, TEXT(""));
+
+			if (nullptr != BossPatternData)
+			{
+				BossPatternMap.Add(TPair<EBossPattern, int32>(BossPatternData->Pattern, BossPatternData->BeadCount), *BossPatternData);
+			}
+		}
+	}
 }
 
 
@@ -82,6 +100,19 @@ FIFGunStat UIFGameSingleton::GetGunStat(FName GunName) const
 	{
 		UE_LOG(LogTemp, Error, TEXT("Invalid Gun Stat"));
 		return FIFGunStat();
+	}
+}
+
+FIFBossPatternData UIFGameSingleton::GetBossPatternData(EBossPattern BossPattern, int32 BeadCnt) const
+{
+	if (BossPatternMap.Contains(TPair<EBossPattern, int32>(BossPattern, BeadCnt)))
+	{
+		return BossPatternMap[TPair<EBossPattern, int32>(BossPattern, BeadCnt)];
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invalid Boss Stat"));
+		return FIFBossPatternData();
 	}
 }
 

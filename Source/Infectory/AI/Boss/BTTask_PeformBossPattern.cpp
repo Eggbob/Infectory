@@ -38,7 +38,7 @@ EBTNodeResult::Type UBTTask_PeformBossPattern::ExecuteTask(UBehaviorTreeComponen
 			AIPawn->PerformPierceAttack();
 			break;
 
-		case EBossPattern::Spawn:
+		case EBossPattern::SpawnBomb:
 			AIPawn->PerformSpawnBoomer();
 			break;
 
