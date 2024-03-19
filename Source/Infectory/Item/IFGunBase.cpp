@@ -14,7 +14,6 @@
 #include "Game/IFObjectPoolManager.h"
 
 
-
 AIFGunBase::AIFGunBase()
 {
 	RootComp = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
@@ -152,14 +151,12 @@ void AIFGunBase::FireProjectile(FVector& TargetLoc)
 {
 	FTransform SpawnTransform = WeaponType == ERangedWeaponType::Projectile ? GetProjectileSpawnTransform() : Mesh->GetSocketTransform(MuzzleSocket);
 	
-	
 	TObjectPtr<AIFProjectile> Projectile = Cast<AIFProjectile>(GameMode.Get()->GetPoolManager().Get()->Pop(ProjectileBP, GetWorld()));
 
 	if (Projectile == nullptr)
 	{
 		Projectile = GetWorld()->SpawnActor<AIFProjectile>(ProjectileBP, SpawnTransform);
 	}
-
 
 	Projectile.Get()->SetActorLocationAndRotation(SpawnTransform.GetLocation(), SpawnTransform.GetRotation());
 
@@ -182,7 +179,6 @@ void AIFGunBase::FireProjectile(FVector& TargetLoc)
 		Projectile->LaunchLight(TargetLoc);
 		break;
 	}
-
 
 	if (ShootDelegate.IsBound())
 	{
@@ -369,7 +365,6 @@ bool AIFGunBase::GunTrace(FHitResult& Hit, FVector& ShotDirection)
 	Params.AddIgnoredActor(this);
 	Params.AddIgnoredActor(GetOwner());
 
-	//DrawDebugLine(GetWorld(), OwnerLocation, End, FColor::Red, true);
 	return GetWorld()->LineTraceSingleByChannel(Hit, OwnerLocation, End, ECollisionChannel::ECC_GameTraceChannel1, Params);
 }
 
@@ -396,7 +391,6 @@ void AIFGunBase::ShotGunTrace(FVector& ShotDirection)
 		Params.AddIgnoredActor(this);
 		Params.AddIgnoredActor(GetOwner());
 
-		//DrawDebugLine(GetWorld(), OwnerLocation, End, FColor::Red, true, 0.5f);
 
 		if (GetWorld()->LineTraceSingleByChannel(Hit, OwnerLocation, End, ECollisionChannel::ECC_GameTraceChannel1, Params))
 		{

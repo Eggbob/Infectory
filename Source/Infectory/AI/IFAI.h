@@ -5,4 +5,6 @@
 #define BBKEY_ISMOVING TEXT("bIsMoving")
 #define BBKEY_ISFIRSTCONTACT TEXT("bIsFirstContact")
 #define BBKEY_BOSSPATTERN TEXT("BossPattern")
-#define BBKEY_BOSSPASE TEXT("BossPase")
+#define BBKEY_BOSSPHASE TEXT("BossPase")
+#define BBKEY_DELAYTIME TEXT("PatternDelayTime")
+#define BBEKY_BOSSFINISHATTACK TEXT("bIsFinishAttack")

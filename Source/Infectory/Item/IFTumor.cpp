@@ -19,6 +19,8 @@ void AIFTumor::InitTumor(int32 InHP)
 	DestroyCount = 0;
 	bCanActive = true;
 	bIsActivate = false;
+
+	ActiveTumor(false);
 }
 
 

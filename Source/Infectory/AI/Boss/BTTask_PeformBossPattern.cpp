@@ -10,6 +10,7 @@
 
 UBTTask_PeformBossPattern::UBTTask_PeformBossPattern()
 {
+	bNotifyTick = true;
 }
 
 EBTNodeResult::Type UBTTask_PeformBossPattern::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -30,34 +31,34 @@ EBTNodeResult::Type UBTTask_PeformBossPattern::ExecuteTask(UBehaviorTreeComponen
 
 	int32 BossPatternNum = OwnerComp.GetBlackboardComponent()->GetValueAsInt(BBKEY_BOSSPATTERN);
 
+	OwnerComp.GetBlackboardComponent()->SetValueAsBool(BBEKY_BOSSFINISHATTACK, false);
+
 	EBossPattern BossPattern = static_cast<EBossPattern>(BossPatternNum);
-
-	/*switch (BossPattern)
-	{
-		case EBossPattern::Pierce:
-			AIPawn->PerformPierceAttack();
-			break;
-
-		case EBossPattern::SpawnBomb:
-			AIPawn->PerformSpawnBoomer();
-			break;
-
-		case EBossPattern::Range:
-			AIPawn->PerformRangeAttack();
-			break;
-
-		case EBossPattern::Breath:
-			AIPawn->PeformBreathAttack();
-			break;
-	}*/
+	AIPawn->CheckPattern(BossPattern);
 
 	//AIPawn->PerformGrabAttack();
+
 
 	//AIPawn->PerformPierceAttack();
 	//AIPawn->PerformRangeAttack();
 	//AIPawn->PeformBreathAttack();
-	//AIPawn->PerformSpawnBoomer();
-	return EBTNodeResult::Succeeded;
+	//AIPawn->PerformSpawnEnemy();
+
+
+	return EBTNodeResult::InProgress;
+}
+
+void UBTTask_PeformBossPattern::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
+{
+	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
+
+	bIsFinishAttack = OwnerComp.GetBlackboardComponent()->GetValueAsBool(BBEKY_BOSSFINISHATTACK);
+
+	if (bIsFinishAttack)
+	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+	}
+
 }
 
 

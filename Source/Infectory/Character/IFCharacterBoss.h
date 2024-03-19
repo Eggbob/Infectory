@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Character/IFCharacterNonPlayer.h"
 #include "Data/IFEnumDefine.h"
+#include "Containers/Queue.h"
 #include "Interface/IFBossAIInterface.h"
 #include "IFCharacterBoss.generated.h"
 
@@ -24,9 +25,11 @@ public:
 	virtual void PerformPierceAttack() override;
 	virtual void PerformRangeAttack() override;
 	virtual void PeformBreathAttack() override;
-	virtual void PerformSpawnBoomer() override;
+	virtual void PerformSpawnEnemy() override;
 	virtual void PerformGrabAttack() override;
 	virtual void SetNPCType(ENPCType NpcName, FName NpcTier) override;
+	virtual void CheckPattern(EBossPattern BossPattern) override;
+
 	void ReleaseGrabTentacle();
 	void CheckAcitveTumor();
 	bool TumorActive();
@@ -34,12 +37,14 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetTentacleActor();
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void TestTentacleActive();
-
 private:
 	void AttackHitCheck() override;
+	void ExecutePattern(EBossPattern Pattern);
 	void CheckTentacle();
+	void GiveDamage(TObjectPtr<AActor> Target);
+	void PerformCoolDown();
+	void PerformHitAction();
+	FVector ReturnTargetLoc();
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
@@ -48,16 +53,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	TArray<TObjectPtr<class AIFTumor>> TumorArray;
 
-private:
-	void GiveDamage(TObjectPtr<AActor> Target);
-
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<class AIFGunBase> BreathGunClass;
 
 private:
 	UPROPERTY()
-	TSubclassOf<class AIFCharacterNonPlayer> BoomerClass;
+	TSubclassOf<class AIFSpawnEgg> SpawnEggClass;
 
 	UPROPERTY()
 	TSubclassOf<class AIFTumor> TumorClass;
@@ -78,7 +80,15 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	TArray<TObjectPtr<UMaterial>> BossMaterialArray;
 
+	UPROPERTY()
 	TArray<FVector> TentacleLocArray;
 
+	UPROPERTY()
+	TMap<EBossPattern, bool> PatternCooldownMap;
+
+	UPROPERTY()
+	TArray<EBossPattern> PatternArray;
+
 	EBossPattern CurBossPattern;
+	EBossState CurBossState;
 };

@@ -203,7 +203,6 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 		ProjectileWeapon->SetOwner(this);
 		ProjectileWeapon->CachingOwner();
 		//ProjectileWeapon->SetActorRotation(FRotator(0.f, 0.f, 90.f));
-		
 		break;
 
 	case ENPCType::BigBoomer:
@@ -429,7 +428,7 @@ void AIFCharacterNonPlayer::ChangeToBomb()
 	}
 	else
 	{
-		CurNpcState = ENPCState::Dead;
+		
 		ExploseCharacter();
 	}
 
@@ -539,10 +538,12 @@ void AIFCharacterNonPlayer::ChangeNPCMoveMode()
 
 void AIFCharacterNonPlayer::ExploseCharacter()
 {
+	UE_LOG(LogTemp, Warning, TEXT("ExploseCharacter"));
 	if(bIsWaitTime) { return; }
 
 	GlowParam = 0;
 	bIsExplose = true;
+	CurNpcState = ENPCState::Dead;
 
 	TArray<FOverlapResult> OverlapResults;
 

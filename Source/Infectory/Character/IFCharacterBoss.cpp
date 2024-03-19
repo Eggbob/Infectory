@@ -8,7 +8,11 @@
 #include "Item/IFGunBase.h"
 #include "Game/IFGameMode.h"
 #include "IFCharacterPlayer.h"
+#include "Data/IFGameSingleton.h"
 #include "Item/IFTumor.h"
+#include "Item/IFSpawnEgg.h"
+#include "Data/IFBossPatternData.h"
+#include "Game/IFObjectPoolManager.h"
 #include "Animation/IFNonPlayerAnimInstance.h"
 
 AIFCharacterBoss::AIFCharacterBoss()
@@ -16,10 +20,10 @@ AIFCharacterBoss::AIFCharacterBoss()
 	AIControllerClass = AIFBossAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
-	static ConstructorHelpers::FClassFinder<AIFCharacterNonPlayer> BoomerClassRef(TEXT("/Game/Assets/Blueprint/BP_MiniBoomer.BP_MiniBoomer_C"));
-	if (BoomerClassRef.Class)
+	static ConstructorHelpers::FClassFinder<AIFSpawnEgg> EggClassRef(TEXT("/Game/Assets/Blueprint/BP_SpawnEgg.BP_SpawnEgg_C"));
+	if (EggClassRef.Class)
 	{
-		BoomerClass = BoomerClassRef.Class;
+		SpawnEggClass = EggClassRef.Class;
 	}
 
 	static ConstructorHelpers::FClassFinder<AIFTumor> TumorClassRef(TEXT("/Game/Assets/Blueprint/ETC/BP_Tumor.BP_Tumor_C"));
@@ -45,23 +49,19 @@ void AIFCharacterBoss::SetDead()
 	Super::SetDead();
 }
 
+/// <summary>
+/// 촉수 찌르기 공격
+/// </summary>
 void AIFCharacterBoss::PerformPierceAttack()
 {
-	TWeakObjectPtr<UCapsuleComponent> CapsuleComp = TargetActor.Get()->GetComponentByClass<UCapsuleComponent>();
-	
-	if (CapsuleComp.Get())
+	for (AIFTentalce* Tentacle : TentacleArray)
 	{
-		FVector BottomLoc = CapsuleComp.Get()->GetComponentLocation();
-		float HalfHeight = CapsuleComp.Get()->GetScaledCapsuleHalfHeight();
-		BottomLoc.Z -= HalfHeight;
-
-		for (AIFTentalce* Tentacle : TentacleArray)
+		if (!Tentacle->GetIsDestroy())
 		{
-			if (!Tentacle->GetIsDestroy())
-			{
-				Tentacle->PierceAttack(BottomLoc);
-				return;
-			}
+			Tentacle->TentacleReadyToPierce();
+			
+			CurBossState = EBossState::Attack;
+			return;
 		}
 	}
 }
@@ -99,6 +99,8 @@ void AIFCharacterBoss::SetNPCType(ENPCType NpcName, FName NpcTier)
 		TentacleArray[i].Get()->InitTentacle(TentacleLocArray[i]);
 		TentacleArray[i].Get()->OnGiveDamage.BindUObject(this, &AIFCharacterBoss::GiveDamage);
 		TentacleArray[i].Get()->OnTentacleDestory.BindUObject(this, &AIFCharacterBoss::CheckTentacle);
+		TentacleArray[i].Get()->OnGetTargetLocDelegate.BindUObject(this, &AIFCharacterBoss::ReturnTargetLoc);
+		TentacleArray[i].Get()->OnTentacleActiveFinish.BindUObject(this, &AIFCharacterBoss::PerformCoolDown);
 	}
 
 	for (int i = 1; i < 6; i++)
@@ -112,9 +114,67 @@ void AIFCharacterBoss::SetNPCType(ENPCType NpcName, FName NpcTier)
 		TumorArray.Add(Tumor);
 	}
 
-	CurTumorCount = 5;
+	AnimInstance.Get()->OnAttackEnd.BindUObject(this, &AIFCharacterBoss::PerformCoolDown);
+	AnimInstance.Get()->OnHitEnd.BindLambda([&]() {
+			CurBossState = EBossState::Idle;
+			PerformCoolDown();
+		});
 
-	TumorActive();
+	CurTumorCount = TumorArray.Num();
+
+	//TumorActive();
+}
+
+/// <summary>
+/// 보스 패턴 실행
+/// </summary>
+/// <param name="BossPattern"></param>
+void AIFCharacterBoss::CheckPattern(EBossPattern BossPattern)
+{
+	//현재 공격가능한 상태가 아니라면 패턴을 저장
+	if (CurBossState != EBossState::Idle)
+	{
+		PatternArray.Add(BossPattern);
+		return;
+	}
+	else
+	{
+		if (!PatternArray.IsEmpty()) 
+		{
+			EBossPattern Pattern = PatternArray.Pop();
+			PatternArray.Add(BossPattern);
+
+			ExecutePattern(Pattern);
+			//PerformCoolDown(Pattern);
+
+		/*	for (int i = 0; i < PatternArray.Num(); i++)
+			{
+				if (!PatternCooldownMap[PatternArray[i]])
+				{
+					ExecutePattern(PatternArray[i]);
+					PerformCoolDown(PatternArray[i]);
+					PatternArray.RemoveAt(i);
+					PatternArray.Add(BossPattern);
+
+					return;
+				}
+			}*/
+		}
+		else
+		{
+			ExecutePattern(BossPattern);
+			//PerformCoolDown(BossPattern);
+
+			/*if (!PatternCooldownMap[BossPattern])
+			{
+				return;
+			}
+			else
+			{
+				PatternArray.Add(BossPattern);
+			}*/
+		}
+	}
 }
 
 void AIFCharacterBoss::ReleaseGrabTentacle()
@@ -124,6 +184,8 @@ void AIFCharacterBoss::ReleaseGrabTentacle()
 
 void AIFCharacterBoss::CheckAcitveTumor()
 {
+	PerformHitAction();
+
 	if (TumorActive())
 	{
 		CurTumorCount--;
@@ -154,7 +216,7 @@ bool AIFCharacterBoss::TumorActive()
 
 		if (!TumorActiveArray[Num]->bIsActivate)
 		{
-			TumorActiveArray[Num]->ActiveTumor();
+			TumorActiveArray[Num]->ActiveTumor(true);
 			break;
 		}
 		interation++;
@@ -170,7 +232,7 @@ bool AIFCharacterBoss::TumorActive()
 		{
 			if (!TumorActiveArray[i]->bIsActivate)
 			{
-				TumorActiveArray[i]->ActiveTumor();
+				TumorActiveArray[i]->ActiveTumor(true);
 				return true;
 			}
 		}
@@ -178,8 +240,6 @@ bool AIFCharacterBoss::TumorActive()
 
 	return false;
 }
-
-
 
 void AIFCharacterBoss::AttackHitCheck()
 {
@@ -200,6 +260,40 @@ void AIFCharacterBoss::AttackHitCheck()
 	}
 }
 
+/// <summary>
+/// 패턴실행
+/// </summary>
+/// <param name="Pattern"></param>
+void AIFCharacterBoss::ExecutePattern(EBossPattern Pattern)
+{
+	CurBossState = EBossState::Attack;
+
+	CurBossPattern = Pattern;
+	switch (Pattern)
+	{
+	case EBossPattern::Pierce:
+		PerformPierceAttack();
+		break;
+
+	case EBossPattern::SpawnBomb:
+	case EBossPattern::SpawnEnemy:
+		PerformSpawnEnemy();
+		break;
+
+	case EBossPattern::Range:
+		PerformRangeAttack();
+		break;
+
+	case EBossPattern::Breath:
+		PeformBreathAttack();
+		break;
+
+	case EBossPattern::Grab:
+		PerformGrabAttack();
+		break;
+	}
+}
+
 void AIFCharacterBoss::CheckTentacle()
 {
 	TentacleCount++;
@@ -207,29 +301,55 @@ void AIFCharacterBoss::CheckTentacle()
 	if (TentacleCount >= 2)
 	{
 		BossAIController.Get()->PerformNextPhase();
+
+		for (AIFTumor* Tumor : TumorArray)
+		{
+			Tumor->ReadyTumor();
+		}
+
+		PerformHitAction();
+		TumorActive();
 	}
 }
 
+/// <summary>
+/// 원거리 공격실행
+/// </summary>
 void AIFCharacterBoss::PerformRangeAttack()
 {
 	AnimInstance.Get()->SetCurSound(AttackSound);
 	AnimInstance->PlayAttackAnimation(StatComp->GetBaseStat().AttackSpeed);
-	CurBossPattern = EBossPattern::Range;
 }
 
+/// <summary>
+/// 브레스 공격실행
+/// </summary>
 void AIFCharacterBoss::PeformBreathAttack()
 {
 	AnimInstance.Get()->SetCurSound(AttackSound);
 	AnimInstance.Get()->PlayBreathAttackAnimation();
-	CurBossPattern = EBossPattern::Breath;
 }
 
-void AIFCharacterBoss::PerformSpawnBoomer()
+/// <summary>
+/// Enemy 소환
+/// </summary>
+void AIFCharacterBoss::PerformSpawnEnemy()
 {
-	FVector SpawnVector = GetActorLocation();
-	SpawnVector.Z += 100.f;
+	FVector Loc = GetMesh()->GetSocketLocation(FName("breathsocket"));
 
-	GetWorld()->SpawnActor<AIFCharacterNonPlayer>(BoomerClass, SpawnVector, GetActorRotation());
+	TObjectPtr<AIFSpawnEgg> Egg = Cast<AIFSpawnEgg>(GameMode.Get()->GetPoolManager().Get()->Pop(SpawnEggClass, GetWorld()));
+
+	Egg.Get()->OnFinish.BindLambda([&](AActor* ReturnActor) {
+		GameMode.Get()->GetPoolManager().Get()->Push(ReturnActor);
+		});
+
+	Egg.Get()->SetActorLocation(Loc);
+
+	Egg->LaunchEgg(TargetActor.Get(), 
+		UIFGameSingleton::Get().GetBossPatternData(CurBossPattern, CurTumorCount).SpawnEnemyType,
+		UIFGameSingleton::Get().GetBossPatternData(CurBossPattern, CurTumorCount).SpawnEnemyTier);
+
+	PerformCoolDown();
 }
 
 void AIFCharacterBoss::PerformGrabAttack()
@@ -258,4 +378,47 @@ void AIFCharacterBoss::GiveDamage(TObjectPtr<AActor> Target)
 
 		Target->TakeDamage(StatComp->GetBaseStat().Attack, CustomDamageEvent, GetController(), this);
 	}
+}
+
+/// <summary>
+/// 쿨타임 실행
+/// </summary>
+/// <param name="CoolDownPattern"></param>
+void AIFCharacterBoss::PerformCoolDown()
+{
+	float CoolTime = UIFGameSingleton::Get().GetBossPatternData(CurBossPattern, CurTumorCount).PatternDelay;
+	BossAIController.Get()->SetCoolTime(CoolTime);
+
+	UE_LOG(LogTemp, Warning, TEXT("CoolDownPattern : %d"), (int32)CurBossPattern);
+
+	CurBossState = EBossState::Idle;
+	CurBossPattern = EBossPattern::None;
+
+	BossAIController.Get()->SetFinishAttack(true);
+}
+
+void AIFCharacterBoss::PerformHitAction()
+{
+	CurBossState = EBossState::Hit;
+	CurBossPattern = EBossPattern::None;
+	AnimInstance.Get()->PlayRandomHitAnimation();
+}
+
+/// <summary>
+/// 타겟 위치 반환
+/// </summary>
+/// <returns></returns>
+FVector AIFCharacterBoss::ReturnTargetLoc()
+{
+	TWeakObjectPtr<UCapsuleComponent> CapsuleComp = TargetActor.Get()->GetComponentByClass<UCapsuleComponent>();
+
+	if (CapsuleComp.Get())
+	{
+		FVector BottomLoc = CapsuleComp.Get()->GetComponentLocation();
+		float HalfHeight = CapsuleComp.Get()->GetScaledCapsuleHalfHeight();
+		BottomLoc.Z -= HalfHeight;
+		return BottomLoc;
+	}
+
+	return FVector();
 }

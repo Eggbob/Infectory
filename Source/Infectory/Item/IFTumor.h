@@ -18,10 +18,15 @@ public:
 	void InitTumor(int32 InHP);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void ActiveTumor();
+	void ReadyTumor();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ActiveTumor(bool bIsActive);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void DeActiveTumor();
+
+	
 
 protected:
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;

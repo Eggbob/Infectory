@@ -34,6 +34,7 @@ public:
 	void PlayLyingAnimation();
 	void PlayStandUpAnimation();
 	void PlayBreathAttackAnimation();
+	void PlayRandomHitAnimation();
 
 protected:
 	virtual void NativeInitializeAnimation() override;
@@ -96,7 +97,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> SpecialHitAnimation;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TMap<ENPCMoveType, TObjectPtr<class UAnimMontage>> LyingAnimation;
 

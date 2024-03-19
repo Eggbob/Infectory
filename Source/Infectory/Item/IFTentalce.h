@@ -8,7 +8,9 @@
 #include "IFTentalce.generated.h"
 
 DECLARE_DELEGATE_OneParam(OnGiveDamageDelegate, TObjectPtr<AActor>)
-DECLARE_DELEGATE(OnTentacleDestroyed)
+DECLARE_DELEGATE_RetVal(FVector, OnGetTargetLocDelegate)
+DECLARE_DELEGATE(OnTentacleDestroyedDelegate)
+DECLARE_DELEGATE(OnTentacleActiveFinishDelegate)
 
 UCLASS()
 class INFECTORY_API AIFTentalce : public APawn
@@ -31,13 +33,17 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void ReleaseTentacle();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void TentacleReadyToPierce();
+
 	UFUNCTION(BlueprintCallable)
 	void ResetTentacle();
 
 	UFUNCTION(BlueprintCallable)
 	void GiveDamage(AActor* Target);
 	
-	void PierceAttack(FVector TargetLoc);
+	UFUNCTION(BlueprintCallable)
+	void PierceAttack();
 
 	void InitTentacle(FVector TentacleLoc);
 
@@ -52,8 +58,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	TObjectPtr<class USkeletalMeshComponent> SkeletalMeshComp;
 
+	OnGetTargetLocDelegate OnGetTargetLocDelegate;
 	OnGiveDamageDelegate OnGiveDamage;
-	OnTentacleDestroyed OnTentacleDestory;
+	OnTentacleDestroyedDelegate OnTentacleDestory;
+	OnTentacleActiveFinishDelegate OnTentacleActiveFinish;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))

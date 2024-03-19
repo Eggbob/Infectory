@@ -21,6 +21,8 @@ public:
 	virtual void StopAI();
 
 	void PerformNextPhase();
+	void SetCoolTime(float DelayTime);
+	void SetFinishAttack(bool IsFinish);
 
 protected:
 	virtual void OnPossess(APawn* InPawn) override;

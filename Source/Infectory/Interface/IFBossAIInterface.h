@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "Data/IFEnumDefine.h"
 #include "IFBossAIInterface.generated.h"
 
 // This class does not need to be modified.
@@ -24,6 +25,7 @@ public:
 	virtual void PerformPierceAttack() = 0;
 	virtual void PerformRangeAttack() = 0;
 	virtual void PeformBreathAttack() = 0;
-	virtual void PerformSpawnBoomer() = 0;
+	virtual void PerformSpawnEnemy() = 0;
 	virtual void PerformGrabAttack() = 0;
+	virtual void CheckPattern(EBossPattern BossPattern) = 0;
 };

@@ -37,6 +37,7 @@ void AIFTentalce::ResetTentacle()
 {
 	CurPattern = ETentaclePattern::None;
 	SetActorLocationAndRotation(TentacleBasicLoc, FRotator::ZeroRotator);
+	OnTentacleActiveFinish.ExecuteIfBound();
 }
 
 void AIFTentalce::GiveDamage(AActor* Target)
@@ -47,12 +48,15 @@ void AIFTentalce::GiveDamage(AActor* Target)
 	}
 }
 
-void AIFTentalce::PierceAttack(FVector TargetLoc)
+/// <summary>
+/// 찌르기 공격실행
+/// </summary>
+void AIFTentalce::PierceAttack()
 {
-	FVector TargetLocRef = TargetLoc;
+	FVector TargetLocRef = OnGetTargetLocDelegate.Execute();
 	
 	CurPattern = ETentaclePattern::Pierce;
-	SetActorLocation(TargetLoc - FVector(0, 0, CapsuleComp.Get()->GetUnscaledCapsuleHalfHeight() * 3));
+	SetActorLocation(TargetLocRef - FVector(0, 0, CapsuleComp.Get()->GetUnscaledCapsuleHalfHeight() * 3));
 
 	DangerCircle.Get()->SetWorldLocation(TargetLocRef);
 	PlayPierceing();
@@ -83,10 +87,5 @@ float AIFTentalce::TakeDamage(float Damage, FDamageEvent const& DamageEvent, ACo
 
 	return Damage;
 }
-
-
-
-
-
 
 

@@ -26,7 +26,7 @@ void AIFBossAIController::RunAI()
 {
 	Super::RunAI();
 
-	Blackboard.Get()->SetValueAsInt(BBKEY_BOSSPASE, 1);
+	Blackboard.Get()->SetValueAsInt(BBKEY_BOSSPHASE, 1);
 }
 
 void AIFBossAIController::StopAI()
@@ -36,7 +36,17 @@ void AIFBossAIController::StopAI()
 
 void AIFBossAIController::PerformNextPhase()
 {
-	Blackboard.Get()->SetValueAsInt(BBKEY_BOSSPASE, 2);
+	Blackboard.Get()->SetValueAsInt(BBKEY_BOSSPHASE, 2);
+}
+
+void AIFBossAIController::SetCoolTime(float DelayTime)
+{
+	Blackboard.Get()->SetValueAsFloat(BBKEY_DELAYTIME, DelayTime);
+}
+
+void AIFBossAIController::SetFinishAttack(bool IsFinish)
+{
+	Blackboard.Get()->SetValueAsBool(BBEKY_BOSSFINISHATTACK, IsFinish);
 }
 
 void AIFBossAIController::OnPossess(APawn* InPawn)

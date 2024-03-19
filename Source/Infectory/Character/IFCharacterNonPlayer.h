@@ -27,6 +27,7 @@ public:
 	virtual float GetAIDetectRange() override;
 	virtual float GetAIAttackRange() override;
 	virtual float GetAITurnSpeed() override;
+	virtual void FocusingTarget(TObjectPtr<AActor> TargetActor) override;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void InitPhysicsAnimation();
@@ -41,7 +42,6 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void SetDead() override;
 
-	virtual void FocusingTarget(TObjectPtr<AActor> TargetActor) override;
 	virtual void SetAIAttackDelegate(const FAICharacterAttackFinished& InOnAttackFinished) override;
 	virtual void SetAIBackJumpDelegate(const FAICharacterBackJumpFinished& InOnBackJumpFinished) override;
 	virtual void SetAIBeforeMovingDelegate(const FAICharacterBeforeMovingFinished& InOnBeforeMovingFinished) override;

@@ -68,17 +68,28 @@ enum class EProjectileDamageType : uint8
 	Light,
 	Explosive,
 	BossAttack,
+	Spawner
 };
 
 UENUM()
 enum class EBossPattern : uint8
 {
-	Idle = 0,
+	None = 0,
 	Pierce = 1,
 	SpawnBomb = 2,
 	Range = 3,
 	Breath = 4,
-	SpawnEnemy = 5
+	SpawnEnemy = 5,
+	Grab = 6,
+};
+
+UENUM()
+enum class EBossState : uint8
+{
+	Idle,
+	Attack,
+	Hit,
+	Dead
 };
 
 UENUM()

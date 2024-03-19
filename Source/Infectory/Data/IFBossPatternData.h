@@ -11,7 +11,7 @@ struct FIFBossPatternData : public FTableRowBase
 	GENERATED_BODY()
 	
 public:
-	FIFBossPatternData() :Pattern(EBossPattern::Idle), BeadCount(0), PatternDelay(0.0f), PatternDamage(0) {}
+	FIFBossPatternData() :Pattern(EBossPattern::None), BeadCount(0), PatternDelay(0.0f), PatternDamage(0) {}
 
 	FIFBossPatternData(EBossPattern Pattern, int BeadCount, float PatternDelay, int PatternDamage)
 		: Pattern(Pattern), BeadCount(BeadCount), PatternDelay(PatternDelay), PatternDamage(PatternDamage)
@@ -30,4 +30,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pattern)
 		int PatternDamage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pattern)
+		ENPCType SpawnEnemyType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pattern)
+		FName SpawnEnemyTier;
 };

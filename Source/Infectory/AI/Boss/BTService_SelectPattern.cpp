@@ -16,21 +16,17 @@ void UBTService_SelectPattern::OnSearchStart(FBehaviorTreeSearchData& SearchData
 {
 	Super::OnSearchStart(SearchData);
 
-	int32 BossPase = SearchData.OwnerComp.GetBlackboardComponent()->GetValueAsInt(BBKEY_BOSSPASE);
+	int32 BossPhase = SearchData.OwnerComp.GetBlackboardComponent()->GetValueAsInt(BBKEY_BOSSPHASE);
 
-	int32 BossPattern;
-
-	if (BossPase == 1)
+	if (!PatternMap.Contains(BossPhase))
 	{
-		BossPattern = FMath::RandRange(1, 2);
+		UE_LOG(LogTemp, Warning, TEXT("PatternMap does not contain BossPhase %d"), BossPhase)
+			return;
 	}
-	else
-	{
-		BossPattern = FMath::RandRange(1, 4);
-	}
+	
+	int32 BossPattern = FMath::RandRange(0, PatternMap[BossPhase].BossPatterns.Num() - 1);
 
-	SearchData.OwnerComp.GetBlackboardComponent()->SetValueAsInt(BBKEY_BOSSPATTERN, BossPattern);
-
-	//FMath::RandRange()
+	SearchData.OwnerComp.GetBlackboardComponent()->SetValueAsInt(BBKEY_BOSSPATTERN, 
+		(int32)PatternMap[BossPhase].BossPatterns[BossPattern]);
 
 }

@@ -103,7 +103,35 @@ void UIFNonPlayerAnimInstance::PlayStandUpAnimation()
 void UIFNonPlayerAnimInstance::PlayBreathAttackAnimation()
 {
 	BlendWeight = 1.f;
+
 	Montage_Play(BreathAttackAnimation, 1.0f);
+
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda(
+		[&]()
+		{
+			OnAttackEnd.ExecuteIfBound();
+		}
+	), BreathAttackAnimation->GetPlayLength(), false);
+
+}
+
+void UIFNonPlayerAnimInstance::PlayRandomHitAnimation()
+{
+	int index = FMath::RandRange(0, HitAnimations.Num() - 1);
+	
+	BlendWeight = 1.f;
+
+	Montage_Play(HitAnimations[index], 1.0f);
+
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda(
+		[&]()
+		{
+			OnHitEnd.ExecuteIfBound();
+		}
+	), HitAnimations[index].Get()->GetPlayLength(), false);
+
 }
 
 

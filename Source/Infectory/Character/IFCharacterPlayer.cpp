@@ -354,7 +354,6 @@ void AIFCharacterPlayer::ClearGrab(bool bIsThrowing)
 	CurCharacterState = ECharacterState::Idle;
 	RegistGrabDelegate.ExecuteIfBound();
 
-
 	if (bIsThrowing)
 	{
 		CurCharacterState = ECharacterState::Lying;
