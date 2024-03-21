@@ -65,6 +65,7 @@ protected:
 	void PerformRun();
 	void PerformCrouch();
 	void OnLeftMouseClick();
+	void OnRightMouseClick();
 	void Shoot();
 	void Reload();
 
@@ -80,6 +81,8 @@ private:
 
 public:
 	FOnRegistGrabDelegate RegistGrabDelegate;
+
+
 
 protected:
 	//카메라 Arm
@@ -118,6 +121,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class UInputAction> RegistAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<class UIFBuildWidget> BuildWidget;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<class ULegacyCameraShake> HitCameraShake;
@@ -178,6 +184,11 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UIFUserWidget> UserWidget;
+
+	
+
+	UPROPERTY()
+	TObjectPtr<class UIFPlayerHPBar> HPBar;
 
 	UPROPERTY()
 	TObjectPtr<class AIFGameMode> GameMode;

@@ -61,6 +61,7 @@ public:
 private:
 	bool GunTrace(FHitResult& Hit, FVector& ShotDirection);
 	void ShotGunTrace(FVector& ShotDirection);
+	void UpdateAmmoWidget();
 
 public:
 	FOnFireGun FireGunDelegate;
@@ -87,8 +88,12 @@ public:
 	TObjectPtr<USoundBase> BodyImpactSound;
 
 protected:
+
 	UPROPERTY()
 	TObjectPtr<class AIFGameMode> GameMode;
+
+	UPROPERTY()
+	TObjectPtr<class UTextRenderComponent> AmmoWidget;
 
 	UPROPERTY()
 	TObjectPtr<AController> OwnerController;
@@ -119,6 +124,12 @@ protected:
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	float SpreadRange = 1000;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	TObjectPtr<UMaterial> BasicAmmoMat;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
+	TObjectPtr<UMaterial> LowAmmoMat;
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)
 	int32 Damage = 10;
@@ -162,6 +173,8 @@ protected:
 private:
 	bool bDoOnce = false;
 	bool bIsCanFire = true;
+
+	int32 LowAmmoAmt;
 
 	FTimerHandle FireTimerHandle;
 	TArray<FHitResult> HitResults;

@@ -2,6 +2,7 @@
 
 #include "Item/IFGunBase.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/TextRenderComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/DamageEvents.h"
@@ -247,6 +248,7 @@ void AIFGunBase::CachingOwner()
 	OwnerController = OwnerPawn->GetController();
 	ensure(OwnerController);
 
+	AmmoWidget = GetComponentByClass<UTextRenderComponent>();
 	GunStat = UIFGameSingleton::Get().GetGunStat(*UIFEnumDefine::GetEnumName(WeaponType));
 	GameMode = Cast<AIFGameMode>(GetWorld()->GetAuthGameMode());
 	MaxRange = GunStat.MaxRange;
@@ -256,6 +258,9 @@ void AIFGunBase::CachingOwner()
 	FireDelayTime = GunStat.FireDelay;
 	ProjectileSpeed = GunStat.ProjectileSpeed;
 	CurrentAmmo = MagazineCapacity;
+	LowAmmoAmt = MagazineCapacity * 0.2f;
+
+	UpdateAmmoWidget();
 }
 
 void AIFGunBase::StartFire(FVector TargetLoc)
@@ -269,7 +274,8 @@ void AIFGunBase::StartFire(FVector TargetLoc)
 	}
 	
 	CurrentAmmo--;
-	AmmoChangedDelegate.ExecuteIfBound(CurrentAmmo, TotalAmmo);
+	UpdateAmmoWidget();
+	//AmmoChangedDelegate.ExecuteIfBound(CurrentAmmo, TotalAmmo);
 
 	ShootDelegate.ExecuteIfBound(CameraShake);
 	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, Mesh, MuzzleSocket);
@@ -328,7 +334,8 @@ void AIFGunBase::Reload()
 		TotalAmmo = 0;
 	}
 
-	AmmoChangedDelegate.ExecuteIfBound(CurrentAmmo, TotalAmmo);
+	UpdateAmmoWidget();
+	//AmmoChangedDelegate.ExecuteIfBound(CurrentAmmo, TotalAmmo);
 
 }
 
@@ -408,6 +415,24 @@ void AIFGunBase::ShotGunTrace(FVector& ShotDirection)
 		Tracer.Get()->LaunchTracer();
 	}
 }
+
+void AIFGunBase::UpdateAmmoWidget()
+{
+	if(AmmoWidget == nullptr) return;
+
+	if (CurrentAmmo <= LowAmmoAmt)
+	{
+		AmmoWidget.Get()->SetTextMaterial(LowAmmoMat);
+	}
+	else
+	{
+		AmmoWidget.Get()->SetTextMaterial(BasicAmmoMat);
+	}
+	
+	AmmoWidget.Get()->SetText(FText::FromString(FString::FromInt(CurrentAmmo)));
+}
+
+
 
 
 

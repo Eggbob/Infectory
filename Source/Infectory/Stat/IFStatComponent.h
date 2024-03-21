@@ -29,6 +29,7 @@ public:
 	void HealHp(float InHealAmount);
 	void SetStat(FName NPCName, FName NPCTier);
 	float ApplyDamage(float InDamage, FName BoneName);
+	float GetMaxHp() const { return MaxHp; }
 
 	FORCEINLINE const FIFCharacterStat& GetBaseStat() const { return BaseStat; }
 
@@ -45,7 +46,6 @@ protected:
 	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat)
 	float CurrentHp;
 
-	//ForTest
 	float MaxHp;
 
 private:

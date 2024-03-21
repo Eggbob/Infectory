@@ -17,7 +17,10 @@
 #include "Item/IFInventory.h"
 #include "Animation/IFPlayerAnimInstance.h"
 #include "Item/IFGadget.h"
+#include "UI/IFPlayerHPBar.h"
+#include "UI/IFBuildWidget.h"
 #include "Game/IFGameMode.h"
+#include "Components/WidgetComponent.h"
 #include "Components/SpotLightComponent.h"
 
 
@@ -150,9 +153,27 @@ void AIFCharacterPlayer::BeginPlay()
 	Inventory = NewObject<UIFInventory>();
 	Inventory.Get()->InitInventory(GetWorld());
 
+	//HPBar = Cast<UIFPlayerHPBar>(GetComponentByClass<UWidgetComponent>()->GetWidget());
+	//BuildWidget = Cast<UIFBuildWidget>(GetComponentByClass<UWidgetComponent>()->GetWidget());
+	
+	TArray<UWidgetComponent*> WidgetComponents;
+	this->GetComponents<UWidgetComponent>(WidgetComponents);
+
+	for (UWidgetComponent* WidgetComponent : WidgetComponents)
+	{
+		if (WidgetComponent->GetWidget()->IsA<UIFBuildWidget>())
+		{
+			BuildWidget = Cast<UIFBuildWidget>(WidgetComponent->GetUserWidgetObject());
+		}
+		else if (WidgetComponent->GetWidget()->IsA<UIFPlayerHPBar>())
+		{
+			HPBar = Cast<UIFPlayerHPBar>(WidgetComponent->GetUserWidgetObject());
+		}
+	}
+
 	SetWeapon();
 	UserWidget->UpdateAmmoState(CurGun->GetCurAmmo(), CurGun->GetTotalAmmo());
-	CurGun.Get()->AmmoChangedDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateAmmoState);
+	//CurGun.Get()->AmmoChangedDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateAmmoState);
 	CurGun.Get()->CrossHairDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateCrossHair);
 
 	AnimInstance = Cast<UIFPlayerAnimInstance>(GetMesh()->GetAnimInstance());
@@ -172,14 +193,17 @@ void AIFCharacterPlayer::BeginPlay()
 	});
 
 	AnimInstance.Get()->SetFootSound(FootStepSound);
+	
+	HPBar.Get()->InitHPBar(500);
 
 	StatComp->ForTest();
 	StatComp->bIsNPC = false;
 	StatComp->OnHit.AddUObject(this, &AIFCharacterPlayer::OnHitAction);
 	StatComp->OnHpZero.AddUObject(AnimInstance, &UIFPlayerAnimInstance::PlayDeadAnim);
-	
-	GameMode = Cast<AIFGameMode>(GetWorld()->GetAuthGameMode());
+	StatComp->OnHpChanged.AddUObject(HPBar, &UIFPlayerHPBar::SetHPBar);
 
+	GameMode = Cast<AIFGameMode>(GetWorld()->GetAuthGameMode());
+	
 	TWeakObjectPtr<APlayerCameraManager> CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
 	if (CameraManager != nullptr)
 	{
@@ -269,6 +293,19 @@ void AIFCharacterPlayer::OnLeftMouseClick()
 		break;
 	case ECharacterState::Building:
 		GetTurretLoc();
+		break;
+	}
+}
+
+void AIFCharacterPlayer::OnRightMouseClick()
+{
+	switch (CurCharacterState)
+	{
+	case ECharacterState::Idle:
+		ChangeCharacterControl();
+		break;
+	case ECharacterState::Building:
+		SetBuildMode();
 		break;
 	}
 }
@@ -440,7 +477,7 @@ void AIFCharacterPlayer::ChangeWeaponBody(ERangedWeaponType NewWeaponType)
 		CurGun.Get()->SetActorHiddenInGame(false);
 
 		UserWidget->UpdateAmmoState(CurGun->GetCurAmmo(), CurGun->GetTotalAmmo());
-		CurGun.Get()->AmmoChangedDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateAmmoState);
+		//CurGun.Get()->AmmoChangedDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateAmmoState);
 		CurGun.Get()->CrossHairDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateCrossHair);
 		CurCharacterState = ECharacterState::Idle;
 		});
@@ -485,7 +522,7 @@ void AIFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(ShoulderLookAction, ETriggerEvent::Triggered, this, &AIFCharacterPlayer::ShoulderLook);
 	EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::PerformRun);
 	//EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::PerformCrouch);
-	EnhancedInputComponent->BindAction(ToggleAimAction, ETriggerEvent::Triggered, this, &AIFCharacterPlayer::ChangeCharacterControl);
+	EnhancedInputComponent->BindAction(ToggleAimAction, ETriggerEvent::Triggered, this, &AIFCharacterPlayer::OnRightMouseClick);
 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::OnLeftMouseClick);
 	EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Completed, this, &AIFCharacterPlayer::OnLeftMouseClick);
 	EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Triggered, this, &AIFCharacterPlayer::Reload);
