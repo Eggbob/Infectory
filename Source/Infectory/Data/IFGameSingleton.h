@@ -8,6 +8,7 @@
 #include "IFGunStat.h"
 #include "IFBossPatternData.h"
 #include "Data/IFEnumDefine.h"
+#include "Data/IFItemData.h"
 #include "IFGameSingleton.generated.h"
 
 /**
@@ -26,6 +27,7 @@ public:
 	FIFCharacterStat GetCharacterStat(FName NpcName, FName NPCTier) const;
 	FIFGunStat GetGunStat(FName GunName) const;
 	FIFBossPatternData GetBossPatternData(EBossPattern BossPattern, int32 BeadCnt) const;
+	FIFItemData GetItemData(int32 ItemID) const;
 
 private:
 	UPROPERTY()
@@ -45,4 +47,9 @@ private:
 	TObjectPtr<class UDataTable> BossPatternTable;
 
 	TMap<TPair<EBossPattern, int32>, FIFBossPatternData> BossPatternMap;
+
+	UPROPERTY()
+	TObjectPtr<class UDataTable> ItemDataTable;
+
+	TMap<int32, FIFItemData> ItemMap;
 };

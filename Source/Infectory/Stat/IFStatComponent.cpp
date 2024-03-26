@@ -60,7 +60,7 @@ float UIFStatComponent::ApplyDamage(float InDamage, FName BoneName)
 	if (bIsNPC)
 	{
 		FString BoneNameStr = BoneName.ToString();
-		ENPCBoneName NPCBoneName = UIFEnumDefine::StringToEnum(BoneNameStr);
+		ENPCBoneName NPCBoneName = UIFEnumDefine::GetBoneEum(BoneNameStr);
 
 		RealDamage = BodyPartDamageData.Get()->BodyPartDamageMap[NPCBoneName] * InDamage;
 	}

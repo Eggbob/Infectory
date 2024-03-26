@@ -465,7 +465,7 @@ float AIFCharacterNonPlayer::TakeDamage(float Damage, FDamageEvent const& Damage
 
 		//TODO Fix Enum
 		FString BoneNameStr = CustomDamageEvent->BoneName.ToString();
-		ENPCBoneName BoneEnum = UIFEnumDefine::StringToEnum(BoneNameStr);
+		ENPCBoneName BoneEnum = UIFEnumDefine::GetBoneEum(BoneNameStr);
 		BodyDamageCheckMap[BoneEnum] -= 1;
 
 		if (BodyDamageCheckMap[BoneEnum] == 0)

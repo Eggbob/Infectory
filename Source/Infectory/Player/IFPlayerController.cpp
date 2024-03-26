@@ -4,12 +4,26 @@
 #include "IFPlayerController.h"
 #include "Blueprint/UserWidget.h"
 
+void AIFPlayerController::ChangeControllMode(bool bIsClose)
+{
+	if (bIsClose)
+	{
+		SetInputMode(GameOnlyInputMode);
+		bShowMouseCursor = false;
+	}
+	else
+	{
+		SetInputMode(UIOnlyInputMode);
+		bShowMouseCursor = true;
+	}
+}
+
 void AIFPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FInputModeGameOnly GameOnlyInputMode;
 	SetInputMode(GameOnlyInputMode);
+	bIsGameMode = true;
 
 	//HUDWidget = CreateWidget(this, CrossHeadClass);
 

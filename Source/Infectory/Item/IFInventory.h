@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "Data/IFEnumDefine.h"
+#include "Data/IFItemData.h"
 #include "IFInventory.generated.h"
 
 /**
@@ -20,17 +21,34 @@ public:
 
 	void InitInventory(UWorld * World);
 	void RecallGadget(EGadgetType GadgetType);
+	void ChangeGadget(EGadgetType GadgetType);
 
-	TObjectPtr<class AIFGunBase> GetRangedWeapon(ERangedWeaponType WeaponType);
-	TObjectPtr<class AIFGadget> GetGadget(EGadgetType GadgetType);
+	class AIFGunBase& GetRangedWeapon(ERangedWeaponType WeaponType);
+	class AIFGadget& GetGadget();
 	
+	FORCEINLINE TArray<FIFItemData>& GetItemList() { return ItemList; }
+	FORCEINLINE int32& GetCurCredit() { return CurCredit; }
+	FORCEINLINE int32& GetCurUpGradeGier() { return CurUpgradeGier; }
+
+
 private:
+	void TestSetItem();
+
+private:
+	UPROPERTY()
+	TObjectPtr<class AIFGameMode> GameMode;
+
+	int32 CurCredit;
+	int32 CurUpgradeGier;
+
+	TArray<FIFItemData> ItemList;
+
 	TMap<ERangedWeaponType, TObjectPtr<class AIFGunBase>> RangedWeapon;
 	TMap<ERangedWeaponType, TSubclassOf<class AIFGunBase>> RangedWeaponBP;
 
 	TMap<EGadgetType, TSubclassOf<class AIFGadget>> GadgetBP;
 	TMap<EGadgetType, TObjectPtr<class AIFGadget>> GadgetMap;
+	
+	EGadgetType CurGadgetType;
 
-	TSubclassOf<class AIFGadget> TurretBP;
-	TObjectPtr<class AIFGadget> SpawnedTurret;
 };

@@ -60,6 +60,24 @@ UIFGameSingleton::UIFGameSingleton()
 			}
 		}
 	}
+
+	static ConstructorHelpers::FObjectFinder<UDataTable> ItemDataTableRef(TEXT("/Script/Engine.DataTable'/Game/Assets/GameData/IFItemData.IFItemData'"));
+	if (nullptr != ItemDataTableRef.Object)
+	{
+		ItemDataTable = ItemDataTableRef.Object;
+
+		TArray<FName> RowNames = ItemDataTable->GetRowNames();
+
+		for (FName& RName : RowNames)
+		{
+			FIFItemData* ItemStat = ItemDataTable->FindRow<FIFItemData>(RName, TEXT(""));
+
+			if (nullptr != ItemStat)
+			{
+				ItemMap.Add(ItemStat->GetID(), *ItemStat);
+			}
+		}
+	}
 }
 
 
@@ -113,6 +131,19 @@ FIFBossPatternData UIFGameSingleton::GetBossPatternData(EBossPattern BossPattern
 	{
 		UE_LOG(LogTemp, Error, TEXT("Invalid Boss Stat"));
 		return FIFBossPatternData();
+	}
+}
+
+FIFItemData UIFGameSingleton::GetItemData(int32 ItemID) const
+{
+	if (ItemMap.Contains(ItemID))
+	{
+		return ItemMap[ItemID];
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invalid ItemData"));
+		return FIFItemData();
 	}
 }
 

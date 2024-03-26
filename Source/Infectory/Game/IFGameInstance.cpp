@@ -43,6 +43,7 @@ UIFGameInstance::UIFGameInstance()
 			}
 		}
 	}
+
 }
 
 
@@ -83,5 +84,4 @@ FIFGunStat UIFGameInstance::GetGunStat(FName GunName) const
 		return FIFGunStat();
 	}
 }
-
 

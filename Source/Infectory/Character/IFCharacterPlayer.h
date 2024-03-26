@@ -61,6 +61,7 @@ protected:
 
 	void ShoulderMove(const FInputActionValue& Value);
 	void ShoulderLook(const FInputActionValue& Value);
+	void DirectionKeyInput(const FInputActionValue& Value);
 	void ShoulderMoveFinish();
 	void PerformRun();
 	void PerformCrouch();
@@ -73,16 +74,16 @@ protected:
 	void ChangeWeapon2();
 	void ChangeWeapon3();
 	void ChangeWeaponBody(ERangedWeaponType NewWeaponType);
-
+	void OpenInventory();
 
 private:
 	FVector GetGunHandPosition();
 	void SetWeapon();
+	void OnQAction();
+	void OnEAction();
 
 public:
 	FOnRegistGrabDelegate RegistGrabDelegate;
-
-
 
 protected:
 	//카메라 Arm
@@ -118,6 +119,15 @@ protected:
 	//공격 인풋 액션
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class UInputAction> AttackAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
+	TObjectPtr<class UInputAction> QAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
+	TObjectPtr<class UInputAction> EAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
+	TObjectPtr<class UInputAction> InvenOpenAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class UInputAction> RegistAction;
@@ -185,13 +195,17 @@ private:
 	UPROPERTY()
 	TObjectPtr<UIFUserWidget> UserWidget;
 
-	
-
 	UPROPERTY()
 	TObjectPtr<class UIFPlayerHPBar> HPBar;
 
 	UPROPERTY()
+	TObjectPtr<class UIFInventoryWidget> InvenWidget;
+
+	UPROPERTY()
 	TObjectPtr<class AIFGameMode> GameMode;
+
+	UPROPERTY()
+	TObjectPtr<class AIFPlayerController> PlayerCon;
 
 	bool IsFiring = false;
 	int32 ResistCnt = 0;

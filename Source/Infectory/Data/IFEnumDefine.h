@@ -122,6 +122,15 @@ enum class ETentaclePattern : uint8
 };
 
 UENUM()
+enum class EItemType : uint8
+{
+	None UMETA(DisplayName = "None"),
+	Potion UMETA(DisplayName = "Potion"),
+	Goods UMETA(DisplayName = "Goods"),
+	Ammo UMETA(DisplayName = "Ammo"),
+};
+
+UENUM()
 enum class ERangedWeaponType : uint8
 {
 	Rifle,
@@ -186,7 +195,9 @@ public:
 	template<typename T>
 	static FString GetEnumName(T EnumName);
 
-	static ENPCBoneName StringToEnum(FString& StringValue);
+	static ENPCBoneName GetBoneEum(FString& StringValue);
+	template<typename T>
+	static T StringToEnum(FString& StringValue);
 };
 
 template<typename T>
@@ -196,10 +207,19 @@ inline FString UIFEnumDefine::GetEnumName(T EnumName)
 	return Name;
 }
 
-inline ENPCBoneName UIFEnumDefine::StringToEnum(FString& StringValue)
+inline ENPCBoneName UIFEnumDefine::GetBoneEum(FString& StringValue)
 {
 	UEnum* EnumPtr = StaticEnum<ENPCBoneName>();
 
 	int32 EnumValue = EnumPtr->GetValueByNameString(StringValue);
 	return (EnumValue != INDEX_NONE) ? static_cast<ENPCBoneName>(EnumValue) : ENPCBoneName::pelvis;
+}
+
+template<typename T>
+inline T UIFEnumDefine::StringToEnum(FString& StringValue)
+{
+	UEnum* EnumPtr = StaticEnum<T>();
+
+	int32 EnumValue = EnumPtr->GetValueByNameString(StringValue);
+	return (EnumValue != INDEX_NONE) ? static_cast<T>(EnumValue) : T();
 }

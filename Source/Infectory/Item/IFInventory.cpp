@@ -4,6 +4,7 @@
 #include "Item/IFInventory.h"
 #include "Item/IFGunBase.h"
 #include "Item/IFGadget.h"
+#include "Data/IFGameSingleton.h"
 
 UIFInventory::UIFInventory()
 {
@@ -28,7 +29,6 @@ UIFInventory::UIFInventory()
 	static ConstructorHelpers::FClassFinder<AIFGadget> TurretClassRef(TEXT("/Game/Assets/Blueprint/Weapons/BP_Turret.BP_Turret_C"));
 	if (TurretClassRef.Class)
 	{
-		TurretBP = TurretClassRef.Class;
 		GadgetBP.Add(EGadgetType::Turret, TurretClassRef.Class);
 	}
 
@@ -63,8 +63,11 @@ void UIFInventory::InitInventory(UWorld* World)
 		Shield->SetActorHiddenInGame(true);
 		GadgetMap.Add(EGadgetType::Shield, Shield);
 
-	/*	SpawnedTurret = World->SpawnActor<AIFGadget>(TurretBP);
-		SpawnedTurret->SetActorHiddenInGame(true);*/
+		CurGadgetType = EGadgetType::Turret;
+		CurCredit = 5000;
+		CurUpgradeGier = 100;
+		
+		TestSetItem();
 	}
 }
 
@@ -76,29 +79,34 @@ void UIFInventory::RecallGadget(EGadgetType GadgetType)
 	GadgetMap[GadgetType].Get()->SetActorEnableCollision(false);
 }
 
-TObjectPtr<AIFGunBase> UIFInventory::GetRangedWeapon(ERangedWeaponType WeaponType)
+void UIFInventory::ChangeGadget(EGadgetType GadgetType)
+{
+	CurGadgetType = GadgetType;
+}
+
+AIFGunBase& UIFInventory::GetRangedWeapon(ERangedWeaponType WeaponType)
 {
 	if (RangedWeapon.Contains(WeaponType))
 	{
-		return RangedWeapon[WeaponType];
+		return *RangedWeapon[WeaponType];
 	}
 
-	return nullptr;
+	return *GetWorld()->SpawnActor<AIFGunBase>(RangedWeaponBP[WeaponType]);
 }
 
-TObjectPtr<class AIFGadget> UIFInventory::GetGadget(EGadgetType GadgetType)
+AIFGadget& UIFInventory::GetGadget()
 {
-	if (GadgetMap.Contains(GadgetType))
+	if (GadgetMap.Contains(CurGadgetType))
 	{
-		GadgetMap[GadgetType].Get()->SetActorHiddenInGame(false);
-		GadgetMap[GadgetType].Get()->DeInitGadget();
-		GadgetMap[GadgetType].Get()->SetActorEnableCollision(true);
+		GadgetMap[CurGadgetType].Get()->SetActorHiddenInGame(false);
+		GadgetMap[CurGadgetType].Get()->DeInitGadget();
+		GadgetMap[CurGadgetType].Get()->SetActorEnableCollision(true);
 
-		return GadgetMap[GadgetType];
+		return *GadgetMap[CurGadgetType];
 	}
 	else
 	{
-		return GetWorld()->SpawnActor<AIFGadget>(GadgetBP[GadgetType]);
+		return *GetWorld()->SpawnActor<AIFGadget>(GadgetBP[CurGadgetType]);
 	}
 
 
@@ -111,5 +119,24 @@ TObjectPtr<class AIFGadget> UIFInventory::GetGadget(EGadgetType GadgetType)
 	}
 	else
 		return GetWorld()->SpawnActor<AIFGadget>(TurretBP);*/
+
+}
+
+void UIFInventory::TestSetItem()
+{
+	ItemList.Add(UIFGameSingleton::Get().GetItemData(1));
+	ItemList.Add(UIFGameSingleton::Get().GetItemData(2));
+	ItemList.Add(UIFGameSingleton::Get().GetItemData(3));
+	ItemList.Add(UIFGameSingleton::Get().GetItemData(4));
+	ItemList.Add(UIFGameSingleton::Get().GetItemData(4));
+	ItemList.Add(UIFGameSingleton::Get().GetItemData(4));
+	ItemList.Add(UIFGameSingleton::Get().GetItemData(4));
+	ItemList.Add(UIFGameSingleton::Get().GetItemData(5));
+	ItemList.Add(UIFGameSingleton::Get().GetItemData(5));
+	ItemList.Add(UIFGameSingleton::Get().GetItemData(5));
+	ItemList.Add(UIFGameSingleton::Get().GetItemData(6));
+	ItemList.Add(UIFGameSingleton::Get().GetItemData(6));
+	ItemList.Add(UIFGameSingleton::Get().GetItemData(6));
+	ItemList.Add(UIFGameSingleton::Get().GetItemData(8));
 
 }

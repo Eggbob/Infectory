@@ -26,7 +26,7 @@ public:
 public:
 	FIFCharacterStat GetCharacterStat(FName NpcName, FName NPCTier) const;
 	FIFGunStat GetGunStat(FName GunName) const;
-
+	
 
 
 private:
@@ -42,4 +42,6 @@ private:
 	TObjectPtr<class UDataTable> GunStatTable;
 
 	TMap<FName, FIFGunStat> GunStatMap;
+
+
 };

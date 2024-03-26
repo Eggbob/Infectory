@@ -15,11 +15,13 @@
 #include "UI/IFUserWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Item/IFInventory.h"
+#include "UI/IFInventoryWidget.h"
 #include "Animation/IFPlayerAnimInstance.h"
 #include "Item/IFGadget.h"
 #include "UI/IFPlayerHPBar.h"
 #include "UI/IFBuildWidget.h"
 #include "Game/IFGameMode.h"
+#include "Player/IFPlayerController.h"
 #include "Components/WidgetComponent.h"
 #include "Components/SpotLightComponent.h"
 
@@ -116,6 +118,24 @@ AIFCharacterPlayer::AIFCharacterPlayer()
 		ChangeWeaponAction3 = ChangeWeapon3Ref.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> QActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Assets/Input/Actions/IA_Q.IA_Q'"));
+	if (nullptr != QActionRef.Object)
+	{
+		QAction = QActionRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> EActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Assets/Input/Actions/IA_E.IA_E'"));
+	if (nullptr != EActionRef.Object)
+	{
+		EAction = EActionRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction>InvenOpenActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Assets/Input/Actions/IA_OpenInven.IA_OpenInven'"));
+	if (nullptr != InvenOpenActionRef.Object)
+	{
+		InvenOpenAction = InvenOpenActionRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UInputAction> RegistRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Assets/Input/Actions/IA_Regist.IA_Regist'"));
 	if (nullptr != RegistRef.Object)
 	{
@@ -144,11 +164,12 @@ AIFCharacterPlayer::AIFCharacterPlayer()
 	CurMoveType = ECharacterMoveType::Walking;
 }
 
-
 void AIFCharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 	SetCharacterControl(CurControlType);
+
+	PlayerCon = Cast<AIFPlayerController>(GetController());
 
 	Inventory = NewObject<UIFInventory>();
 	Inventory.Get()->InitInventory(GetWorld());
@@ -169,10 +190,15 @@ void AIFCharacterPlayer::BeginPlay()
 		{
 			HPBar = Cast<UIFPlayerHPBar>(WidgetComponent->GetUserWidgetObject());
 		}
+		else if (WidgetComponent->GetWidget()->IsA<UIFInventoryWidget>())
+		{
+			InvenWidget = Cast<UIFInventoryWidget>(WidgetComponent->GetUserWidgetObject());
+			InvenWidget.Get()->BindInventory(*Inventory.Get());
+		}
 	}
 
 	SetWeapon();
-	UserWidget->UpdateAmmoState(CurGun->GetCurAmmo(), CurGun->GetTotalAmmo());
+	UserWidget->UpdateAmmoState(CurGun.Get()->GetCurAmmo(), CurGun.Get()->GetTotalAmmo());
 	//CurGun.Get()->AmmoChangedDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateAmmoState);
 	CurGun.Get()->CrossHairDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateCrossHair);
 
@@ -234,7 +260,7 @@ void AIFCharacterPlayer::ChangeCharacterControl()
 	}
 	else if (CurControlType == ECharacterControlType::Zoom)
 	{
-		CurGun->StopFire();
+		CurGun.Get()->StopFire();
 		SetCharacterControl(ECharacterControlType::Shoulder);
 	}
 }
@@ -283,7 +309,6 @@ void AIFCharacterPlayer::OnHitAction()
 	}
 }
 
-
 void AIFCharacterPlayer::OnLeftMouseClick()
 {
 	switch (CurCharacterState)
@@ -323,26 +348,26 @@ void AIFCharacterPlayer::Shoot()
 		CurGun.Get()->ShootDelegate.BindLambda([&](TSubclassOf<ULegacyCameraShake> CameraShake) {
 			GameMode.Get()->PlayCameraShake(CameraShake);
 			}); 
-		CurGun->FireGunDelegate.Unbind();
+		CurGun.Get()->FireGunDelegate.Unbind();
 
 		switch (CurControlType)
 		{
 		case ECharacterControlType::Shoulder:
-			CurGun->FireGunDelegate.BindLambda([&](ERangedWeaponType RangedWeaponType) {
+			CurGun.Get()->FireGunDelegate.BindLambda([&](ERangedWeaponType RangedWeaponType) {
 				AnimInstance.Get()->PlayFireAnimation();
 				});
 			break;
 		case ECharacterControlType::Zoom:
-			CurGun->FireGunDelegate.BindUObject(AnimInstance, &UIFPlayerAnimInstance::AddRecoil);
+			CurGun.Get()->FireGunDelegate.BindUObject(AnimInstance, &UIFPlayerAnimInstance::AddRecoil);
 			break;
 		}
 
 		
-		CurGun->StartFire(FollowCamera.Get()->GetForwardVector());
+		CurGun.Get()->StartFire(FollowCamera.Get()->GetForwardVector());
 	}
 	else if(!IsFiring)
 	{
-		CurGun->StopFire();
+		CurGun.Get()->StopFire();
 	}
 }
 
@@ -421,16 +446,12 @@ void AIFCharacterPlayer::BuildGadget(FVector TurretLoc, FVector SpawnLoc, bool b
 
 	if (IsFiring)
 	{
-		TObjectPtr<AIFGadget> Gadget = Inventory.Get()->GetGadget(EGadgetType::Shield);
-		if (Gadget == nullptr)
-		{
-			Gadget = GetWorld()->SpawnActor<AIFGadget>(TurretBP, SpawnLoc, FRotator::ZeroRotator);
-		}
-
-		Gadget.Get()->SetActorLocation(SpawnLoc);
-		Gadget.Get()->InitGadget(GetController());
-		Gadget.Get()->LaunchGadget(TurretLoc);
-		Gadget.Get()->GadgetDeInitDelegate.BindLambda([&]() {
+		AIFGadget& Gadget = Inventory.Get()->GetGadget();
+		
+		Gadget.SetActorLocation(SpawnLoc);
+		Gadget.InitGadget(GetController());
+		Gadget.LaunchGadget(TurretLoc);
+		Gadget.GadgetDeInitDelegate.BindLambda([&]() {
 			RecallTurret(EGadgetType::Shield);
 		});
 
@@ -465,15 +486,15 @@ void AIFCharacterPlayer::ChangeWeapon3()
 void AIFCharacterPlayer::ChangeWeaponBody(ERangedWeaponType NewWeaponType)
 {
 	CurWeaponType = NewWeaponType;
-	CurGun->StopFire();
+	CurGun.Get()->StopFire();
 	CurCharacterState = ECharacterState::WeaponChanging;
 
 	AnimInstance.Get()->SetCurSound(CurGun.Get()->SwapSound);
 	AnimInstance.Get()->PlayWeaponChangeAnim();
 	AnimInstance.Get()->OnWeaponChangeFinished.Unbind();
 	AnimInstance.Get()->OnWeaponChangeFinished.BindLambda([&]() {
-		CurGun->SetActorHiddenInGame(true);
-		CurGun = Inventory.Get()->GetRangedWeapon(CurWeaponType);
+		CurGun.Get()->SetActorHiddenInGame(true);
+		CurGun = &Inventory.Get()->GetRangedWeapon(CurWeaponType);
 		CurGun.Get()->SetActorHiddenInGame(false);
 
 		UserWidget->UpdateAmmoState(CurGun->GetCurAmmo(), CurGun->GetTotalAmmo());
@@ -481,6 +502,20 @@ void AIFCharacterPlayer::ChangeWeaponBody(ERangedWeaponType NewWeaponType)
 		CurGun.Get()->CrossHairDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateCrossHair);
 		CurCharacterState = ECharacterState::Idle;
 		});
+}
+
+void AIFCharacterPlayer::OpenInventory()
+{
+	if (InvenWidget && !InvenWidget.Get()->IsVisible())
+	{
+		InvenWidget.Get()->OpenInventory();
+		//PlayerCon.Get()->ChangeControllMode(false);
+	}
+	else
+	{
+		InvenWidget.Get()->CloseInventory();
+		//PlayerCon.Get()->ChangeControllMode(true);
+	}
 }
 
 
@@ -531,6 +566,9 @@ void AIFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(ChangeWeaponAction3, ETriggerEvent::Started, this, &AIFCharacterPlayer::ChangeWeapon3);
 	EnhancedInputComponent->BindAction(RegistAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::ResistGrabbing);
 	EnhancedInputComponent->BindAction(SpawnTurretAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::SetBuildMode);
+	EnhancedInputComponent->BindAction(QAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::OnQAction);
+	EnhancedInputComponent->BindAction(EAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::OnEAction);
+	EnhancedInputComponent->BindAction(InvenOpenAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::OpenInventory);
 }
 
 FVector AIFCharacterPlayer::GetGunHandPosition()
@@ -542,20 +580,40 @@ void AIFCharacterPlayer::SetWeapon()
 {
 	const UEnum* EnumPtr = StaticEnum<ERangedWeaponType>();
 
-	for (int i = 0; i < EnumPtr->NumEnums() - 1; i++)
+	for (int i = 0; i < 3; i++)
 	{
-		AIFGunBase* GunBase = Inventory.Get()->GetRangedWeapon((ERangedWeaponType)EnumPtr->GetValueByIndex(i));
+		AIFGunBase& GunBase = Inventory.Get()->GetRangedWeapon((ERangedWeaponType)EnumPtr->GetValueByIndex(i));
 
-		if (GunBase)
+		if (GunBase.IsValidLowLevel())
 		{
-			GunBase->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, WeaponSocketMap[GunBase->GetWeaponType()]);
-			GunBase->SetOwner(this);
-			GunBase->CachingOwner();
+			GunBase.AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, WeaponSocketMap[GunBase.GetWeaponType()]);
+			GunBase.SetOwner(this);
+			GunBase.CachingOwner();
 		}
 	}
 
-	CurGun = Inventory.Get()->GetRangedWeapon(ERangedWeaponType::Rifle);
+	CurGun = &Inventory.Get()->GetRangedWeapon(ERangedWeaponType::Rifle);
 	CurGun.Get()->SetActorHiddenInGame(false);
+}
+
+void AIFCharacterPlayer::OnQAction()
+{
+	if (CurCharacterState == ECharacterState::Building)
+	{
+		Inventory.Get()->ChangeGadget(EGadgetType::Turret);
+		BuildWidget.Get()->ChangeGadget(EGadgetType::Turret);
+		BuildWidget.Get()->SetGadgetName(FText::FromString("Turret"));
+	}
+}
+
+void AIFCharacterPlayer::OnEAction()
+{
+	if (CurCharacterState == ECharacterState::Building)
+	{
+		Inventory.Get()->ChangeGadget(EGadgetType::Shield);
+		BuildWidget.Get()->ChangeGadget(EGadgetType::Shield);
+		BuildWidget.Get()->SetGadgetName(FText::FromString("Shield"));
+	}
 }
 
 void AIFCharacterPlayer::SetupUserWidget(TObjectPtr<UIFUserWidget> InUserWidget)
@@ -624,6 +682,22 @@ void AIFCharacterPlayer::ShoulderLook(const FInputActionValue& Value)
 	// Pitch 회전값에 따라 Pitch 회전을 조절
 	AddControllerPitchInput(LookAxisVector.Y);
 
+}
+
+void AIFCharacterPlayer::DirectionKeyInput(const FInputActionValue& Value)
+{
+	if(!InvenWidget.Get()->IsVisible()) return;
+
+	FVector2D DirectionVector = Value.Get<FVector2D>();
+
+	if (DirectionVector.X <= 0)
+	{
+
+	}
+	else
+	{
+
+	}
 }
 
 void AIFCharacterPlayer::ShoulderMoveFinish()

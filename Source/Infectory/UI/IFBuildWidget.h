@@ -21,5 +21,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SetGadgetName(const FText& GadgetName);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void ChangeGadget(EGadgetType GadgetType);
 
 };
