@@ -108,8 +108,6 @@ AIFGadget& UIFInventory::GetGadget()
 	{
 		return *GetWorld()->SpawnActor<AIFGadget>(GadgetBP[CurGadgetType]);
 	}
-
-
 	/*if (SpawnedTurret)
 	{
 		SpawnedTurret.Get()->SetActorHiddenInGame(false);

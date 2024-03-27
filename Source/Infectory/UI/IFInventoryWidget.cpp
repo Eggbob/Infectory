@@ -9,6 +9,7 @@
 #include "Data/IFItemData.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
+#include "Components/ScrollBox.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
 void UIFInventoryWidget::NativeConstruct()
@@ -37,8 +38,9 @@ void UIFInventoryWidget::NativeConstruct()
 	CurItemImg = Cast<UImage>(GetWidgetFromName(TEXT("MiniItemImage")));
 	CurItemNameText = Cast<UTextBlock>(GetWidgetFromName(TEXT("CurItemText")));
 	CurItemExplainText = Cast<UTextBlock>(GetWidgetFromName(TEXT("CurItemExplainText")));
+	ScrollBox = Cast<UScrollBox>(GetWidgetFromName(TEXT("ScrollBox")));
 
-	OpenInventory();
+	SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UIFInventoryWidget::BindInventory(UIFInventory& PInven)
@@ -57,9 +59,13 @@ void UIFInventoryWidget::OpenInventory()
 	SetCredit();
 	SetUpgradeGier();
 
-	CurItemImg.Get()->SetVisibility(ESlateVisibility::Hidden);
+	/*CurItemImg.Get()->SetVisibility(ESlateVisibility::Hidden);
 	CurItemNameText.Get()->SetVisibility(ESlateVisibility::Hidden);
-	CurItemExplainText.Get()->SetVisibility(ESlateVisibility::Hidden);
+	CurItemExplainText.Get()->SetVisibility(ESlateVisibility::Hidden);*/
+
+	FVector2D Vect = FVector2D(0, 0);
+
+	SelectItem(Vect);
 }
 
 void UIFInventoryWidget::CloseInventory()
@@ -107,11 +113,32 @@ void UIFInventoryWidget::SetUpgradeGier()
 	CurUpgradeGuierText.Get()->SetText(FText::FromString(FString::Printf(TEXT("%d"), PlayerInven.Get()->GetCurUpGradeGier())));
 }
 
-void UIFInventoryWidget::SelectItem(int32 Index)
+void UIFInventoryWidget::SelectItem(FVector2D Direction)
 {
-	FIFItemData CurItem = ItemBoxes[Index].Get()->GetItemData();
+	ItemBoxes[CurItemIndex].Get()->ItemSelected(false);
 
-	CurItemImg.Get()->SetBrushFromTexture(CurItem.GetIconTexture());
-	CurItemNameText.Get()->SetText(FText::FromString(CurItem.GetItemName()));
-	CurItemExplainText.Get()->SetText(FText::FromString(CurItem.GetToolTip()));
+	CurItemIndex = FMath::Clamp(CurItemIndex + (Direction.X * -5), 0, 24);
+	CurItemIndex = FMath::Clamp(CurItemIndex + Direction.Y, 0, 24);
+
+	ItemBoxes[CurItemIndex].Get()->ItemSelected(true);
+
+	FIFItemData CurItem = ItemBoxes[CurItemIndex].Get()->GetItemData();
+
+	if (CurItem.GetItemType() != EItemType::None)
+	{
+		CurItemImg.Get()->SetBrushFromTexture(CurItem.GetIconTexture());
+		CurItemNameText.Get()->SetText(FText::FromString(CurItem.GetItemName()));
+		CurItemExplainText.Get()->SetText(FText::FromString(CurItem.GetToolTip()));
+		ScrollBox.Get()->ScrollToEnd();
+	}
+
+	if (CurItemIndex > 15)
+	{
+		ScrollBox.Get()->ScrollToEnd();
+	}
+	else
+	{
+		ScrollBox.Get()->ScrollToStart();
+	}
+
 }

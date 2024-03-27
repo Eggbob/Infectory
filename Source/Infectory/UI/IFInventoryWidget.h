@@ -18,6 +18,8 @@ public:
 	void BindInventory(class UIFInventory& PInven);
 	void OpenInventory();
 	void CloseInventory();
+	void SelectItem(FVector2D Direction);
+
 
 protected:
 	virtual void NativeConstruct() override;
@@ -25,9 +27,11 @@ protected:
 	void SetItem();
 	void SetCredit();
 	void SetUpgradeGier();
-	void SelectItem(int32 Index);
+
 
 private:
+	int32 CurItemIndex = 0;
+
 	UPROPERTY()
 	TArray<TObjectPtr<class UIFWeaponBox>> WeaponWidgets;
 	UPROPERTY()
@@ -44,6 +48,9 @@ private:
 	TObjectPtr<class UTextBlock> CurCreditText;
 	UPROPERTY()
 	TObjectPtr<class UTextBlock> CurUpgradeGuierText;
+
+	UPROPERTY()
+	TObjectPtr<class UScrollBox> ScrollBox;
 
 	TWeakObjectPtr<class UIFInventory> PlayerInven;
 };

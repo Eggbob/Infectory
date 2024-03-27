@@ -4,6 +4,7 @@
 #include "UI/IFItemBox.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
+#include "Styling/SlateColor.h"
 #include "MaterialShared.h"
 
 
@@ -26,6 +27,9 @@ void UIFItemBox::BindItemData(FIFItemData NewItemData)
 {
 	CurItemData = NewItemData;
 
+	/*FLinearColor Linear = FLinearColor(0.f, 0.f, 0.f);
+	FSlateColor Slate = FSlateColor();*/
+
 	switch (CurItemData.GetItemType())
 	{
 	case EItemType::Potion:
@@ -34,6 +38,7 @@ void UIFItemBox::BindItemData(FIFItemData NewItemData)
 		ItemImage.Get()->SetBrushFromTexture(CurItemData.GetIconTexture());
 		ItemImage.Get()->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 		ItemBackImage.Get()->SetBrushFromTexture(EmptyBackImg);
+		//ItemBackImage.Get()->SetBrushTintColor(Slate);
 		break;
 
 	case EItemType::Ammo:
@@ -56,6 +61,20 @@ void UIFItemBox::InitItemBox()
 	ItemImage.Get()->SetVisibility(ESlateVisibility::Hidden);
 	ItemBackImage.Get()->SetBrushFromTexture(EmptyBackImg);
 }
+
+void UIFItemBox::ItemSelected(bool bIsSelected)
+{
+	if (bIsSelected)
+	{
+		ItemBackImage.Get()->SetBrushFromTexture(ItemBackImg);
+	}
+	else
+	{
+		ItemBackImage.Get()->SetBrushFromTexture(EmptyBackImg);
+	}
+}
+
+	
 
 FIFItemData UIFItemBox::GetItemData()
 {

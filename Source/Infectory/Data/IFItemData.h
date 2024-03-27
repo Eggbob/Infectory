@@ -13,7 +13,7 @@ struct FIFItemData : public FTableRowBase
 	
 public:
 	FIFItemData(const int32& ID, const FString& ItemName, const FString& ToolTip, const FString& IconName, const int32& ItemPrice,
-		int32 Amount, int32 MaxAmount, int32 ItemEffectValue, const EItemType& ItemType)
+		int32 Amount, int32 MaxAmount, int32 ItemEffectValue, const EItemType& ItemType , const ERangedWeaponType& WeaponType)
 	{
 		this->ID = ID;
 		this->ItemName = ItemName;
@@ -24,6 +24,7 @@ public:
 		this->MaxAmount = MaxAmount;
 		this->ItemType = ItemType;
 		this->ItemEffectValue = ItemEffectValue;
+		this->WeaponType = WeaponType;
 	}
 
 	FIFItemData()
@@ -37,6 +38,7 @@ public:
 		MaxAmount = 999;
 		ItemEffectValue = 0;
 		ItemType = EItemType::None;
+		WeaponType = ERangedWeaponType::None;
 	}
 
 public:
@@ -57,6 +59,8 @@ public:
 	int32 GetItemEffectValue() const { return ItemEffectValue; }
 
 	EItemType GetItemType() const { return ItemType; }
+
+	ERangedWeaponType GetWeaponType() const { return WeaponType; }
 
 	class UTexture2D* GetIconTexture()
 	{
@@ -130,6 +134,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
 	EItemType ItemType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+	ERangedWeaponType WeaponType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
 	class UTexture2D* IconTexture;

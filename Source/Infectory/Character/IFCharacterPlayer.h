@@ -130,6 +130,9 @@ protected:
 	TObjectPtr<class UInputAction> InvenOpenAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
+	TObjectPtr<class UInputAction> InvenMoveAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class UInputAction> RegistAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

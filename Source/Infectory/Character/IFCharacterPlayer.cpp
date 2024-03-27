@@ -136,6 +136,12 @@ AIFCharacterPlayer::AIFCharacterPlayer()
 		InvenOpenAction = InvenOpenActionRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction>InvenMoveActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Assets/Input/Actions/IA_InvenMove.IA_InvenMove'"));
+	if (nullptr != InvenMoveActionRef.Object)
+	{
+		InvenMoveAction = InvenMoveActionRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UInputAction> RegistRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Assets/Input/Actions/IA_Regist.IA_Regist'"));
 	if (nullptr != RegistRef.Object)
 	{
@@ -338,8 +344,6 @@ void AIFCharacterPlayer::OnRightMouseClick()
 
 void AIFCharacterPlayer::Shoot()
 {
-	if (CurCharacterState != ECharacterState::Idle) return;
-
 	IsFiring = IsFiring ? false : true ;
 
 	if (IsFiring)
@@ -506,16 +510,21 @@ void AIFCharacterPlayer::ChangeWeaponBody(ERangedWeaponType NewWeaponType)
 
 void AIFCharacterPlayer::OpenInventory()
 {
-	if (InvenWidget && !InvenWidget.Get()->IsVisible())
+	if (InvenWidget)
 	{
-		InvenWidget.Get()->OpenInventory();
-		//PlayerCon.Get()->ChangeControllMode(false);
+		if (InvenWidget.Get()->IsVisible())
+		{
+			//InvenWidget.Get()->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+			InvenWidget.Get()->CloseInventory();
+			
+		}
+		else
+		{
+			//InvenWidget.Get()->SetVisibility(ESlateVisibility::Visible);
+			InvenWidget.Get()->OpenInventory();
+		}
 	}
-	else
-	{
-		InvenWidget.Get()->CloseInventory();
-		//PlayerCon.Get()->ChangeControllMode(true);
-	}
+
 }
 
 
@@ -569,6 +578,8 @@ void AIFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(QAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::OnQAction);
 	EnhancedInputComponent->BindAction(EAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::OnEAction);
 	EnhancedInputComponent->BindAction(InvenOpenAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::OpenInventory);
+	EnhancedInputComponent->BindAction(InvenMoveAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::DirectionKeyInput);
+
 }
 
 FVector AIFCharacterPlayer::GetGunHandPosition()
@@ -689,15 +700,7 @@ void AIFCharacterPlayer::DirectionKeyInput(const FInputActionValue& Value)
 	if(!InvenWidget.Get()->IsVisible()) return;
 
 	FVector2D DirectionVector = Value.Get<FVector2D>();
-
-	if (DirectionVector.X <= 0)
-	{
-
-	}
-	else
-	{
-
-	}
+	InvenWidget.Get()->SelectItem(DirectionVector);
 }
 
 void AIFCharacterPlayer::ShoulderMoveFinish()

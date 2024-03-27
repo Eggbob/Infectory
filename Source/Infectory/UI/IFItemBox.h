@@ -19,6 +19,8 @@ public:
 	UIFItemBox(const FObjectInitializer& ObjectInitializer);
 	void BindItemData(FIFItemData NewItemData);
 	void InitItemBox();
+	void ItemSelected(bool bIsSelected);
+
 	FIFItemData GetItemData();
 
 protected:
@@ -35,6 +37,7 @@ public:
 	TObjectPtr<class UTextBlock> ItemCountText;
 
 private:
+
 	FIFItemData CurItemData;
 	
 	UPROPERTY()
