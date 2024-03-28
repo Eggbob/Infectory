@@ -77,6 +77,10 @@ void UIFInventoryWidget::SetWeapon()
 {
 	if (PlayerInven.IsValid())
 	{
+		PlayerInven.Get()->CheckTotalAmmo(ERangedWeaponType::Rifle);
+		PlayerInven.Get()->CheckTotalAmmo(ERangedWeaponType::ShotGun);
+		PlayerInven.Get()->CheckTotalAmmo(ERangedWeaponType::Projectile);
+
 		AIFGunBase& WeaponRifle = PlayerInven.Get()->GetRangedWeapon(ERangedWeaponType::Rifle);
 		AIFGunBase& WeaponShotGun = PlayerInven.Get()->GetRangedWeapon(ERangedWeaponType::ShotGun);
 		AIFGunBase& WeaponProjectile = PlayerInven.Get()->GetRangedWeapon(ERangedWeaponType::Projectile);
@@ -139,6 +143,16 @@ void UIFInventoryWidget::SelectItem(FVector2D Direction)
 	else
 	{
 		ScrollBox.Get()->ScrollToStart();
+	}
+
+}
+
+void UIFInventoryWidget::UseItem()
+{
+	if (ItemBoxes[CurItemIndex].Get()->GetItemData().GetItemType() == EItemType::Potion)
+	{
+		PlayerInven.Get()->UseItem(CurItemIndex);
+		SetItem();
 	}
 
 }

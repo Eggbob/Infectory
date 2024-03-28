@@ -19,7 +19,7 @@ public:
 	void OpenInventory();
 	void CloseInventory();
 	void SelectItem(FVector2D Direction);
-
+	void UseItem();
 
 protected:
 	virtual void NativeConstruct() override;

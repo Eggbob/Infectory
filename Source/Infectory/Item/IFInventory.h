@@ -8,6 +8,8 @@
 #include "Data/IFItemData.h"
 #include "IFInventory.generated.h"
 
+DECLARE_DELEGATE_OneParam(FOnItemUse, int32);
+
 /**
  * 
  */
@@ -22,6 +24,11 @@ public:
 	void InitInventory(UWorld * World);
 	void RecallGadget(EGadgetType GadgetType);
 	void ChangeGadget(EGadgetType GadgetType);
+	void CheckTotalAmmo(ERangedWeaponType WeaponType);
+	int32 CheckReloadAmmo(ERangedWeaponType WeaponType, int32 NeedAmmo);
+	bool AddItem(FIFItemData ItemData);
+	void UseItem(int32 ItemIndex);
+	void UsePotion();
 
 	class AIFGunBase& GetRangedWeapon(ERangedWeaponType WeaponType);
 	class AIFGadget& GetGadget();
@@ -33,6 +40,11 @@ public:
 
 private:
 	void TestSetItem();
+	void RemoveItem(int32 ItemIdx);
+
+public:
+	TMap<ERangedWeaponType, int32> AmmoMap;
+	FOnItemUse OnItemUse;
 
 private:
 	UPROPERTY()

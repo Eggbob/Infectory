@@ -243,7 +243,7 @@ bool AIFGadget::CheckCanFire()
 {
 	if (Target)
 	{
-		if (Target.Get()->GetNPCState() == ENPCState::Dead)
+		if (Target.Get()->GetNPCState() == ENPCState::Dead || Target.Get()->GetNPCState() == ENPCState::BeforeDead)
 		{
 			Target = nullptr;
 			return false;

@@ -81,6 +81,8 @@ private:
 	void SetWeapon();
 	void OnQAction();
 	void OnEAction();
+	void OnEnterAction();
+	void DrinkPotion(int32 Value);
 
 public:
 	FOnRegistGrabDelegate RegistGrabDelegate;
@@ -125,6 +127,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class UInputAction> EAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
+	TObjectPtr<class UInputAction> EnterAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAcess = "true"))
 	TObjectPtr<class UInputAction> InvenOpenAction;

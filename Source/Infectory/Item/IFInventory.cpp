@@ -45,14 +45,17 @@ void UIFInventory::InitInventory(UWorld* World)
 	{
 		TObjectPtr<AIFGunBase> Rifle = World->SpawnActor<AIFGunBase>(RangedWeaponBP[ERangedWeaponType::Rifle]);
 		Rifle->SetActorHiddenInGame(true);
+		Rifle.Get()->ReloadDelegate.BindUObject(this, &UIFInventory::CheckReloadAmmo);
 		RangedWeapon.Add(ERangedWeaponType::Rifle, Rifle);
 
 		TObjectPtr<AIFGunBase> ShotGun = World->SpawnActor<AIFGunBase>(RangedWeaponBP[ERangedWeaponType::ShotGun]);
 		ShotGun->SetActorHiddenInGame(true);
+		ShotGun.Get()->ReloadDelegate.BindUObject(this, &UIFInventory::CheckReloadAmmo);
 		RangedWeapon.Add(ERangedWeaponType::ShotGun, ShotGun);
 
 		TObjectPtr<AIFGunBase> Launcher = World->SpawnActor<AIFGunBase>(RangedWeaponBP[ERangedWeaponType::Projectile]);
 		Launcher->SetActorHiddenInGame(true);
+		Launcher.Get()->ReloadDelegate.BindUObject(this, &UIFInventory::CheckReloadAmmo);
 		RangedWeapon.Add(ERangedWeaponType::Projectile, Launcher);
 
 		TObjectPtr<AIFGadget> Turret = World->SpawnActor<AIFGadget>(GadgetBP[EGadgetType::Turret]);
@@ -82,6 +85,104 @@ void UIFInventory::RecallGadget(EGadgetType GadgetType)
 void UIFInventory::ChangeGadget(EGadgetType GadgetType)
 {
 	CurGadgetType = GadgetType;
+}
+
+void UIFInventory::CheckTotalAmmo(ERangedWeaponType WeaponType)
+{
+	int32 TotalAmmo = 0;
+
+	for (FIFItemData Item : ItemList)
+	{
+		if (Item.GetItemType() == EItemType::Ammo)
+		{
+			if (Item.GetWeaponType() == WeaponType)
+			{
+				TotalAmmo += Item.GetAmount();
+			}
+			
+		}
+	}
+
+	if (!AmmoMap.Contains(WeaponType))
+	{
+		AmmoMap.Add(WeaponType, TotalAmmo);
+	}
+	else
+	{
+		AmmoMap[WeaponType] = TotalAmmo;
+	}
+
+	RangedWeapon[WeaponType].Get()->SetTotalAmmo(TotalAmmo);
+
+}
+
+int32 UIFInventory::CheckReloadAmmo(ERangedWeaponType WeaponType, int32 NeedAmmo)
+{
+	for (FIFItemData& Item : ItemList)
+	{
+		if (Item.GetItemType() == EItemType::Ammo)
+		{
+			if (Item.GetWeaponType() == WeaponType)
+			{
+				int amount = Item.GetAmount();
+
+				if (amount >= NeedAmmo)
+				{
+					Item.DcreaseAmount(NeedAmmo);
+					NeedAmmo = 0;
+					break;
+				}
+				else
+				{
+					Item.SetAmount(0);
+					NeedAmmo -= amount;
+				}
+
+			}
+
+		}
+	}
+
+	return NeedAmmo;
+}
+
+bool UIFInventory::AddItem(FIFItemData ItemData)
+{
+	int32 ItemIndex = ItemList.Num();
+	if (ItemIndex < 25)
+	{
+		ItemData.SetItemIndex(ItemIndex);
+		ItemData.OnItemEmpty.BindUObject(this, &UIFInventory::RemoveItem);
+
+		ItemList.Add(ItemData);
+
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+
+	return false;
+}
+
+void UIFInventory::UseItem(int32 ItemIdx)
+{
+	int32 Value = ItemList[ItemIdx].GetItemEffectValue();
+	ItemList[ItemIdx].DcreaseAmount(1);
+	OnItemUse.ExecuteIfBound(Value);
+}
+
+void UIFInventory::UsePotion()
+{
+	for (int i = 0; i < ItemList.Num(); i++)
+	{
+		if (ItemList[i].GetItemType() == EItemType::Potion)
+		{
+			UseItem(i);
+			break;
+		}
+	}
 }
 
 AIFGunBase& UIFInventory::GetRangedWeapon(ERangedWeaponType WeaponType)
@@ -122,7 +223,22 @@ AIFGadget& UIFInventory::GetGadget()
 
 void UIFInventory::TestSetItem()
 {
-	ItemList.Add(UIFGameSingleton::Get().GetItemData(1));
+	AddItem(UIFGameSingleton::Get().GetItemData(1));
+	AddItem(UIFGameSingleton::Get().GetItemData(2));
+	AddItem(UIFGameSingleton::Get().GetItemData(3));
+	AddItem(UIFGameSingleton::Get().GetItemData(4));
+	AddItem(UIFGameSingleton::Get().GetItemData(4));
+	AddItem(UIFGameSingleton::Get().GetItemData(4));
+	AddItem(UIFGameSingleton::Get().GetItemData(4));
+	AddItem(UIFGameSingleton::Get().GetItemData(5));
+	AddItem(UIFGameSingleton::Get().GetItemData(5));
+	AddItem(UIFGameSingleton::Get().GetItemData(5));
+	AddItem(UIFGameSingleton::Get().GetItemData(6));
+	AddItem(UIFGameSingleton::Get().GetItemData(6));
+	AddItem(UIFGameSingleton::Get().GetItemData(6));
+	AddItem(UIFGameSingleton::Get().GetItemData(8));
+
+	/*ItemList.Add(UIFGameSingleton::Get().GetItemData(1));
 	ItemList.Add(UIFGameSingleton::Get().GetItemData(2));
 	ItemList.Add(UIFGameSingleton::Get().GetItemData(3));
 	ItemList.Add(UIFGameSingleton::Get().GetItemData(4));
@@ -135,6 +251,11 @@ void UIFInventory::TestSetItem()
 	ItemList.Add(UIFGameSingleton::Get().GetItemData(6));
 	ItemList.Add(UIFGameSingleton::Get().GetItemData(6));
 	ItemList.Add(UIFGameSingleton::Get().GetItemData(6));
-	ItemList.Add(UIFGameSingleton::Get().GetItemData(8));
+	ItemList.Add(UIFGameSingleton::Get().GetItemData(8));*/
 
+}
+
+void UIFInventory::RemoveItem(int32 ItemIdx)
+{
+	ItemList.RemoveAt(ItemIdx);
 }

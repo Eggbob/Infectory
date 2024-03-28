@@ -12,7 +12,8 @@
 DECLARE_DELEGATE_OneParam(FOnFireGun, ERangedWeaponType);
 DECLARE_DELEGATE_OneParam(FOnShootDelegate, TSubclassOf<class ULegacyCameraShake>);
 DECLARE_DELEGATE_OneParam(FOnCrossHairDelegate, bool);
-DECLARE_DELEGATE_TwoParams(FOnReload, int32, int32); //현재 장탄수, 총 총알 수
+DECLARE_DELEGATE_RetVal_TwoParams(int32, FOnReload, ERangedWeaponType, int32 );
+
 
 #define MuzzleSocket "MuzzleFlashSocket"
 #define LeftHandSocket "LeftHandSocket"
@@ -40,6 +41,8 @@ public:
 	FORCEINLINE int32 GetTotalAmmo() const { return TotalAmmo; }
 	FORCEINLINE ERangedWeaponType GetWeaponType() const { return WeaponType; }
 
+	FORCEINLINE void SetTotalAmmo(int32 Ammo) { TotalAmmo = Ammo; }
+
 	UFUNCTION(Blueprintcallable)
 	void GiveDamage(AActor* HitActor, FCustomDamageEvent& Hit);
 
@@ -65,7 +68,7 @@ private:
 
 public:
 	FOnFireGun FireGunDelegate;
-	FOnReload AmmoChangedDelegate;
+	FOnReload ReloadDelegate;
 	FOnShootDelegate ShootDelegate;
 	FOnCrossHairDelegate CrossHairDelegate;
 

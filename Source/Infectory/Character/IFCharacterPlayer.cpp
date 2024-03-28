@@ -130,6 +130,12 @@ AIFCharacterPlayer::AIFCharacterPlayer()
 		EAction = EActionRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> EnterActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Assets/Input/Actions/IA_Enter.IA_Enter'"));
+	if (nullptr != EnterActionRef.Object)
+	{
+		EnterAction = EnterActionRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UInputAction>InvenOpenActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Assets/Input/Actions/IA_OpenInven.IA_OpenInven'"));
 	if (nullptr != InvenOpenActionRef.Object)
 	{
@@ -179,6 +185,7 @@ void AIFCharacterPlayer::BeginPlay()
 
 	Inventory = NewObject<UIFInventory>();
 	Inventory.Get()->InitInventory(GetWorld());
+	Inventory.Get()->OnItemUse.BindUObject(this, &AIFCharacterPlayer::DrinkPotion);
 
 	//HPBar = Cast<UIFPlayerHPBar>(GetComponentByClass<UWidgetComponent>()->GetWidget());
 	//BuildWidget = Cast<UIFBuildWidget>(GetComponentByClass<UWidgetComponent>()->GetWidget());
@@ -205,7 +212,7 @@ void AIFCharacterPlayer::BeginPlay()
 
 	SetWeapon();
 	UserWidget->UpdateAmmoState(CurGun.Get()->GetCurAmmo(), CurGun.Get()->GetTotalAmmo());
-	//CurGun.Get()->AmmoChangedDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateAmmoState);
+	//CurGun.Get()->ReloadDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateAmmoState);
 	CurGun.Get()->CrossHairDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateCrossHair);
 
 	AnimInstance = Cast<UIFPlayerAnimInstance>(GetMesh()->GetAnimInstance());
@@ -377,9 +384,9 @@ void AIFCharacterPlayer::Shoot()
 
 void AIFCharacterPlayer::Reload()
 {
-	if (IsFiring) return;
-	if (!CurGun.Get()->CanReload()) return;
-	if(CurCharacterState == ECharacterState::Reloading) return;
+	if (IsFiring) { UE_LOG(LogTemp, Warning, TEXT("Reload IsFiring")); return;}
+	if (!CurGun.Get()->CanReload()) { UE_LOG(LogTemp, Warning, TEXT("CanReload Error")); return; }
+	if(CurCharacterState == ECharacterState::Reloading) { UE_LOG(LogTemp, Warning, TEXT("Not Reloading State")); return; } 
 
 	CurCharacterState = ECharacterState::Reloading;
 	AnimInstance.Get()->SetCurSound(CurGun.Get()->ReloadSound);
@@ -502,7 +509,7 @@ void AIFCharacterPlayer::ChangeWeaponBody(ERangedWeaponType NewWeaponType)
 		CurGun.Get()->SetActorHiddenInGame(false);
 
 		UserWidget->UpdateAmmoState(CurGun->GetCurAmmo(), CurGun->GetTotalAmmo());
-		//CurGun.Get()->AmmoChangedDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateAmmoState);
+		//CurGun.Get()->ReloadDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateAmmoState);
 		CurGun.Get()->CrossHairDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateCrossHair);
 		CurCharacterState = ECharacterState::Idle;
 		});
@@ -577,6 +584,7 @@ void AIFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(SpawnTurretAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::SetBuildMode);
 	EnhancedInputComponent->BindAction(QAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::OnQAction);
 	EnhancedInputComponent->BindAction(EAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::OnEAction);
+	EnhancedInputComponent->BindAction(EnterAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::OnEnterAction);
 	EnhancedInputComponent->BindAction(InvenOpenAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::OpenInventory);
 	EnhancedInputComponent->BindAction(InvenMoveAction, ETriggerEvent::Started, this, &AIFCharacterPlayer::DirectionKeyInput);
 
@@ -609,12 +617,20 @@ void AIFCharacterPlayer::SetWeapon()
 
 void AIFCharacterPlayer::OnQAction()
 {
-	if (CurCharacterState == ECharacterState::Building)
+	switch (CurCharacterState)
 	{
+	case ECharacterState::Idle:
+		Inventory.Get()->UsePotion();
+		break;
+
+	case ECharacterState::Building:
 		Inventory.Get()->ChangeGadget(EGadgetType::Turret);
 		BuildWidget.Get()->ChangeGadget(EGadgetType::Turret);
 		BuildWidget.Get()->SetGadgetName(FText::FromString("Turret"));
+		break;
 	}
+
+	
 }
 
 void AIFCharacterPlayer::OnEAction()
@@ -625,6 +641,20 @@ void AIFCharacterPlayer::OnEAction()
 		BuildWidget.Get()->ChangeGadget(EGadgetType::Shield);
 		BuildWidget.Get()->SetGadgetName(FText::FromString("Shield"));
 	}
+}
+
+void AIFCharacterPlayer::OnEnterAction()
+{
+	if (!InvenWidget.Get()->IsVisible()) return;
+	
+	InvenWidget.Get()->UseItem();
+}
+
+void AIFCharacterPlayer::DrinkPotion(int32 Value)
+{
+	int32 PerHp = StatComp.Get()->GetMaxHp() / 3;
+
+	StatComp->HealHp(PerHp * Value);
 }
 
 void AIFCharacterPlayer::SetupUserWidget(TObjectPtr<UIFUserWidget> InUserWidget)

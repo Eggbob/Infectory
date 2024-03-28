@@ -275,7 +275,7 @@ void AIFGunBase::StartFire(FVector TargetLoc)
 	
 	CurrentAmmo--;
 	UpdateAmmoWidget();
-	//AmmoChangedDelegate.ExecuteIfBound(CurrentAmmo, TotalAmmo);
+	//ReloadDelegate.ExecuteIfBound(CurrentAmmo, TotalAmmo);
 
 	ShootDelegate.ExecuteIfBound(CameraShake);
 	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, Mesh, MuzzleSocket);
@@ -321,7 +321,13 @@ void AIFGunBase::StopFire()
 
 void AIFGunBase::Reload()
 {
-	TotalAmmo += CurrentAmmo;
+	int32 NeedAmmo = MagazineCapacity - CurrentAmmo;
+
+	int32 ReloadAmmo = ReloadDelegate.Execute(WeaponType, NeedAmmo);
+
+	CurrentAmmo += (MagazineCapacity - ReloadAmmo);
+
+	/*TotalAmmo += CurrentAmmo;
 
 	if (TotalAmmo >= MagazineCapacity)
 	{
@@ -332,10 +338,9 @@ void AIFGunBase::Reload()
 	{
 		CurrentAmmo = TotalAmmo;
 		TotalAmmo = 0;
-	}
+	}*/
 
 	UpdateAmmoWidget();
-	//AmmoChangedDelegate.ExecuteIfBound(CurrentAmmo, TotalAmmo);
 
 }
 

@@ -33,6 +33,7 @@ void UIFStatComponent::InitializeComponent()
 void UIFStatComponent::HealHp(float InHealAmount)
 {
 	CurrentHp = FMath::Clamp(CurrentHp + InHealAmount, 0, MaxHp);
+	OnHpChanged.Broadcast(CurrentHp);
 }
 
 /// <summary>

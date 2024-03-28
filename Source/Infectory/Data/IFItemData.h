@@ -6,6 +6,8 @@
 #include "Data/IFEnumDefine.h"
 #include "IFItemData.generated.h"
 
+DECLARE_DELEGATE_OneParam(FOnItemEmpty, int32);
+
 USTRUCT(BlueprintType)
 struct FIFItemData : public FTableRowBase
 {
@@ -98,14 +100,31 @@ public:
 	void SetAmount(int32 amount)
 	{
 		this->Amount = FMath::Clamp(amount, 0, MaxAmount);
+
+		if (this->Amount == 0)
+		{
+			OnItemEmpty.ExecuteIfBound(ItemIndex);
+		}
 	}
 
 	void DcreaseAmount(int32 DecreaseAmount)
 	{
 		int32 DecreaseItem = Amount - DecreaseAmount;
 		Amount = FMath::Clamp(DecreaseItem, 0, MaxAmount);
+
+		if (this->Amount == 0)
+		{
+			OnItemEmpty.ExecuteIfBound(ItemIndex);
+		}
 	}
 
+	void SetItemIndex(int32 Idx)
+	{
+		ItemIndex = Idx;
+	}
+
+public:
+	FOnItemEmpty OnItemEmpty;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
@@ -140,4 +159,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
 	class UTexture2D* IconTexture;
+
+
+private:
+	int32 ItemIndex;
 };
