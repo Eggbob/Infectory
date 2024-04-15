@@ -35,6 +35,7 @@ public:
 	void PlayStandUpAnimation();
 	void PlayBreathAttackAnimation();
 	void PlayRandomHitAnimation();
+	void PlayInteractAnimation();
 
 protected:
 	virtual void NativeInitializeAnimation() override;
@@ -82,6 +83,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
 	float LastYaw;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> InteractAnimation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TArray<TObjectPtr<class UAnimMontage>> IdleAnimations;

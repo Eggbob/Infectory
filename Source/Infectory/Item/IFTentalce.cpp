@@ -49,7 +49,7 @@ void AIFTentalce::GiveDamage(AActor* Target)
 }
 
 /// <summary>
-/// Âî¸£±â °ø°Ý½ÇÇà
+/// ï¿½î¸£ï¿½ï¿½ ï¿½ï¿½ï¿½Ý½ï¿½ï¿½ï¿½
 /// </summary>
 void AIFTentalce::PierceAttack()
 {

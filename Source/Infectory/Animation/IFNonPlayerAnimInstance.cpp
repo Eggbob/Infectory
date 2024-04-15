@@ -10,7 +10,7 @@
 
 UIFNonPlayerAnimInstance::UIFNonPlayerAnimInstance()
 {
-
+	
 }
 
 void UIFNonPlayerAnimInstance::PlayAttackAnimation(float AttackSpeed)
@@ -132,6 +132,14 @@ void UIFNonPlayerAnimInstance::PlayRandomHitAnimation()
 		}
 	), HitAnimations[index].Get()->GetPlayLength(), false);
 
+}
+
+void UIFNonPlayerAnimInstance::PlayInteractAnimation()
+{
+	if (IsValid(InteractAnimation))
+	{
+		Montage_Play(InteractAnimation, 1.0f);
+	}
 }
 
 

@@ -22,6 +22,7 @@ public:
 	virtual void StopAI();
 	void SetTarget(TObjectPtr<AActor> Target);
 	void MoveToTarget(float Range);
+	bool CheckPath();
 
 	virtual void UpdateControlRotation(float DeltaTime, bool bUpdatePawn = true) override;
 	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;

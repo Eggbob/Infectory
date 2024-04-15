@@ -28,7 +28,9 @@ class INFECTORY_API AIFSpawnManager : public AActor
 	
 public:	
 	AIFSpawnManager();
-	~AIFSpawnManager();
+
+	UFUNCTION(BlueprintCallable)
+	void OrderSpawn();
 
 protected:
 	virtual void BeginPlay() override;
@@ -40,7 +42,7 @@ private:
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Spawner)
-	TArray<FNPCTable> NPCSpawnTable;
+	 TArray<FNPCTable> NPCSpawnTable;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Spawner)
 	TObjectPtr<class UBillboardComponent> BasicSpawnPoint;
@@ -52,6 +54,8 @@ protected:
 	TArray<TObjectPtr<class UBillboardComponent>> SpawnPoints;
 
 private:
+	bool bIsActivated;
+
 	UPROPERTY()
 	TObjectPtr<class USceneComponent> SceneComp;
 

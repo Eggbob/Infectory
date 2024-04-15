@@ -18,8 +18,11 @@ class INFECTORY_API UIFItemBox : public UUserWidget
 public:
 	UIFItemBox(const FObjectInitializer& ObjectInitializer);
 	void BindItemData(FIFItemData NewItemData);
-	void InitItemBox();
+	void InitItemBox(bool bIsShop);
 	void ItemSelected(bool bIsSelected);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetCurItemImage(class UTexture2D* CurItemImage);
 
 	FIFItemData GetItemData();
 
@@ -27,7 +30,7 @@ protected:
 	virtual void NativeConstruct() override;
 	
 public:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (BindWidget))
+	//UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (BindWidget))
 	TObjectPtr<class UImage> ItemImage;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (BindWidget))
@@ -35,6 +38,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (BindWidget))
 	TObjectPtr<class UTextBlock> ItemCountText;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (BindWidget))
+	TObjectPtr<class UTextBlock> ItemPriceText;
 
 private:
 

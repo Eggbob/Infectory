@@ -325,23 +325,8 @@ void AIFGunBase::Reload()
 
 	int32 ReloadAmmo = ReloadDelegate.Execute(WeaponType, NeedAmmo);
 
-	CurrentAmmo += (MagazineCapacity - ReloadAmmo);
-
-	/*TotalAmmo += CurrentAmmo;
-
-	if (TotalAmmo >= MagazineCapacity)
-	{
-		CurrentAmmo = MagazineCapacity;
-		TotalAmmo -= MagazineCapacity;
-	}
-	else
-	{
-		CurrentAmmo = TotalAmmo;
-		TotalAmmo = 0;
-	}*/
-
+	CurrentAmmo += ReloadAmmo; 
 	UpdateAmmoWidget();
-
 }
 
 bool AIFGunBase::CanReload()

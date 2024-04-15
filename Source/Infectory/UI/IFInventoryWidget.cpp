@@ -2,6 +2,7 @@
 
 
 #include "UI/IFInventoryWidget.h"
+#include "UI/IFItemInfoBox.h"
 #include "UI/IFWeaponBox.h"
 #include "UI/IFItemBox.h"
 #include "Item/IFGunBase.h"
@@ -29,6 +30,7 @@ void UIFInventoryWidget::NativeConstruct()
 
 	for (UUserWidget* Widget : ItemBoxWidgetRef)
 	{
+		//ItemBoxes.Add(Cast<UIFItemInfoBox>(Widget));
 		ItemBoxes.Add(Cast<UIFItemBox>(Widget));
 	}
 
@@ -64,7 +66,7 @@ void UIFInventoryWidget::OpenInventory()
 	CurItemExplainText.Get()->SetVisibility(ESlateVisibility::Hidden);*/
 
 	FVector2D Vect = FVector2D(0, 0);
-
+	//CurItemIndex = 0;
 	SelectItem(Vect);
 }
 
@@ -95,7 +97,7 @@ void UIFInventoryWidget::SetItem()
 {
 	for (UIFItemBox* box : ItemBoxes)
 	{
-		box->InitItemBox();
+		box->InitItemBox(false);
 	}
 	
 	TArray<FIFItemData> Items = PlayerInven.Get()->GetItemList();
@@ -133,7 +135,6 @@ void UIFInventoryWidget::SelectItem(FVector2D Direction)
 		CurItemImg.Get()->SetBrushFromTexture(CurItem.GetIconTexture());
 		CurItemNameText.Get()->SetText(FText::FromString(CurItem.GetItemName()));
 		CurItemExplainText.Get()->SetText(FText::FromString(CurItem.GetToolTip()));
-		ScrollBox.Get()->ScrollToEnd();
 	}
 
 	if (CurItemIndex > 15)

@@ -45,25 +45,15 @@ public:
 
 public:
 	int32 GetID() const { return ID; }
-
 	FString GetItemName() const { return ItemName; }
-
 	FString GetToolTip() const { return ToolTip; }
-
 	FString GetIconName() const { return IconName; }
-
 	int32 GetItemPrice() const { return ItemPrice; }
-
 	int32 GetAmount() const { return Amount; }
-
 	int32 GetMaxAmount() const { return MaxAmount; }
-
 	int32 GetItemEffectValue() const { return ItemEffectValue; }
-
 	EItemType GetItemType() const { return ItemType; }
-
 	ERangedWeaponType GetWeaponType() const { return WeaponType; }
-
 	class UTexture2D* GetIconTexture()
 	{
 		if (IconTexture == nullptr)
@@ -143,10 +133,10 @@ protected:
 	int32 ItemPrice;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
-	int32 Amount; //ÇöÀç ¼ÒÁö ¾ÆÀÌÅÛ °³¼ö
+	int32 Amount; //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
-	int32 MaxAmount; //ÃÖ´ë ¼ÒÁö ¾ÆÀÌÅÛ °³¼ö
+	int32 MaxAmount; //ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
 	int32 ItemEffectValue;

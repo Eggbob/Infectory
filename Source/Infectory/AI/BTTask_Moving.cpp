@@ -27,7 +27,11 @@ EBTNodeResult::Type UBTTask_Moving::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 		return EBTNodeResult::Failed;
 	}
 
-	AIPawn->PerformMoving();
+	if(AIPawn->CheckPath())
+	{
+		AIPawn->PerformMoving();
+	}
+
 
 	return EBTNodeResult::Succeeded;
 }

@@ -28,6 +28,7 @@ public:
 	virtual float GetAIAttackRange() override;
 	virtual float GetAITurnSpeed() override;
 	virtual void FocusingTarget(TObjectPtr<AActor> TargetActor) override;
+	virtual bool CheckPath() override;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void InitPhysicsAnimation();
@@ -52,6 +53,8 @@ protected:
 	virtual void PerformWaiting(bool bIsFirstContact) override;
 	virtual void ReadyToExplosion() override;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void StartMoving();
 	void StartBackJump();
 	void SetHitWalkSpeed();
 	void ChangeToBomb();
@@ -128,6 +131,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<class AActor> TargetActor;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<class AIFAIController> AIController;
+
 	UPROPERTY()
 	TMap<ENPCBoneName, int32> BodyDamageCheckMap;
 
@@ -136,8 +142,7 @@ private:
 	bool bJustExplose = false;
 	bool bIsWaitTime = false;
 
-	UPROPERTY()
-	TObjectPtr<class AIFAIController> AIController;
+
 
 	FTimerHandle GlowTimerHandle;
 

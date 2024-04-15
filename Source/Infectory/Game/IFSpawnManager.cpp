@@ -7,6 +7,8 @@
 #include "Character/IFCharacterNonPlayer.h"
 #include "Components/BillboardComponent.h"
 #include "Engine/DataTable.h"
+#include "Game/IFGameMode.h"
+#include "Game/IFObjectPoolManager.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 AIFSpawnManager::AIFSpawnManager()
@@ -26,11 +28,16 @@ AIFSpawnManager::AIFSpawnManager()
 	{
 		NPCClass = NpcClassRef.Class;
 	}
+
+	bIsActivated = false;
 }
 
-AIFSpawnManager::~AIFSpawnManager()
-{
 
+void AIFSpawnManager::OrderSpawn()
+{
+	if (bIsActivated) return;
+
+	SpawnNPC();
 }
 
 void AIFSpawnManager::BeginPlay()
@@ -43,6 +50,10 @@ void AIFSpawnManager::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
+	if (bIsActivated) return;
+
+	BoxComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	if (SpawnPoints.Num() == NPCSpawnTable.Num())
 	{
 		SpawnNPC();
@@ -53,17 +64,30 @@ void AIFSpawnManager::NotifyActorBeginOverlap(AActor* OtherActor)
 	}
 
 	
-	BoxComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 }
 
 void AIFSpawnManager::SpawnNPC()
 {
+	bIsActivated = true;
+
+	TObjectPtr<AIFGameMode> GameMode = Cast<AIFGameMode>(GetWorld()->GetAuthGameMode());
+	
 	for(int i = 0; i < NPCSpawnTable.Num(); i++)
 	{
-		TObjectPtr<AIFCharacterNonPlayer> NPC = GetWorld()->SpawnActor<AIFCharacterNonPlayer>(NPCClass, SpawnPoints[i].Get()->GetComponentLocation(), SpawnPoints[i].Get()->GetComponentRotation());
-		NPC->SetNPCType(NPCSpawnTable[i].CurNPCType, NPCSpawnTable[i].CurNPCTier);
-		SpawnedNpcs.Add(NPC);
+		TObjectPtr<AIFCharacterNonPlayer> NPC = Cast<AIFCharacterNonPlayer>(GameMode.Get()->GetPoolManager().Get()->Pop(NPCClass, GetWorld()));
+			//GetWorld()->SpawnActor<AIFCharacterNonPlayer>(NPCClass, SpawnPoints[i].Get()->GetComponentLocation(), SpawnPoints[i].Get()->GetComponentRotation());
+		
+		if (NPC != nullptr)
+		{
+			NPC->SetNPCType(NPCSpawnTable[i].CurNPCType, NPCSpawnTable[i].CurNPCTier);
+			NPC->SetActorLocation(SpawnPoints[i].Get()->GetComponentLocation());
+			SpawnedNpcs.Add(NPC);
+		}
+	
 	}
+
+	
 }
 
 

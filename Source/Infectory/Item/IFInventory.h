@@ -26,9 +26,16 @@ public:
 	void ChangeGadget(EGadgetType GadgetType);
 	void CheckTotalAmmo(ERangedWeaponType WeaponType);
 	int32 CheckReloadAmmo(ERangedWeaponType WeaponType, int32 NeedAmmo);
-	bool AddItem(FIFItemData ItemData);
 	void UseItem(int32 ItemIndex);
 	void UsePotion();
+	void SetCredit(int32 Credit);
+	void RemoveItem(int32 ItemIdx);
+
+	UFUNCTION(BlueprintCallable)
+	bool CheckItem(int32 ItemID);
+
+	UFUNCTION(BlueprintCallable)
+	bool AddItem(FIFItemData ItemData);
 
 	class AIFGunBase& GetRangedWeapon(ERangedWeaponType WeaponType);
 	class AIFGadget& GetGadget();
@@ -40,7 +47,7 @@ public:
 
 private:
 	void TestSetItem();
-	void RemoveItem(int32 ItemIdx);
+
 
 public:
 	TMap<ERangedWeaponType, int32> AmmoMap;

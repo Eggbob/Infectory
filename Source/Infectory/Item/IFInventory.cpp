@@ -129,7 +129,7 @@ int32 UIFInventory::CheckReloadAmmo(ERangedWeaponType WeaponType, int32 NeedAmmo
 				if (amount >= NeedAmmo)
 				{
 					Item.DcreaseAmount(NeedAmmo);
-					NeedAmmo = 0;
+					//NeedAmmo = 0;
 					break;
 				}
 				else
@@ -183,6 +183,24 @@ void UIFInventory::UsePotion()
 			break;
 		}
 	}
+}
+
+void UIFInventory::SetCredit(int32 Credit)
+{
+	CurCredit = FMath::Clamp(Credit , 0, Credit);
+}
+
+bool UIFInventory::CheckItem(int32 ItemID)
+{
+	for (FIFItemData Item : ItemList)
+	{
+		if (Item.GetID() == ItemID)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 AIFGunBase& UIFInventory::GetRangedWeapon(ERangedWeaponType WeaponType)
@@ -257,5 +275,9 @@ void UIFInventory::TestSetItem()
 
 void UIFInventory::RemoveItem(int32 ItemIdx)
 {
-	ItemList.RemoveAt(ItemIdx);
+	if (ItemList.IsValidIndex(ItemIdx))
+	{
+		ItemList.RemoveAt(ItemIdx);
+	}
+
 }

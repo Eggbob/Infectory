@@ -3,6 +3,8 @@
 
 #include "AI/BTDecorator_CheckCanActive.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Interface/IFCharacterAIInterface.h"
+#include "AIController.h"
 #include "AI/IFAI.h"
 
 
@@ -15,9 +17,23 @@ bool UBTDecorator_CheckCanActive::CalculateRawConditionValue(UBehaviorTreeCompon
 {
 	bool bResult = Super::CalculateRawConditionValue(OwnerComp, NodeMemory);
 
+	TObjectPtr<APawn> ControllingPawn = Cast<APawn>(OwnerComp.GetAIOwner()->GetPawn());
+	if (nullptr == ControllingPawn)
+	{
+		return EBTNodeResult::Failed;
+	}
+
+	IIFCharacterAIInterface* AIPawn = Cast<IIFCharacterAIInterface>(ControllingPawn);
+
+	if (nullptr == AIPawn)
+	{
+		return EBTNodeResult::Failed;
+	}
+
+
 	bool bIsHit;
 
 	bIsHit = OwnerComp.GetBlackboardComponent()->GetValueAsBool(BBKEY_ISHIT);
 
-	return bIsHit;
+	return bIsHit && AIPawn->CheckPath();
 }

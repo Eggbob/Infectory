@@ -6,6 +6,8 @@
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "NavigationSystem.h"
+#include "NavigationPath.h"
 #include "IFAI.h"
 
 AIFAIController::AIFAIController()
@@ -36,7 +38,7 @@ void AIFAIController::RunAI()
 	if (UseBlackboard(BBAsset, BlackboardPtr))
 	{
 		Blackboard.Get()->SetValueAsBool(BBKEY_ISFIRSTCONTACT, true);
-		Blackboard.Get()->SetValueAsBool(BBKEY_ISMOVING, true);
+		Blackboard.Get()->SetValueAsBool(BBKEY_ISMOVING, false);
 		Blackboard.Get()->SetValueAsBool(BBKEY_ISHIT, false);
 		Blackboard->SetValueAsVector(BBKEY_HOMEPOS, GetPawn()->GetActorLocation());
 
@@ -68,10 +70,25 @@ void AIFAIController::SetTarget(TObjectPtr<AActor> Target)
 
 void AIFAIController::MoveToTarget(float Range)
 {
-	float ExceptRange = 10.f;//FMath::RandRange(100.f, 190.f);
+	float ExceptRange = -10.f;// FMath::RandRange(100.f, 190.f);
 
 	TWeakObjectPtr<AActor> Target = Cast<AActor>(Blackboard.Get()->GetValueAsObject(BBKEY_TARGET));
 	MoveToActor(Target.Get(), ExceptRange, true, true, true, 0, true);
+
+	Blackboard.Get()->SetValueAsBool(BBKEY_ISMOVING, true);
+}
+
+bool AIFAIController::CheckPath()
+{
+	FVector PathStart = GetPawn()->GetActorLocation();
+	TWeakObjectPtr<AActor> Target = Cast<AActor>(Blackboard.Get()->GetValueAsObject(BBKEY_TARGET));
+
+
+	UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, PathStart, Target->GetActorLocation(), NULL);
+	
+	if (!NavPath) return false;
+
+	return !NavPath->IsPartial();
 }
 
 

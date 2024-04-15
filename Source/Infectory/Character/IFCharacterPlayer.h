@@ -27,6 +27,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class AIFGunBase* GetCurGun() { return CurGun.Get(); }
 
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE class UIFInventory* GetInventory() { return Inventory.Get(); }
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetBuildMode();
 
@@ -38,6 +41,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void StartGrabbing();
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE class UIFUserWidget* GetUserWidget() { return UserWidget; }
 
 	void ResistGrabbing();
 
@@ -184,6 +190,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterControl, Meta = (AllowPrivateAccess = "true"))
 	ECharacterState CurCharacterState;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<class UIFInventoryWidget> InvenWidget;
+
 	ERangedWeaponType CurWeaponType;
 	ECharacterControlType CurControlType;
 	
@@ -206,8 +215,7 @@ private:
 	UPROPERTY()
 	TObjectPtr<class UIFPlayerHPBar> HPBar;
 
-	UPROPERTY()
-	TObjectPtr<class UIFInventoryWidget> InvenWidget;
+
 
 	UPROPERTY()
 	TObjectPtr<class AIFGameMode> GameMode;

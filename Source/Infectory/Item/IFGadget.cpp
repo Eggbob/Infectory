@@ -122,7 +122,7 @@ void AIFGadget::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!bIsStart) return;
+	if (!bIsStart && GadgetType != EGadgetType::Turret) return;
 
 	if (CheckCanFire())
 	{
@@ -157,6 +157,14 @@ void AIFGadget::SearchTarget()
 			if (OverlapResult.GetActor()->IsA(AIFCharacterNonPlayer::StaticClass()))
 			{
 				Target = Cast<AIFCharacterNonPlayer>(OverlapResult.GetActor());
+				if (Target.Get()->GetNPCState() == ENPCState::Dead || Target.Get()->GetNPCState() == ENPCState::BeforeDead)
+				{
+					Target = nullptr;
+				}
+				else
+				{
+					return;
+				}
 				/*DrawDebugSphere(GetWorld(), GetActorLocation(), 1000.f, 16, FColor::Green, false, 0.2f);
 				DrawDebugPoint(GetWorld(), Actor.Get()->GetActorLocation(), 10.0f, FColor::Green, false, 0.2f);
 				DrawDebugLine(GetWorld(), GetActorLocation(), Actor->GetActorLocation(), FColor::Green, false, 0.27f);*/
@@ -198,7 +206,7 @@ void AIFGadget::GiveDamage(FHitResult& Hit)
 {
 	TWeakObjectPtr<AActor> HitActor = Hit.GetActor();
 
-	if (HitActor != nullptr)
+	if (HitActor != nullptr && HitActor->IsA<AIFCharacterNonPlayer>())
 	{
 		FCustomDamageEvent CustomDamageEvent;
 

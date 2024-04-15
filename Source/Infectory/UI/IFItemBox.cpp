@@ -35,31 +35,48 @@ void UIFItemBox::BindItemData(FIFItemData NewItemData)
 	case EItemType::Potion:
 	case EItemType::Goods:
 		ItemCountText.Get()->SetVisibility(ESlateVisibility::Hidden);
+		//SetCurItemImage(CurItemData.GetIconTexture());
 		ItemImage.Get()->SetBrushFromTexture(CurItemData.GetIconTexture());
-		ItemImage.Get()->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+		ItemImage.Get()->SetVisibility(ESlateVisibility::Visible);
 		ItemBackImage.Get()->SetBrushFromTexture(EmptyBackImg);
+		ItemPriceText.Get()->SetText(FText::FromString(FString::FromInt(CurItemData.GetItemPrice())));
 		//ItemBackImage.Get()->SetBrushTintColor(Slate);
 		break;
 
 	case EItemType::Ammo:
 		ItemCountText.Get()->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 		ItemCountText.Get()->SetText(FText::FromString(FString::FromInt(CurItemData.GetAmount())));
+		ItemPriceText.Get()->SetText(FText::FromString(FString::FromInt(CurItemData.GetItemPrice())));
+		//SetCurItemImage(CurItemData.GetIconTexture());
 		ItemImage.Get()->SetBrushFromTexture(CurItemData.GetIconTexture());
-		ItemImage.Get()->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+		ItemImage.Get()->SetVisibility(ESlateVisibility::Visible);
 		ItemBackImage.Get()->SetBrushFromTexture(EmptyBackImg);
 		break;
 
 	case EItemType::None:
-		InitItemBox();
+		//InitItemBox();
 		break;
 	}
 }
 
-void UIFItemBox::InitItemBox()
+void UIFItemBox::InitItemBox(bool bIsShop = false)
 {
+	/*ItemCountText.Get()->SetVisibility(ESlateVisibility::Visible);
+	ItemImage.Get()->SetVisibility(ESlateVisibility::Visible);*/
+
 	ItemCountText.Get()->SetVisibility(ESlateVisibility::Hidden);
 	ItemImage.Get()->SetVisibility(ESlateVisibility::Hidden);
 	ItemBackImage.Get()->SetBrushFromTexture(EmptyBackImg);
+
+	if (bIsShop)
+	{
+		ItemPriceText.Get()->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	}
+	else
+	{
+		ItemPriceText.Get()->SetVisibility(ESlateVisibility::Hidden);
+	}
+
 }
 
 void UIFItemBox::ItemSelected(bool bIsSelected)
@@ -73,8 +90,6 @@ void UIFItemBox::ItemSelected(bool bIsSelected)
 		ItemBackImage.Get()->SetBrushFromTexture(EmptyBackImg);
 	}
 }
-
-	
 
 FIFItemData UIFItemBox::GetItemData()
 {
@@ -90,7 +105,8 @@ void UIFItemBox::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	ItemImage = Cast<UImage>(GetWidgetFromName(TEXT("ItemImage")));
+	ItemImage = Cast<UImage>(GetWidgetFromName(TEXT("CurItemImage")));
 	ItemBackImage = Cast<UImage>(GetWidgetFromName(TEXT("ItemBackImage")));
 	ItemCountText = Cast<UTextBlock>(GetWidgetFromName(TEXT("ItemCountText")));
+	ItemPriceText = Cast<UTextBlock>(GetWidgetFromName(TEXT("ItemPriceText")));
 }

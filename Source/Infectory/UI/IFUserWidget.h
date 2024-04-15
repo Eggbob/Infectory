@@ -19,6 +19,12 @@ public:
 	void UpdateCrossHair(bool bIsHit);
 	void ActiveCrossHair(bool bIsActive);
 
+	UFUNCTION(BlueprintCallable)
+	void UpdateNotifyText(const FText& InText);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void DisableNotifyText();
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateGrabBarCount(int32 InPressCnt);
 
@@ -37,4 +43,7 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<class UIFAmmoWidget> AmmoWidget;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TObjectPtr<class UTextBlock> NotifyText;
 };

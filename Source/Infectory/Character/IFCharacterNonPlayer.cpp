@@ -259,9 +259,30 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 /// <param name="TargetActor"></param>
 void AIFCharacterNonPlayer::FocusingTarget(TObjectPtr<AActor> InTargetActor)
 {
+	if (CurNPCType == ENPCType::Boss && TargetActor == nullptr)
+	{
+		AnimInstance.Get()->PlayInteractAnimation();
+	}
+
 	TargetActor = InTargetActor;
 	AIController->SetTarget(InTargetActor);
+	
+
 	//AIController->SetFocus(TargetActor, EAIFocusPriority::Gameplay);
+}
+
+bool AIFCharacterNonPlayer::CheckPath()
+{
+	if (GetDistanceTo(TargetActor.Get()) >= 4000.f)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CheckPath Fail"));
+
+		TargetActor = nullptr;
+
+		return false;
+	}
+
+	return AIController->CheckPath();
 }
 
 /// <summary>
@@ -317,9 +338,10 @@ void AIFCharacterNonPlayer::NotifyAttackActionEnd()
 
 void AIFCharacterNonPlayer::PerformMoving()
 {
-	if (CurNpcState != ENPCState::Dead)
+	if (CurNpcState != ENPCState::Dead )
 	{
-		AIController->MoveToTarget(GetAIAttackRange());
+		StartMoving();
+		//AIController->MoveToTarget(GetAIAttackRange());
 	}
 }
 

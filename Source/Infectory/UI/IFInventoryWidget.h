@@ -28,7 +28,6 @@ protected:
 	void SetCredit();
 	void SetUpgradeGier();
 
-
 private:
 	int32 CurItemIndex = 0;
 
@@ -36,6 +35,9 @@ private:
 	TArray<TObjectPtr<class UIFWeaponBox>> WeaponWidgets;
 	UPROPERTY()
 	TArray<TObjectPtr<class UIFItemBox>> ItemBoxes;
+
+	//UPROPERTY()
+	//TArray<TObjectPtr<class UIFItemInfoBox>> ItemBoxes;
 
 	UPROPERTY()
 	TObjectPtr<class UImage> CurItemImg;
@@ -51,6 +53,6 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<class UScrollBox> ScrollBox;
-
+	UPROPERTY()
 	TWeakObjectPtr<class UIFInventory> PlayerInven;
 };

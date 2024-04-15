@@ -47,10 +47,19 @@ void AIFCharacterBoss::BeginPlay()
 void AIFCharacterBoss::SetDead()
 {
 	Super::SetDead();
+
+	for (AIFTentalce* Tentacle : TentacleArray)
+	{
+		Tentacle->Destroy();
+	}
+
+	AnimInstance.Get()->PlayDeadAnim();
+
+	AIController.Get()->StopAI();
 }
 
 /// <summary>
-/// ÃË¼ö Âî¸£±â °ø°Ý
+/// ï¿½Ë¼ï¿½ ï¿½î¸£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 /// </summary>
 void AIFCharacterBoss::PerformPierceAttack()
 {
@@ -126,12 +135,12 @@ void AIFCharacterBoss::SetNPCType(ENPCType NpcName, FName NpcTier)
 }
 
 /// <summary>
-/// º¸½º ÆÐÅÏ ½ÇÇà
+/// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 /// </summary>
 /// <param name="BossPattern"></param>
 void AIFCharacterBoss::CheckPattern(EBossPattern BossPattern)
 {
-	//ÇöÀç °ø°Ý°¡´ÉÇÑ »óÅÂ°¡ ¾Æ´Ï¶ó¸é ÆÐÅÏÀ» ÀúÀå
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ý°ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â°ï¿½ ï¿½Æ´Ï¶ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	if (CurBossState != EBossState::Idle)
 	{
 		PatternArray.Add(BossPattern);
@@ -261,7 +270,7 @@ void AIFCharacterBoss::AttackHitCheck()
 }
 
 /// <summary>
-/// ÆÐÅÏ½ÇÇà
+/// ï¿½ï¿½ï¿½Ï½ï¿½ï¿½ï¿½
 /// </summary>
 /// <param name="Pattern"></param>
 void AIFCharacterBoss::ExecutePattern(EBossPattern Pattern)
@@ -313,7 +322,7 @@ void AIFCharacterBoss::CheckTentacle()
 }
 
 /// <summary>
-/// ¿ø°Å¸® °ø°Ý½ÇÇà
+/// ï¿½ï¿½ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½Ý½ï¿½ï¿½ï¿½
 /// </summary>
 void AIFCharacterBoss::PerformRangeAttack()
 {
@@ -322,7 +331,7 @@ void AIFCharacterBoss::PerformRangeAttack()
 }
 
 /// <summary>
-/// ºê·¹½º °ø°Ý½ÇÇà
+/// ï¿½ê·¹ï¿½ï¿½ ï¿½ï¿½ï¿½Ý½ï¿½ï¿½ï¿½
 /// </summary>
 void AIFCharacterBoss::PeformBreathAttack()
 {
@@ -331,7 +340,7 @@ void AIFCharacterBoss::PeformBreathAttack()
 }
 
 /// <summary>
-/// Enemy ¼ÒÈ¯
+/// Enemy ï¿½ï¿½È¯
 /// </summary>
 void AIFCharacterBoss::PerformSpawnEnemy()
 {
@@ -381,7 +390,7 @@ void AIFCharacterBoss::GiveDamage(TObjectPtr<AActor> Target)
 }
 
 /// <summary>
-/// ÄðÅ¸ÀÓ ½ÇÇà
+/// ï¿½ï¿½Å¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 /// </summary>
 /// <param name="CoolDownPattern"></param>
 void AIFCharacterBoss::PerformCoolDown()
@@ -405,7 +414,7 @@ void AIFCharacterBoss::PerformHitAction()
 }
 
 /// <summary>
-/// Å¸°Ù À§Ä¡ ¹ÝÈ¯
+/// Å¸ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½È¯
 /// </summary>
 /// <returns></returns>
 FVector AIFCharacterBoss::ReturnTargetLoc()
