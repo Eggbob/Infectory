@@ -32,6 +32,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OrderSpawn();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void ShowLog();
+
 protected:
 	virtual void BeginPlay() override;
 

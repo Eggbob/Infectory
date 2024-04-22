@@ -26,7 +26,7 @@ void UIFNonPlayerAnimInstance::PlayAttackAnimation(float AttackSpeed)
 			{
 				OnAttackEnd.ExecuteIfBound();
 			}
-		), AttackAnimation->GetPlayLength(), false);
+		), AttackAnimation->GetPlayLength() - 1.0f, false);
 	}
 }
 
@@ -142,6 +142,15 @@ void UIFNonPlayerAnimInstance::PlayInteractAnimation()
 	}
 }
 
+void UIFNonPlayerAnimInstance::PlaySpawnEnemyAnimation()
+{
+	if(IsValid(SpawnEnemyAnimation))
+	{
+		BlendWeight = 1.f;
+		Montage_Play(SpawnEnemyAnimation, 1.0f);
+	}
+}
+
 
 
 void UIFNonPlayerAnimInstance::NativeInitializeAnimation()
@@ -194,6 +203,14 @@ void UIFNonPlayerAnimInstance::PlayHitAnim()
 		RecoilAlpha = 1.0f;
 		RecoilRot = FRotator(FMath::RandRange(20.0f, 50.0f), FMath::RandRange(-40.0f, 40.0f), 0.f);
 	}
+
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda(
+		[&]()
+		{
+			OnHitEnd.ExecuteIfBound();
+		}
+	), 1.0f, false);
 }
 
 

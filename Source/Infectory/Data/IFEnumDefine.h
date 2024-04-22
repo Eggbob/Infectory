@@ -11,7 +11,8 @@ UENUM()
 enum class ECharacterControlType : uint8
 {
 	Shoulder,
-	Zoom
+	Zoom,
+	Shop
 };
 
 UENUM()
@@ -68,7 +69,8 @@ enum class EProjectileDamageType : uint8
 	Light,
 	Explosive,
 	BossAttack,
-	Spawner
+	Spawner,
+	Pierce,
 };
 
 UENUM()
@@ -137,6 +139,7 @@ enum class ERangedWeaponType : uint8
 	ShotGun,
 	Projectile,
 	EnemyProjectile,
+	BossProjectile,
 	Thrower,
 	None,
 };

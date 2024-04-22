@@ -74,7 +74,7 @@ private:
 	FTimerHandle GlowTimerHandle;
 
 	int32 CurrentCount = 0;
-	const int32 MaxSeconds = 180;
+	const int32 MaxSeconds = 110;
 	int32 SpawnSecond = 35;
 	int32 WaveCount = 0;
 	int32 SpawnDelay = 30;

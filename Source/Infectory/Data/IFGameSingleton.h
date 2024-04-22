@@ -24,6 +24,7 @@ public:
 	static UIFGameSingleton& Get();
 
 public:
+	UTexture2D* GetItemIcon(int32 ItemID) const;
 	FIFCharacterStat GetCharacterStat(FName NpcName, FName NPCTier) const;
 	FIFGunStat GetGunStat(FName GunName) const;
 	FIFBossPatternData GetBossPatternData(EBossPattern BossPattern, int32 BeadCnt) const;
@@ -52,4 +53,6 @@ private:
 	TObjectPtr<class UDataTable> ItemDataTable;
 
 	TMap<int32, FIFItemData> ItemMap;
+
+	TMap<int32, UTexture2D*> ItemIconMap;
 };

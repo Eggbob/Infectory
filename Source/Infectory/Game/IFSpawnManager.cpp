@@ -84,6 +84,10 @@ void AIFSpawnManager::SpawnNPC()
 			NPC->SetActorLocation(SpawnPoints[i].Get()->GetComponentLocation());
 			SpawnedNpcs.Add(NPC);
 		}
+		else
+		{
+			ShowLog();
+		}
 	
 	}
 

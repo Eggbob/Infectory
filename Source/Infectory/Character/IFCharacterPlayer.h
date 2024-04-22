@@ -25,6 +25,9 @@ public:
 	FORCEINLINE virtual ECharacterState GetPlayerStateType() override { return CurCharacterState; }
 
 	UFUNCTION(BlueprintCallable)
+	void SetShopMode(bool bIsInteract);
+
+	UFUNCTION(BlueprintCallable)
 	FORCEINLINE class AIFGunBase* GetCurGun() { return CurGun.Get(); }
 
 	UFUNCTION(BlueprintCallable)
@@ -215,16 +218,16 @@ private:
 	UPROPERTY()
 	TObjectPtr<class UIFPlayerHPBar> HPBar;
 
-
-
 	UPROPERTY()
 	TObjectPtr<class AIFGameMode> GameMode;
 
 	UPROPERTY()
 	TObjectPtr<class AIFPlayerController> PlayerCon;
 
+	
 	bool IsFiring = false;
+	bool IsBuilding = false;
 	int32 ResistCnt = 0;
-
+	int32 TotalResistCnt = 0;
 
 };

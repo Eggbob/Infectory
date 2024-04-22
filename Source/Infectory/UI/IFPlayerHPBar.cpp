@@ -26,16 +26,10 @@ void UIFPlayerHPBar::SetHPBar(float CurHP)
 	{
 		if (CurHP >= (index + 1) * PerHP)
 		{
-			/*FSlateColor TintColor = FSlateColor(HPColor[ColorIndex]);
-
-			HPBarArray[i]->SetBrushTintColor(TintColor);*/
 			SetHPColor(i, ColorIndex);
 		}
 		else
 		{
-			//FSlateColor TintColor = FSlateColor(EmptyHPColor);
-			//HPBarArray[i]->SetBrushTintColor(TintColor);
-
 			SetHPColor(i, 4);
 		}
 

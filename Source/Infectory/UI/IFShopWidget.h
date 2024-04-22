@@ -50,12 +50,11 @@ private:
 	int32 CurItemIndex = 0;
 	bool bIsShop = true;
 
-
 	UPROPERTY()
 	TArray<FIFItemData> ShopItemList;
 
 	UPROPERTY()
-	TArray<TObjectPtr<class UIFItemBox>> ItemBoxes;
+	TArray<TObjectPtr<class UIFItemInfoBox>> ItemBoxes;
 
 	UPROPERTY()
 	TObjectPtr<class UTextBlock> CurCreditText;

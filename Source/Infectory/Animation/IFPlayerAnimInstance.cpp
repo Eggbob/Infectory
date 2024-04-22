@@ -19,7 +19,16 @@ void UIFPlayerAnimInstance::AddRecoil(ERangedWeaponType RangedWeaponType)
 
 void UIFPlayerAnimInstance::PlayHitAnim()
 {
-	Montage_Play(HitAnimations[FMath::RandRange(0, HitAnimations.Num() - 1)], 1.0f);
+	Montage_Play(HitAnimations[0], 1.0f);
+
+	FTimerHandle TimerHandle;
+
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle,FTimerDelegate::CreateLambda(
+		[&]()
+		{
+			OnHitAnimFinished.ExecuteIfBound();
+		}
+	), HitAnimations[0].Get()->GetPlayLength() - 0.5f, false);
 }
 
 void UIFPlayerAnimInstance::PlayWeaponChangeAnim()
@@ -36,14 +45,14 @@ void UIFPlayerAnimInstance::PlayReloadAnim(ERangedWeaponType RangedWeaponType)
 	{
 		Montage_Play(ReloadAnimationMap[RangedWeaponType], 1.0f);
 
-		FTimerHandle TimerHandle;
+		/*FTimerHandle TimerHandle;
 
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle,FTimerDelegate::CreateLambda(
 			[&]()
 			{
 				OnReloadFinished.ExecuteIfBound();
 			}
-		), ReloadAnimationMap[RangedWeaponType].Get()->GetPlayLength() - 0.5f, false);
+		), ReloadAnimationMap[RangedWeaponType].Get()->GetPlayLength() - 0.5f, false);*/
 	}
 }
 

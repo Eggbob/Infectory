@@ -54,8 +54,7 @@ void AIFCharacterBoss::SetDead()
 	}
 
 	AnimInstance.Get()->PlayDeadAnim();
-
-	AIController.Get()->StopAI();
+	DeathLogic();
 }
 
 /// <summary>
@@ -109,7 +108,10 @@ void AIFCharacterBoss::SetNPCType(ENPCType NpcName, FName NpcTier)
 		TentacleArray[i].Get()->OnGiveDamage.BindUObject(this, &AIFCharacterBoss::GiveDamage);
 		TentacleArray[i].Get()->OnTentacleDestory.BindUObject(this, &AIFCharacterBoss::CheckTentacle);
 		TentacleArray[i].Get()->OnGetTargetLocDelegate.BindUObject(this, &AIFCharacterBoss::ReturnTargetLoc);
-		TentacleArray[i].Get()->OnTentacleActiveFinish.BindUObject(this, &AIFCharacterBoss::PerformCoolDown);
+		//TentacleArray[i].Get()->OnTentacleActiveFinish.BindUObject(this, &AIFCharacterBoss::PerformCoolDown);
+		TentacleArray[i].Get()->OnTentacleActiveFinish.BindLambda([&]() {
+			PerformCoolDown();
+			});
 	}
 
 	for (int i = 1; i < 6; i++)
@@ -118,20 +120,21 @@ void AIFCharacterBoss::SetNPCType(ENPCType NpcName, FName NpcTier)
 
 		TObjectPtr<AIFTumor> Tumor = GetWorld()->SpawnActor<AIFTumor>(TumorClass, SocketTr);
 		Tumor->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("eggsocket" + FString::FromInt(i))); 
-		Tumor->InitTumor(100);
+		Tumor->InitTumor(FMath::RandRange(200, 320));
+		//Tumor->InitTumor(100);
 		Tumor->OnTumorFinish.BindUObject(this, &AIFCharacterBoss::CheckAcitveTumor);
 		TumorArray.Add(Tumor);
 	}
 
 	AnimInstance.Get()->OnAttackEnd.BindUObject(this, &AIFCharacterBoss::PerformCoolDown);
+
 	AnimInstance.Get()->OnHitEnd.BindLambda([&]() {
 			CurBossState = EBossState::Idle;
 			PerformCoolDown();
 		});
 
 	CurTumorCount = TumorArray.Num();
-
-	//TumorActive();
+	HideLowerBody();
 }
 
 /// <summary>
@@ -140,7 +143,6 @@ void AIFCharacterBoss::SetNPCType(ENPCType NpcName, FName NpcTier)
 /// <param name="BossPattern"></param>
 void AIFCharacterBoss::CheckPattern(EBossPattern BossPattern)
 {
-	//���� ���ݰ����� ���°� �ƴ϶�� ������ ����
 	if (CurBossState != EBossState::Idle)
 	{
 		PatternArray.Add(BossPattern);
@@ -154,35 +156,31 @@ void AIFCharacterBoss::CheckPattern(EBossPattern BossPattern)
 			PatternArray.Add(BossPattern);
 
 			ExecutePattern(Pattern);
-			//PerformCoolDown(Pattern);
-
-		/*	for (int i = 0; i < PatternArray.Num(); i++)
-			{
-				if (!PatternCooldownMap[PatternArray[i]])
-				{
-					ExecutePattern(PatternArray[i]);
-					PerformCoolDown(PatternArray[i]);
-					PatternArray.RemoveAt(i);
-					PatternArray.Add(BossPattern);
-
-					return;
-				}
-			}*/
 		}
 		else
 		{
 			ExecutePattern(BossPattern);
-			//PerformCoolDown(BossPattern);
-
-			/*if (!PatternCooldownMap[BossPattern])
-			{
-				return;
-			}
-			else
-			{
-				PatternArray.Add(BossPattern);
-			}*/
+			
 		}
+	}
+}
+
+void AIFCharacterBoss::FocusingTarget(TObjectPtr<AActor> InTargetActor)
+{
+	if (TargetActor == nullptr)
+	{
+		TargetActor = InTargetActor;
+
+		AnimInstance.Get()->PlayInteractAnimation();
+		AnimInstance.Get()->OnInteract.BindLambda([&]() {
+			GameMode.Get()->PlayCameraShake(InteractCameraShake);
+			});
+
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
+			{
+				AIController->SetTarget(TargetActor);
+			}), 5.0f, false);
 	}
 }
 
@@ -194,24 +192,42 @@ void AIFCharacterBoss::ReleaseGrabTentacle()
 void AIFCharacterBoss::CheckAcitveTumor()
 {
 	PerformHitAction();
+	
+	TumorActive();
 
-	if (TumorActive())
+	if (PrevTumorCount != CurTumorCount)
+	{
+		BossAIController.Get()->PerformNextPhase();
+	}
+
+	if (CurTumorCount == 0)
+	{
+		SetDead();
+	}
+
+	/*if (TumorActive())
 	{
 		CurTumorCount--;
-	}
+	}*/
 }
 
 bool AIFCharacterBoss::TumorActive()
 {
 	TArray<AIFTumor *> TumorActiveArray;
 
+	PrevTumorCount = CurTumorCount;
+	CurTumorCount = 0;
+
 	for (int i = 0; i < TumorArray.Num(); i++)
 	{
 		if (TumorArray[i]->bCanActive)
 		{
+			CurTumorCount++;
 			TumorActiveArray.Add(TumorArray[i]);
 		}
 	}
+
+	
 
 	if (TumorActiveArray.Num() == 0)
 	{
@@ -228,6 +244,7 @@ bool AIFCharacterBoss::TumorActive()
 			TumorActiveArray[Num]->ActiveTumor(true);
 			break;
 		}
+
 		interation++;
 	}
 
@@ -235,7 +252,7 @@ bool AIFCharacterBoss::TumorActive()
 	{
 		return true;
 	}
-	else
+	else if(interation == 10)
 	{
 		for (int i = 0; i < TumorActiveArray.Num(); i++)
 		{
@@ -248,6 +265,7 @@ bool AIFCharacterBoss::TumorActive()
 	}
 
 	return false;
+
 }
 
 void AIFCharacterBoss::AttackHitCheck()
@@ -344,13 +362,19 @@ void AIFCharacterBoss::PeformBreathAttack()
 /// </summary>
 void AIFCharacterBoss::PerformSpawnEnemy()
 {
+	AnimInstance.Get()->PlaySpawnEnemyAnimation();
+
 	FVector Loc = GetMesh()->GetSocketLocation(FName("breathsocket"));
 
 	TObjectPtr<AIFSpawnEgg> Egg = Cast<AIFSpawnEgg>(GameMode.Get()->GetPoolManager().Get()->Pop(SpawnEggClass, GetWorld()));
 
 	Egg.Get()->OnFinish.BindLambda([&](AActor* ReturnActor) {
-		GameMode.Get()->GetPoolManager().Get()->Push(ReturnActor);
-		});
+		if (ReturnActor)
+		{
+			GameMode.Get()->GetPoolManager().Get()->Push(ReturnActor);
+		}
+
+	});
 
 	Egg.Get()->SetActorLocation(Loc);
 
@@ -367,7 +391,7 @@ void AIFCharacterBoss::PerformGrabAttack()
 
 	for (int i = 0; i < TentacleArray.Num(); i++)
 	{
-		if (!TentacleArray[i]->GetIsDestroy())
+		if (!TentacleArray[i]->GetIsDestroy() && TentacleArray[i].Get()->GetCurPattern() == ETentaclePattern::None)
 		{
 			TentacleArray[i]->ActiveTentacle(Cast<ACharacter>(TargetActor));
 			CurTentacleIdx = i;
@@ -383,6 +407,7 @@ void AIFCharacterBoss::GiveDamage(TObjectPtr<AActor> Target)
 		FCustomDamageEvent CustomDamageEvent;
 
 		CustomDamageEvent.BoneName = "spine_01";
+	
 		CustomDamageEvent.DamageType = EProjectileDamageType::BossAttack;
 
 		Target->TakeDamage(StatComp->GetBaseStat().Attack, CustomDamageEvent, GetController(), this);

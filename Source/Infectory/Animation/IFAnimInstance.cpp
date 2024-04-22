@@ -81,7 +81,7 @@ void UIFAnimInstance::PlayFootSound()
 {
 	if (FootSound)
 	{
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), FootSound, GetOwningActor()->GetActorLocation());
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), FootSound, GetOwningActor()->GetActorLocation(), 0.3f);
 	}
 }
 

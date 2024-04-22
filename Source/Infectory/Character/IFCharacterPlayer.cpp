@@ -166,6 +166,12 @@ AIFCharacterPlayer::AIFCharacterPlayer()
 		CharacterControlManager.Add(ECharacterControlType::Zoom, ZoomDataRef.Object);
 	}
 
+	static ConstructorHelpers::FObjectFinder<UIFCharacterControlData> ShopModeDataRef(TEXT("/Script/Infectory.IFCharacterControlData'/Game/Assets/CharacterControl/ABC_Shop.ABC_Shop'"));
+	if (ShopModeDataRef.Object)
+	{
+		CharacterControlManager.Add(ECharacterControlType::Shop, ShopModeDataRef.Object);
+	}
+
 	static ConstructorHelpers::FObjectFinder<UIFCharacterMovementData> MovementDataRef(TEXT("/Script/Infectory.IFCharacterMovementData'/Game/Assets/CharacterControl/ABC_CharacterMovement.ABC_CharacterMovement'"));
 	if (MovementDataRef.Object)
 	{
@@ -233,9 +239,9 @@ void AIFCharacterPlayer::BeginPlay()
 
 	AnimInstance.Get()->SetFootSound(FootStepSound);
 	
-	HPBar.Get()->InitHPBar(500);
 
 	StatComp->ForTest();
+	HPBar.Get()->InitHPBar(StatComp.Get()->GetMaxHp());
 	StatComp->bIsNPC = false;
 	StatComp->OnHit.AddUObject(this, &AIFCharacterPlayer::OnHitAction);
 	StatComp->OnHpZero.AddUObject(AnimInstance, &UIFPlayerAnimInstance::PlayDeadAnim);
@@ -308,30 +314,35 @@ void AIFCharacterPlayer::SetCharacterControl(ECharacterControlType NewCharacterC
 void AIFCharacterPlayer::OnHitAction()
 {
 	GameMode.Get()->PlayCameraShake(HitCameraShake);
-	CurCharacterState = ECharacterState::Hitting;
 	UserWidget.Get()->ActiveCrossHair(false);
 	UserWidget.Get()->PlayHitEffect();
-
+	
 	AnimInstance.Get()->SetCurSound(HitSound);
-	AnimInstance.Get()->PlayHitAnim();
-	IsFiring = false;
+	CurGun.Get()->StopFire();
 
 	if (CurControlType == ECharacterControlType::Zoom)
 	{
 		ChangeCharacterControl();
 	}
+
+	if (CurCharacterState != ECharacterState::Grabbing)
+	{
+		CurCharacterState = ECharacterState::Hitting;
+		AnimInstance.Get()->PlayHitAnim();
+	}
 }
 
 void AIFCharacterPlayer::OnLeftMouseClick()
 {
-	switch (CurCharacterState)
+	if (CurCharacterState == ECharacterState::Building)
 	{
-	case ECharacterState::Idle:
-		Shoot();
-		break;
-	case ECharacterState::Building:
 		GetTurretLoc();
-		break;
+
+		return;
+	}
+	else
+	{
+		Shoot();
 	}
 }
 
@@ -351,7 +362,7 @@ void AIFCharacterPlayer::OnRightMouseClick()
 
 void AIFCharacterPlayer::Shoot()
 {
-	IsFiring = IsFiring ? false : true ;
+	IsFiring = IsFiring ? false : true;
 
 	if (IsFiring)
 	{
@@ -367,6 +378,7 @@ void AIFCharacterPlayer::Shoot()
 			CurGun.Get()->FireGunDelegate.BindLambda([&](ERangedWeaponType RangedWeaponType) {
 				AnimInstance.Get()->PlayFireAnimation();
 				});
+
 			break;
 		case ECharacterControlType::Zoom:
 			CurGun.Get()->FireGunDelegate.BindUObject(AnimInstance, &UIFPlayerAnimInstance::AddRecoil);
@@ -393,13 +405,13 @@ void AIFCharacterPlayer::Reload()
 	AnimInstance.Get()->PlayReloadAnim(CurGun.Get()->GetWeaponType());
 }
 
-
 void AIFCharacterPlayer::StartGrabbing()
 {
 	CurCharacterState = ECharacterState::Grabbing;
-	IsFiring = false;
+	CurGun.Get()->StopFire();
 
-	UserWidget.Get()->EnableGrabBar(true);
+	TotalResistCnt = FMath::RandRange(10, 30);
+	UserWidget.Get()->EnableGrabBar(true, TotalResistCnt);
 
 	if (CurControlType == ECharacterControlType::Zoom)
 	{
@@ -410,11 +422,11 @@ void AIFCharacterPlayer::StartGrabbing()
 void AIFCharacterPlayer::ResistGrabbing()
 {
  	ResistCnt++;
-	ResistCnt = FMath::Clamp(ResistCnt, 0, 10);
+	ResistCnt = FMath::Clamp(ResistCnt, 0, TotalResistCnt);
 
 	UserWidget.Get()->UpdateGrabBarCount(ResistCnt);
 	
-	if (ResistCnt >= 10)
+	if (ResistCnt >= TotalResistCnt)
 	{
 		ClearGrab(false);
 	}
@@ -423,7 +435,7 @@ void AIFCharacterPlayer::ResistGrabbing()
 void AIFCharacterPlayer::ClearGrab(bool bIsThrowing)
 {
 	ResistCnt = 0;
-	UserWidget.Get()->EnableGrabBar(false);
+	UserWidget.Get()->EnableGrabBar(false, 0);
 	CurCharacterState = ECharacterState::Idle;
 	RegistGrabDelegate.ExecuteIfBound();
 
@@ -453,9 +465,9 @@ void AIFCharacterPlayer::BuildGadget(FVector TurretLoc, FVector SpawnLoc, bool b
 {
 	if (!bCanBuild) return;
 	
-	IsFiring = IsFiring ? false : true;
+	IsBuilding = IsBuilding ? false : true;
 
-	if (IsFiring)
+	if (IsBuilding)
 	{
 		AIFGadget& Gadget = Inventory.Get()->GetGadget();
 		
@@ -474,7 +486,6 @@ void AIFCharacterPlayer::RecallTurret(EGadgetType GadgetType)
 {
 	Inventory.Get()->RecallGadget(GadgetType);
 }
-
 
 void AIFCharacterPlayer::ChangeWeapon1()
 {
@@ -509,7 +520,6 @@ void AIFCharacterPlayer::ChangeWeaponBody(ERangedWeaponType NewWeaponType)
 		CurGun.Get()->SetActorHiddenInGame(false);
 
 		UserWidget->UpdateAmmoState(CurGun->GetCurAmmo(), CurGun->GetTotalAmmo());
-		//CurGun.Get()->ReloadDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateAmmoState);
 		CurGun.Get()->CrossHairDelegate.BindUObject(UserWidget, &UIFUserWidget::UpdateCrossHair);
 		CurCharacterState = ECharacterState::Idle;
 		});
@@ -521,20 +531,16 @@ void AIFCharacterPlayer::OpenInventory()
 	{
 		if (InvenWidget.Get()->IsVisible())
 		{
-			//InvenWidget.Get()->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 			InvenWidget.Get()->CloseInventory();
 			
 		}
 		else
 		{
-			//InvenWidget.Get()->SetVisibility(ESlateVisibility::Visible);
 			InvenWidget.Get()->OpenInventory();
 		}
 	}
 
 }
-
-
 
 /// <summary>
 /// 캐릭터 컨트롤러 데이터 설정
@@ -590,6 +596,34 @@ void AIFCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 }
 
+
+
+void AIFCharacterPlayer::SetShopMode(bool bIsInteract)
+{
+	if (bIsInteract)
+	{
+		CurControlType = ECharacterControlType::Shop;
+
+		GetMesh()->SetVisibility(false);
+		CurGun.Get()->SetActorHiddenInGame(true);
+		HPBar.Get()->SetVisibility(ESlateVisibility::Hidden);
+	}
+	else
+	{
+		CurControlType = ECharacterControlType::Shoulder;
+		GetMesh()->SetVisibility(true);
+		CurGun.Get()->SetActorHiddenInGame(false);
+		HPBar.Get()->SetVisibility(ESlateVisibility::Visible);
+	}
+
+	UIFCharacterControlData* NewCharacterControl = CharacterControlManager[CurControlType];
+	check(NewCharacterControl);
+
+	SetCharacterControlData(NewCharacterControl);
+
+	
+}
+
 FVector AIFCharacterPlayer::GetGunHandPosition()
 {
 	return CurGun->GetWeaponSocket();
@@ -629,8 +663,6 @@ void AIFCharacterPlayer::OnQAction()
 		BuildWidget.Get()->SetGadgetName(FText::FromString("Turret"));
 		break;
 	}
-
-	
 }
 
 void AIFCharacterPlayer::OnEAction()
@@ -662,10 +694,6 @@ void AIFCharacterPlayer::SetupUserWidget(TObjectPtr<UIFUserWidget> InUserWidget)
 	if (InUserWidget)
 	{
 		UserWidget = InUserWidget;
-
-	/*	InUserWidget->UpdateAmmoState(Gun->GetCurAmmo(), Gun->GetTotalAmmo());
-
-		Gun.Get()->ReloadDelegate.BindUObject(InUserWidget, &UIFUserWidget::UpdateAmmoState);*/
 	}
 }
 

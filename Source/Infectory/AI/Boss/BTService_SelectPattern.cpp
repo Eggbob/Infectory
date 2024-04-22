@@ -26,6 +26,8 @@ void UBTService_SelectPattern::OnSearchStart(FBehaviorTreeSearchData& SearchData
 	
 	int32 BossPattern = FMath::RandRange(0, PatternMap[BossPhase].BossPatterns.Num() - 1);
 
+	UE_LOG(LogTemp, Warning, TEXT("BossPhase %d, BossPattern %d"), BossPhase, BossPattern);
+
 	SearchData.OwnerComp.GetBlackboardComponent()->SetValueAsInt(BBKEY_BOSSPATTERN, 
 		(int32)PatternMap[BossPhase].BossPatterns[BossPattern]);
 

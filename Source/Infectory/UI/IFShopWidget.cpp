@@ -8,6 +8,7 @@
 #include "Components/Image.h"
 #include "Components/PanelWidget.h"
 #include "Components/TextBlock.h"
+#include "Data/IFGameSingleton.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
 
@@ -45,7 +46,8 @@ void UIFShopWidget::SelectItem(FVector2D Direction)
 
 	if (CurItem.GetItemType() != EItemType::None)
 	{
-		MiniItemImage.Get()->SetBrushFromTexture(CurItem.GetIconTexture());
+		//MiniItemImage.Get()->SetBrushFromTexture(CurItem.GetIconTexture());
+		MiniItemImage.Get()->SetBrushFromTexture(UIFGameSingleton::Get().GetItemIcon(CurItem.GetID()));
 		CurItemNameText.Get()->SetText(FText::FromString(CurItem.GetItemName()));
 		CurItemExplainText.Get()->SetText(FText::FromString(CurItem.GetToolTip()));
 		//ScrollBox.Get()->ScrollToEnd();
@@ -117,7 +119,7 @@ void UIFShopWidget::OpenPayPanel()
 
 	PayPanel.Get()->SetVisibility(ESlateVisibility::Visible);
 	PayItemText.Get()->SetText(FText::FromString(CurItem.GetItemName()));
-	PayItemImage.Get()->SetBrushFromTexture(CurItem.GetIconTexture());
+	PayItemImage.Get()->SetBrushFromTexture(UIFGameSingleton::Get().GetItemIcon(CurItem.GetID()));
 	PayItemCountText.Get()->SetText(FText::FromString(FString::Printf(TEXT("%d"), CurItem.GetAmount())));
 	PayItemPriceText.Get()->SetText(FText::FromString(FString::Printf(TEXT("%d"), CurItem.GetItemPrice())));
 }
@@ -144,12 +146,19 @@ void UIFShopWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	TArray<UUserWidget*> ItemBoxWidgetRef;
-	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), ItemBoxWidgetRef, UIFItemBox::StaticClass(), false);
+	//TArray<UUserWidget*> ItemBoxWidgetRef;
+	//UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), ItemBoxWidgetRef, UIFItemInfoBox::StaticClass(), false);
 
-	for (UUserWidget* Widget : ItemBoxWidgetRef)
+	//for (UUserWidget* Widget : ItemBoxWidgetRef)
+	//{
+	//	ItemBoxes.Add(Cast<UIFItemInfoBox>(Widget));
+	//}
+
+	for (int32 i = 1; i < 26; i++)
 	{
-		ItemBoxes.Add(Cast<UIFItemBox>(Widget));
+		FString ItemBoxName = FString::Printf(TEXT("ItemBox_%d"), i);
+		UIFItemInfoBox* ItemBox = Cast<UIFItemInfoBox>(GetWidgetFromName(*ItemBoxName));
+		ItemBoxes.Add(ItemBox);
 	}
 
 	CurCreditText = Cast<UTextBlock>(GetWidgetFromName(TEXT("CurCreditText")));
@@ -163,7 +172,7 @@ void UIFShopWidget::NativeConstruct()
 	PayItemText = Cast<UTextBlock>(GetWidgetFromName(TEXT("PayItemText")));
 	PayItemImage = Cast<UImage>(GetWidgetFromName(TEXT("PayItemImage")));
 	PayItemCountText = Cast<UTextBlock>(GetWidgetFromName(TEXT("PayItemCountText")));
-	PayItemPriceText = Cast<UTextBlock>(GetWidgetFromName(TEXT("PayItemPriceText")));
+	PayItemPriceText = Cast<UTextBlock>(GetWidgetFromName(TEXT("ItemPriceText")));
 	
 }
 
@@ -180,10 +189,10 @@ void UIFShopWidget::SetSellingItem()
 		ItemList = PlayerInven.Get()->GetItemList();
 	}
 
-	for (UIFItemBox* box : ItemBoxes)
+	for (UIFItemInfoBox* box : ItemBoxes)
 	{
 		box->InitItemBox(true);
-		//box->SetVisibility(ESlateVisibility::Hidden);
+		box->SetVisibility(ESlateVisibility::Hidden);
 	}
 
 	for (int32 i = 0; i < ItemList.Num(); i++)

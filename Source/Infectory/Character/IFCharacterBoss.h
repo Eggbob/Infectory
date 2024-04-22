@@ -29,6 +29,7 @@ public:
 	virtual void PerformGrabAttack() override;
 	virtual void SetNPCType(ENPCType NpcName, FName NpcTier) override;
 	virtual void CheckPattern(EBossPattern BossPattern) override;
+	virtual void FocusingTarget(TObjectPtr<AActor> TargetActor) override;
 
 	void ReleaseGrabTentacle();
 	void CheckAcitveTumor();
@@ -36,6 +37,12 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetTentacleActor();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void HideLowerBody();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void DeathLogic();
 
 private:
 	void AttackHitCheck() override;
@@ -45,6 +52,7 @@ private:
 	void PerformCoolDown();
 	void PerformHitAction();
 	FVector ReturnTargetLoc();
+
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
@@ -57,6 +65,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<class AIFGunBase> BreathGunClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<class ULegacyCameraShake> InteractCameraShake;
+
 private:
 	UPROPERTY()
 	TSubclassOf<class AIFSpawnEgg> SpawnEggClass;
@@ -67,6 +78,7 @@ private:
 	int32 TentacleCount = 0;
 	int32 CurTentacleIdx = -1;
 	int32 CurTumorCount = 0;
+	int32 PrevTumorCount = 0;
 
 	UPROPERTY()
 	TObjectPtr<class AIFGunBase> BossBreathGun;

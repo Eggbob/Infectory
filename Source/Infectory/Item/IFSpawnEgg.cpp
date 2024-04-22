@@ -80,6 +80,7 @@ void AIFSpawnEgg::SpawnNPC()
 	if (SpawnEffect)
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SpawnEffect, GetActorLocation());
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), SpawnSound, GetActorLocation());
 	}
 
 	OnFinish.ExecuteIfBound(this);

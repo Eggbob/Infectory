@@ -42,10 +42,7 @@ void AIFTentalce::ResetTentacle()
 
 void AIFTentalce::GiveDamage(AActor* Target)
 {
-	if (CurPattern == ETentaclePattern::Pierce)
-	{
-		OnGiveDamage.ExecuteIfBound(Target);
-	}
+	OnGiveDamage.ExecuteIfBound(Target);
 }
 
 /// <summary>

@@ -32,7 +32,7 @@ public:
 	void PlayHitEffect();
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void EnableGrabBar(bool bIsEnable);
+	void EnableGrabBar(bool bIsEnable, int32 GrabCount);
 
 protected:
 	virtual void NativeConstruct() override;

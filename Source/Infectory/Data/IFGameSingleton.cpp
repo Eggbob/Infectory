@@ -75,6 +75,15 @@ UIFGameSingleton::UIFGameSingleton()
 			if (nullptr != ItemStat)
 			{
 				ItemMap.Add(ItemStat->GetID(), *ItemStat);
+
+				FString IconPath = FString::Printf(TEXT("/Game/Assets/Art/ItemIcon/%s.%s"), *ItemStat->GetIconName(), *ItemStat->GetIconName());
+
+				ConstructorHelpers::FObjectFinder<UTexture2D> ItemIconRef(*IconPath);
+				if (ItemIconRef.Object != nullptr)
+				{
+					ItemIconMap.Add(ItemStat->GetID(), ItemIconRef.Object);
+				}
+
 			}
 		}
 	}
@@ -94,6 +103,16 @@ UIFGameSingleton& UIFGameSingleton::Get()
 }
 
 
+
+UTexture2D* UIFGameSingleton::GetItemIcon(int32 ItemID) const
+{
+	if (ItemIconMap.Contains(ItemID))
+	{
+		return ItemIconMap.FindRef(ItemID);
+	}
+
+	return nullptr;
+}
 
 FIFCharacterStat UIFGameSingleton::GetCharacterStat(FName NpcName, FName NPCTier) const
 {
@@ -129,7 +148,7 @@ FIFBossPatternData UIFGameSingleton::GetBossPatternData(EBossPattern BossPattern
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("Invalid Boss Stat"));
+		UE_LOG(LogTemp, Error, TEXT("Invalid Boss Stat %s, %d"), *UIFEnumDefine::GetEnumName(BossPattern), BeadCnt);
 		return FIFBossPatternData();
 	}
 }

@@ -58,24 +58,10 @@ public:
 	{
 		if (IconTexture == nullptr)
 		{
-			FString IconPath;
+			/*FString IconPath;
 			IconPath = FString::Printf(TEXT("/ Script / Engine.Texture2D'/Game/Assets/Art/ItemIcon/%s.%s'"), *IconName, *IconName);
-		/*	switch (ItemType)
-			{
-			case EItemType::None:
-				IconPath = FString::Printf(TEXT("/Script/Engine.Texture2D'/Game/Assets/Art/UI/Icons/Potions/%s.%s'"), *IconName, *IconName);
-				break;
-			case EItemType::Potion:
-				IconPath = FString::Printf(TEXT("/Script/Engine.Texture2D'/Game/Assets/Art/UI/Icons/Weapons/%s.%s'"), *IconName, *IconName);
-				break;
-			case EItemType::Goods:
-				IconPath = FString::Printf(TEXT("/Script/Engine.Texture2D'/Game/Assets/Art/UI/Icons/Goods/%s.%s'"), *IconName, *IconName);
-				break;
-			default:
-				break;
-			}*/
-
-			IconTexture = LoadObject<class UTexture2D>(NULL, *IconPath, NULL, LOAD_None, NULL);
+	
+			IconTexture = LoadObject<class UTexture2D>(NULL, *IconPath, NULL, LOAD_None, NULL);*/
 		}
 
 		return IconTexture;
@@ -87,25 +73,32 @@ public:
 		this->Amount = FMath::Clamp(Encrease, 0, MaxAmount);
 	}
 
-	void SetAmount(int32 amount)
+	bool SetAmount(int32 amount)
 	{
 		this->Amount = FMath::Clamp(amount, 0, MaxAmount);
 
 		if (this->Amount == 0)
 		{
 			OnItemEmpty.ExecuteIfBound(ItemIndex);
+
+			return false;
 		}
+
+		return true;
 	}
 
-	void DcreaseAmount(int32 DecreaseAmount)
+	bool DcreaseAmount(int32 DecreaseAmount)
 	{
 		int32 DecreaseItem = Amount - DecreaseAmount;
 		Amount = FMath::Clamp(DecreaseItem, 0, MaxAmount);
 
 		if (this->Amount == 0)
 		{
-			OnItemEmpty.ExecuteIfBound(ItemIndex);
+			//OnItemEmpty.ExecuteIfBound(ItemIndex);
+			return false;
 		}
+
+		return true;
 	}
 
 	void SetItemIndex(int32 Idx)

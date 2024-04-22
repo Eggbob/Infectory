@@ -44,8 +44,12 @@ public:
 	FORCEINLINE void AnimNotify_PlaySound() { PlaySound(); }
 	UFUNCTION()
 	FORCEINLINE void AnimNotify_PlayFootStep() { PlayFootSound(); }
+
 	UFUNCTION()
 	FORCEINLINE void AnimNotify_Recover() { OnRecover.ExecuteIfBound(); }
+
+	UFUNCTION()
+	FORCEINLINE void AnimNotify_Reload() { OnReloadFinished.ExecuteIfBound(); }
 
 protected:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;

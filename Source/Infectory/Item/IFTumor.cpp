@@ -37,8 +37,8 @@ float AIFTumor::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AContr
 
 	if (TumorCurHP <= 0)
 	{
-		OnTumorFinish.ExecuteIfBound();
 		DeActiveTumor();
+		OnTumorFinish.ExecuteIfBound();
 	}
 
 	return Damage;

@@ -53,7 +53,7 @@ void AIFGadget::InitGadget(TObjectPtr<AController> Controller)
 		FTimerHandle TimerHandle;
 		GetWorldTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]() {
 			GadgetDeInitDelegate.ExecuteIfBound();
-			}), 10.f, false);
+			}), 30.f, false);
 
 		break;
 	}
@@ -149,7 +149,6 @@ void AIFGadget::SearchTarget()
 		CollisionQueryParam
 	);
 
-
 	if (bResult)
 	{
 		for (auto const& OverlapResult : OverlapResults)
@@ -157,7 +156,9 @@ void AIFGadget::SearchTarget()
 			if (OverlapResult.GetActor()->IsA(AIFCharacterNonPlayer::StaticClass()))
 			{
 				Target = Cast<AIFCharacterNonPlayer>(OverlapResult.GetActor());
-				if (Target.Get()->GetNPCState() == ENPCState::Dead || Target.Get()->GetNPCState() == ENPCState::BeforeDead)
+
+				if (Target.Get()->GetNPCState() == ENPCState::Dead || Target.Get()->GetNPCState() == ENPCState::BeforeDead
+					|| Target.Get()->GetNPCType() == ENPCType::Boss)
 				{
 					Target = nullptr;
 				}

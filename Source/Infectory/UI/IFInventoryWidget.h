@@ -33,11 +33,11 @@ private:
 
 	UPROPERTY()
 	TArray<TObjectPtr<class UIFWeaponBox>> WeaponWidgets;
-	UPROPERTY()
-	TArray<TObjectPtr<class UIFItemBox>> ItemBoxes;
+//	UPROPERTY()
+	//TArray<TObjectPtr<class UIFItemBox>> ItemBoxes;
 
-	//UPROPERTY()
-	//TArray<TObjectPtr<class UIFItemInfoBox>> ItemBoxes;
+	UPROPERTY()
+	TArray<TObjectPtr<class UIFItemInfoBox>> ItemBoxes;
 
 	UPROPERTY()
 	TObjectPtr<class UImage> CurItemImg;

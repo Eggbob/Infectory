@@ -105,9 +105,9 @@ void AIFProjectile::LaunchLight(FVector& TargetLoc)
 	FVector LaunchDirec = TargetLoc - GetActorLocation();
 	//LaunchDirec.Z = 0.f;
 
-	float ProjectileSpeed = 1000.f;
 	float Gravity = 980.f;
-	float TimeToTarget = LaunchDirec.Size() / ProjectileSpeed;
+	float TimeToTarget = LaunchDirec.Size() / MoveSpeed;
+
 	FVector LaunchVelocity = LaunchDirec / TimeToTarget;
 	LaunchVelocity.Z += 0.5f * Gravity * TimeToTarget;
 

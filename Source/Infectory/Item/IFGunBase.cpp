@@ -177,6 +177,7 @@ void AIFGunBase::FireProjectile(FVector& TargetLoc)
 		Projectile->LaunchExplosive();
 		break;
 	case ERangedWeaponType::EnemyProjectile:
+	case ERangedWeaponType::BossProjectile:
 		Projectile->LaunchLight(TargetLoc);
 		break;
 	}
@@ -297,6 +298,7 @@ void AIFGunBase::StartFire(FVector TargetLoc)
 
 		case ERangedWeaponType::Projectile:
 		case ERangedWeaponType::EnemyProjectile:
+		case ERangedWeaponType::BossProjectile:
 			FireProjectile(TargetLoc);
 			break;
 
@@ -325,7 +327,7 @@ void AIFGunBase::Reload()
 
 	int32 ReloadAmmo = ReloadDelegate.Execute(WeaponType, NeedAmmo);
 
-	CurrentAmmo += ReloadAmmo; 
+	CurrentAmmo += (NeedAmmo - ReloadAmmo); 
 	UpdateAmmoWidget();
 }
 
@@ -361,6 +363,8 @@ bool AIFGunBase::GunTrace(FHitResult& Hit, FVector& ShotDirection)
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
 	Params.AddIgnoredActor(GetOwner());
+
+	//DrawDebugLine(GetWorld(), OwnerLocation, End, FColor::Red, true, 1.f);
 
 	return GetWorld()->LineTraceSingleByChannel(Hit, OwnerLocation, End, ECollisionChannel::ECC_GameTraceChannel1, Params);
 }

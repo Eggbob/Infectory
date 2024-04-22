@@ -28,6 +28,8 @@ void AIFItemDropBox::BeginPlay()
 	UWidgetComponent* WidgetComponent = this->GetComponentByClass<UWidgetComponent>();
 	
 	ItemInfo = Cast<UIFItemInfo>(WidgetComponent->GetUserWidgetObject());
+
+	GetItemData();
 }
 
 void AIFItemDropBox::GetItemData()

@@ -26,4 +26,8 @@ public:
 
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
+
+
+private:
+	int32 CurrentPhase;
 };

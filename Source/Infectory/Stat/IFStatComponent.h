@@ -30,6 +30,7 @@ public:
 	void SetStat(FName NPCName, FName NPCTier);
 	float ApplyDamage(float InDamage, FName BoneName);
 	float GetMaxHp() const { return MaxHp; }
+	float GetCurrentHp() const { return CurrentHp; }
 
 	FORCEINLINE const FIFCharacterStat& GetBaseStat() const { return BaseStat; }
 

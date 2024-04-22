@@ -162,19 +162,24 @@ void AIFCharacterNonPlayer::SetDead()
 	}
 
 	Super::SetDead();
-	CurNpcState = ENPCState::Dead;
+	
+	if (CurNPCType != ENPCType::Boss)
+	{
+		AnimInstance.Get()->StopAllMontages(0.f);
+		GetCapsuleComponent()->SetCollisionProfileName("DieChannel");
+		GetMesh()->SetCollisionProfileName("Ragdoll");
+		GetMesh()->SetSimulatePhysics(true);
+		GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	}
 
-	AnimInstance.Get()->StopAllMontages(0.f);
-	GetCapsuleComponent()->SetCollisionProfileName("NoCollision");
-	GetMesh()->SetCollisionProfileName("Ragdoll");
-	GetMesh()->SetSimulatePhysics(true);
-	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), DeadSound, GetActorLocation());
 
 	if (AIController)
 	{
 		AIController.Get()->StopAI();
 	}
+
+	CurNpcState = ENPCState::Dead;
 }
 
 void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
@@ -184,8 +189,9 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 
 	GetMesh()->SetSkeletalMesh(NPCSkeletalMeshes[CurNPCType].Get());
 	GetMesh()->SetAnimInstanceClass(NPCAnimInstances[CurNPCType].Get());
-
+	
 	StatComp.Get()->SetStat(*UIFEnumDefine::GetEnumName(CurNPCType), CurNPCTier);
+
 	GetCharacterMovement()->MaxWalkSpeed = StatComp.Get()->GetBaseStat().MovementSpeed;
 	GetMesh()->SetRelativeLocation(StatComp.Get()->GetBaseStat().MeshLocation);
 	GetMesh()->SetRelativeScale3D(StatComp.Get()->GetBaseStat().MeshScale);
@@ -245,6 +251,7 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 			AIController.Get()->GetBlackboardComponent()->SetValueAsBool(BBKEY_ISHIT, false);
 		});
 		AnimInstance->OnStandUpFinish.BindLambda([&]() {
+			if (StatComp.Get()->GetCurrentHp() <= 0) return;
 			CurNpcState = ENPCState::Idle;
 			AIController.Get()->GetBlackboardComponent()->SetValueAsBool(BBKEY_ISHIT, false);
 		});
@@ -259,14 +266,11 @@ void AIFCharacterNonPlayer::SetNPCType(ENPCType NpcName, FName NpcTier)
 /// <param name="TargetActor"></param>
 void AIFCharacterNonPlayer::FocusingTarget(TObjectPtr<AActor> InTargetActor)
 {
-	if (CurNPCType == ENPCType::Boss && TargetActor == nullptr)
+	if (CurNPCType != ENPCType::Boss && TargetActor == nullptr)
 	{
-		AnimInstance.Get()->PlayInteractAnimation();
+		TargetActor = InTargetActor;
+		AIController->SetTarget(InTargetActor);
 	}
-
-	TargetActor = InTargetActor;
-	AIController->SetTarget(InTargetActor);
-	
 
 	//AIController->SetFocus(TargetActor, EAIFocusPriority::Gameplay);
 }
@@ -275,8 +279,6 @@ bool AIFCharacterNonPlayer::CheckPath()
 {
 	if (GetDistanceTo(TargetActor.Get()) >= 4000.f)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("CheckPath Fail"));
-
 		TargetActor = nullptr;
 
 		return false;
@@ -319,6 +321,7 @@ void AIFCharacterNonPlayer::SetAIWaitingDelegate(const FAICharacterWaitingFinish
 /// </summary>
 void AIFCharacterNonPlayer::AttackByAI()
 {
+	if (CurNpcState == ENPCState::Dead) return;
 	CurNpcState = ENPCState::Attacking;
 	StopMoving();
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
@@ -331,6 +334,8 @@ void AIFCharacterNonPlayer::AttackByAI()
 /// </summary>
 void AIFCharacterNonPlayer::NotifyAttackActionEnd()
 {
+	if (StatComp.Get()->GetCurrentHp() <= 0) return;
+
 	CurNpcState = ENPCState::Idle;
 	OnAttackFinished.ExecuteIfBound();
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
@@ -353,6 +358,8 @@ void AIFCharacterNonPlayer::StopMoving()
 
 void AIFCharacterNonPlayer::PerformWaiting(bool bIsFirstContact)
 {
+	if (StatComp.Get()->GetCurrentHp() <= 0) return;
+
 	CurNpcState = ENPCState::Idle;
 	
 	float WaitTime = bIsFirstContact ? StatComp->GetBaseStat().EncounterTime : StatComp->GetBaseStat().WaitTime;
@@ -531,7 +538,8 @@ void AIFCharacterNonPlayer::MeleeAttackCheck()
 	const FVector Start = GetActorLocation() + GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius();
 	const FVector End = Start + GetActorForwardVector() * AttackRange;
 
-	bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, Start, End, FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel3, FCollisionShape::MakeSphere(AttackRadius), Params);
+	bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, Start, End, FQuat::Identity, 
+		ECollisionChannel::ECC_GameTraceChannel3, FCollisionShape::MakeSphere(AttackRadius), Params);
 	if (HitDetected)
 	{
 		FDamageEvent DamageEvent;
@@ -560,7 +568,7 @@ void AIFCharacterNonPlayer::ChangeNPCMoveMode()
 
 void AIFCharacterNonPlayer::ExploseCharacter()
 {
-	UE_LOG(LogTemp, Warning, TEXT("ExploseCharacter"));
+	//UE_LOG(LogTemp, Warning, TEXT("ExploseCharacter"));
 	if(bIsWaitTime) { return; }
 
 	GlowParam = 0;
@@ -593,9 +601,9 @@ void AIFCharacterNonPlayer::ExploseCharacter()
 				Actor.Get()->TakeDamage(StatComp->GetBaseStat().Attack, DamageEvent, GetController(), this);
 
 				//ExcuteAttack(Actor.Get());
-				DrawDebugSphere(GetWorld(), GetActorLocation(), 300.f, 16, FColor::Green, false, 0.2f);
+				/*DrawDebugSphere(GetWorld(), GetActorLocation(), 300.f, 16, FColor::Green, false, 0.2f);
 				DrawDebugPoint(GetWorld(), Actor.Get()->GetActorLocation(), 10.0f, FColor::Green, false, 0.2f);
-				DrawDebugLine(GetWorld(), GetActorLocation(), Actor->GetActorLocation(), FColor::Green, false, 0.27f);
+				DrawDebugLine(GetWorld(), GetActorLocation(), Actor->GetActorLocation(), FColor::Green, false, 0.27f);*/
 			}
 		}
 	}
@@ -609,7 +617,7 @@ void AIFCharacterNonPlayer::ExploseCharacter()
 	PlayGlowEffect();
 	SetDead();
 
-	DrawDebugSphere(GetWorld(), GetActorLocation(), 300.f, 16, FColor::Red, false, 0.2f);
+	//DrawDebugSphere(GetWorld(), GetActorLocation(), 300.f, 16, FColor::Red, false, 0.2f);
 }
 
 float AIFCharacterNonPlayer::GetAIPatrolRadius()

@@ -28,6 +28,9 @@ public:
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = Ammo, Meta = (AllowPrivateAccess = true))
 	TObjectPtr<UParticleSystem> SpawnEffect;
 
+	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = Ammo, Meta = (AllowPrivateAccess = true))
+	TObjectPtr<USoundBase> SpawnSound;
+
 	FOnFinishDelegate OnFinish;
 
 protected:

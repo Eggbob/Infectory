@@ -35,6 +35,7 @@ void UIFUserWidget::ActiveCrossHair(bool bIsActive)
 	}
 }
 
+
 void UIFUserWidget::UpdateNotifyText(const FText& InText)
 {
 	if (NotifyText)

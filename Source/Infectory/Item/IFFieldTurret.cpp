@@ -48,11 +48,14 @@ void AIFFieldTurret::Tick(float DeltaTime)
 void AIFFieldTurret::PerformTurret()
 {
 	bIsStart = true;
+	UE_LOG(LogTemp, Warning, TEXT("PerformTurret"));
 }
 
 void AIFFieldTurret::StopTurret()
 {
 	bIsStart = false;
+
+	UE_LOG(LogTemp, Warning, TEXT("Stop Turret"));
 }
 
 void AIFFieldTurret::SearchTarget()

@@ -21,6 +21,7 @@ public:
 	AIFCharacterNonPlayer();
 	FORCEINLINE virtual ENPCState GetNPCState() { return CurNpcState; }
 	FORCEINLINE virtual ENPCMoveType GetNPCMoveType() { return CurNpcMoveType; }
+	FORCEINLINE virtual ENPCType GetNPCType() { return CurNPCType; }
 
 	virtual void SetNPCType(ENPCType NpcName, FName NpcTier);
 	virtual float GetAIPatrolRadius() override;

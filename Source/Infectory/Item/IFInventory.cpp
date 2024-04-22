@@ -118,7 +118,47 @@ void UIFInventory::CheckTotalAmmo(ERangedWeaponType WeaponType)
 
 int32 UIFInventory::CheckReloadAmmo(ERangedWeaponType WeaponType, int32 NeedAmmo)
 {
-	for (FIFItemData& Item : ItemList)
+	TArray<int32> DeleteList;
+
+	for(int32 i = 0; i< ItemList.Num(); i++)
+	{
+		if (ItemList[i].GetItemType() == EItemType::Ammo)
+		{
+			if (ItemList[i].GetWeaponType() == WeaponType)
+			{
+				int amount = ItemList[i].GetAmount();
+
+				if (amount >= NeedAmmo)
+				{
+					if (!ItemList[i].DcreaseAmount(NeedAmmo))
+					{
+						DeleteList.Add(i);
+					}
+
+					NeedAmmo = 0;
+
+					break;
+				}
+				else
+				{
+					if (!ItemList[i].SetAmount(0))
+					{
+						DeleteList.Add(i);
+					}
+
+					NeedAmmo -= amount;
+				}
+
+			}
+		}
+	}
+
+	for(int32 i = 0; i< DeleteList.Num(); i++)
+	{
+		ItemList.RemoveAt(DeleteList[i]);
+	}
+
+	/*for (FIFItemData& Item : ItemList)
 	{
 		if (Item.GetItemType() == EItemType::Ammo)
 		{
@@ -128,8 +168,12 @@ int32 UIFInventory::CheckReloadAmmo(ERangedWeaponType WeaponType, int32 NeedAmmo
 
 				if (amount >= NeedAmmo)
 				{
-					Item.DcreaseAmount(NeedAmmo);
-					//NeedAmmo = 0;
+					if (!Item.DcreaseAmount(NeedAmmo))
+					{
+
+					}
+
+
 					break;
 				}
 				else
@@ -141,7 +185,7 @@ int32 UIFInventory::CheckReloadAmmo(ERangedWeaponType WeaponType, int32 NeedAmmo
 			}
 
 		}
-	}
+	}*/
 
 	return NeedAmmo;
 }
@@ -169,7 +213,10 @@ bool UIFInventory::AddItem(FIFItemData ItemData)
 void UIFInventory::UseItem(int32 ItemIdx)
 {
 	int32 Value = ItemList[ItemIdx].GetItemEffectValue();
-	ItemList[ItemIdx].DcreaseAmount(1);
+	if (!ItemList[ItemIdx].DcreaseAmount(1))
+	{
+		RemoveItem(ItemIdx);
+	}
 	OnItemUse.ExecuteIfBound(Value);
 }
 
@@ -255,22 +302,6 @@ void UIFInventory::TestSetItem()
 	AddItem(UIFGameSingleton::Get().GetItemData(6));
 	AddItem(UIFGameSingleton::Get().GetItemData(6));
 	AddItem(UIFGameSingleton::Get().GetItemData(8));
-
-	/*ItemList.Add(UIFGameSingleton::Get().GetItemData(1));
-	ItemList.Add(UIFGameSingleton::Get().GetItemData(2));
-	ItemList.Add(UIFGameSingleton::Get().GetItemData(3));
-	ItemList.Add(UIFGameSingleton::Get().GetItemData(4));
-	ItemList.Add(UIFGameSingleton::Get().GetItemData(4));
-	ItemList.Add(UIFGameSingleton::Get().GetItemData(4));
-	ItemList.Add(UIFGameSingleton::Get().GetItemData(4));
-	ItemList.Add(UIFGameSingleton::Get().GetItemData(5));
-	ItemList.Add(UIFGameSingleton::Get().GetItemData(5));
-	ItemList.Add(UIFGameSingleton::Get().GetItemData(5));
-	ItemList.Add(UIFGameSingleton::Get().GetItemData(6));
-	ItemList.Add(UIFGameSingleton::Get().GetItemData(6));
-	ItemList.Add(UIFGameSingleton::Get().GetItemData(6));
-	ItemList.Add(UIFGameSingleton::Get().GetItemData(8));*/
-
 }
 
 void UIFInventory::RemoveItem(int32 ItemIdx)

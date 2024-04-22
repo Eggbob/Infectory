@@ -35,16 +35,6 @@ EBTNodeResult::Type UBTTask_PeformBossPattern::ExecuteTask(UBehaviorTreeComponen
 
 	EBossPattern BossPattern = static_cast<EBossPattern>(BossPatternNum);
 	AIPawn->CheckPattern(BossPattern);
-
-	//AIPawn->PerformGrabAttack();
-
-
-	//AIPawn->PerformPierceAttack();
-	//AIPawn->PerformRangeAttack();
-	//AIPawn->PeformBreathAttack();
-	//AIPawn->PerformSpawnEnemy();
-
-
 	return EBTNodeResult::InProgress;
 }
 

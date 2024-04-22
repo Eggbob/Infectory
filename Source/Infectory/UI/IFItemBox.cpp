@@ -3,6 +3,7 @@
 
 #include "UI/IFItemBox.h"
 #include "Components/TextBlock.h"
+#include "Data/IFGameSingleton.h"
 #include "Components/Image.h"
 #include "Styling/SlateColor.h"
 #include "MaterialShared.h"
@@ -35,20 +36,19 @@ void UIFItemBox::BindItemData(FIFItemData NewItemData)
 	case EItemType::Potion:
 	case EItemType::Goods:
 		ItemCountText.Get()->SetVisibility(ESlateVisibility::Hidden);
-		//SetCurItemImage(CurItemData.GetIconTexture());
-		ItemImage.Get()->SetBrushFromTexture(CurItemData.GetIconTexture());
+		//ItemImage.Get()->SetBrushFromTexture(CurItemData.GetIconTexture());
+		ItemImage.Get()->SetBrushFromTexture(UIFGameSingleton::Get().GetItemIcon(CurItemData.GetID()));
 		ItemImage.Get()->SetVisibility(ESlateVisibility::Visible);
 		ItemBackImage.Get()->SetBrushFromTexture(EmptyBackImg);
 		ItemPriceText.Get()->SetText(FText::FromString(FString::FromInt(CurItemData.GetItemPrice())));
-		//ItemBackImage.Get()->SetBrushTintColor(Slate);
 		break;
 
 	case EItemType::Ammo:
 		ItemCountText.Get()->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 		ItemCountText.Get()->SetText(FText::FromString(FString::FromInt(CurItemData.GetAmount())));
 		ItemPriceText.Get()->SetText(FText::FromString(FString::FromInt(CurItemData.GetItemPrice())));
-		//SetCurItemImage(CurItemData.GetIconTexture());
-		ItemImage.Get()->SetBrushFromTexture(CurItemData.GetIconTexture());
+		//ItemImage.Get()->SetBrushFromTexture(CurItemData.GetIconTexture());
+		ItemImage.Get()->SetBrushFromTexture(UIFGameSingleton::Get().GetItemIcon(CurItemData.GetID()));
 		ItemImage.Get()->SetVisibility(ESlateVisibility::Visible);
 		ItemBackImage.Get()->SetBrushFromTexture(EmptyBackImg);
 		break;
@@ -61,11 +61,11 @@ void UIFItemBox::BindItemData(FIFItemData NewItemData)
 
 void UIFItemBox::InitItemBox(bool bIsShop = false)
 {
-	/*ItemCountText.Get()->SetVisibility(ESlateVisibility::Visible);
-	ItemImage.Get()->SetVisibility(ESlateVisibility::Visible);*/
+	ItemCountText.Get()->SetVisibility(ESlateVisibility::Visible);
+	ItemImage.Get()->SetVisibility(ESlateVisibility::Visible);
 
-	ItemCountText.Get()->SetVisibility(ESlateVisibility::Hidden);
-	ItemImage.Get()->SetVisibility(ESlateVisibility::Hidden);
+	/*ItemCountText.Get()->SetVisibility(ESlateVisibility::Hidden);
+	ItemImage.Get()->SetVisibility(ESlateVisibility::Hidden);*/
 	ItemBackImage.Get()->SetBrushFromTexture(EmptyBackImg);
 
 	if (bIsShop)

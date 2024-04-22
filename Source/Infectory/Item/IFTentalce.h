@@ -49,6 +49,8 @@ public:
 
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	
+	ETentaclePattern GetCurPattern() { return CurPattern; }
+
 	FORCEINLINE bool GetIsDestroy() {
 		return bIsDestroyed; 
 	}
@@ -78,5 +80,6 @@ protected:
 
 private:
 	bool bIsDestroyed = false;
+
 	FVector TentacleBasicLoc;
 };

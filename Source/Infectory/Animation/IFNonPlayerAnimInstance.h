@@ -12,6 +12,7 @@ DECLARE_DELEGATE(FOnBackJumpEndDelegate);
 DECLARE_DELEGATE(FOnBackJumpDelegate);
 DECLARE_DELEGATE(FOnBeforeMovingDelegate);
 DECLARE_DELEGATE(FOnHitEndDelegate);
+DECLARE_DELEGATE(FOnInteractDelegate);
 DECLARE_DELEGATE(FOnStandUpFinishDelegate);
 
 
@@ -36,6 +37,7 @@ public:
 	void PlayBreathAttackAnimation();
 	void PlayRandomHitAnimation();
 	void PlayInteractAnimation();
+	void PlaySpawnEnemyAnimation();
 
 protected:
 	virtual void NativeInitializeAnimation() override;
@@ -56,6 +58,11 @@ protected:
 	UFUNCTION()
 	FORCEINLINE void AnimNotify_PlayFootStep() { PlayFootSound(); }
 
+	UFUNCTION()
+	FORCEINLINE void AnimNotify_AttackEnd() { OnAttackEnd.ExecuteIfBound(); }
+
+	UFUNCTION()
+	FORCEINLINE void AnimNotify_InteractAction() { OnInteract.ExecuteIfBound(); }
 
 public:
 	FOnAttackEndDelegate OnAttackEnd;
@@ -63,7 +70,9 @@ public:
 	FOnBackJumpDelegate OnBackJump;
 	FOnBeforeMovingDelegate OnBeforeMoving;
 	FOnHitEndDelegate OnHitEnd;
+	FOnInteractDelegate OnInteract;
 	FOnStandUpFinishDelegate OnStandUpFinish;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
 	ENPCState CurNpcState;
@@ -95,6 +104,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> BreathAttackAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> SpawnEnemyAnimation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> BackJumpAnimation;

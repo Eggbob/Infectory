@@ -25,8 +25,8 @@ AIFBossAIController::AIFBossAIController()
 void AIFBossAIController::RunAI()
 {
 	Super::RunAI();
-
-	Blackboard.Get()->SetValueAsInt(BBKEY_BOSSPHASE, 1);
+	CurrentPhase = 1;
+	Blackboard.Get()->SetValueAsInt(BBKEY_BOSSPHASE, CurrentPhase);
 }
 
 void AIFBossAIController::StopAI()
@@ -36,7 +36,8 @@ void AIFBossAIController::StopAI()
 
 void AIFBossAIController::PerformNextPhase()
 {
-	Blackboard.Get()->SetValueAsInt(BBKEY_BOSSPHASE, 2);
+	CurrentPhase++;
+	Blackboard.Get()->SetValueAsInt(BBKEY_BOSSPHASE, CurrentPhase);
 }
 
 void AIFBossAIController::SetCoolTime(float DelayTime)

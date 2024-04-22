@@ -11,6 +11,7 @@
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
 #include "Components/ScrollBox.h"
+#include "Data/IFGameSingleton.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
 void UIFInventoryWidget::NativeConstruct()
@@ -25,14 +26,22 @@ void UIFInventoryWidget::NativeConstruct()
 		WeaponWidgets.Add(Cast<UIFWeaponBox>(Widget));
 	}
 
-	TArray<UUserWidget*> ItemBoxWidgetRef;
-	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), ItemBoxWidgetRef, UIFItemBox::StaticClass(), false);
+	//TArray<UUserWidget*> ItemBoxWidgetRef;
+	//UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), ItemBoxWidgetRef, UIFItemInfoBox::StaticClass(), false);
 
-	for (UUserWidget* Widget : ItemBoxWidgetRef)
+	//for (UUserWidget* Widget : ItemBoxWidgetRef)
+	//{
+	//	//ItemBoxes.Add(Cast<UIFItemInfoBox>(Widget));
+	//	ItemBoxes.Add(Cast<UIFItemInfoBox>(Widget));
+	//}
+
+	for (int32 i = 1; i < 26; i++)
 	{
-		//ItemBoxes.Add(Cast<UIFItemInfoBox>(Widget));
-		ItemBoxes.Add(Cast<UIFItemBox>(Widget));
+		FString ItemBoxName = FString::Printf(TEXT("ItemInfoBox_%d"), i);
+		UIFItemInfoBox* ItemBox = Cast<UIFItemInfoBox>(GetWidgetFromName(*ItemBoxName));
+		ItemBoxes.Add(ItemBox);
 	}
+
 
 	CurCreditText = Cast<UTextBlock>(GetWidgetFromName(TEXT("CurCreditText")));
 	CurUpgradeGuierText = Cast<UTextBlock>(GetWidgetFromName(TEXT("CurUpgradeText")));
@@ -48,8 +57,6 @@ void UIFInventoryWidget::NativeConstruct()
 void UIFInventoryWidget::BindInventory(UIFInventory& PInven)
 {
 	PlayerInven = &PInven;
-	//SetItem();
-	//SetWeapon();
 }
 
 void UIFInventoryWidget::OpenInventory()
@@ -61,12 +68,8 @@ void UIFInventoryWidget::OpenInventory()
 	SetCredit();
 	SetUpgradeGier();
 
-	/*CurItemImg.Get()->SetVisibility(ESlateVisibility::Hidden);
-	CurItemNameText.Get()->SetVisibility(ESlateVisibility::Hidden);
-	CurItemExplainText.Get()->SetVisibility(ESlateVisibility::Hidden);*/
-
 	FVector2D Vect = FVector2D(0, 0);
-	//CurItemIndex = 0;
+	CurItemIndex = 0;
 	SelectItem(Vect);
 }
 
@@ -95,7 +98,7 @@ void UIFInventoryWidget::SetWeapon()
 
 void UIFInventoryWidget::SetItem()
 {
-	for (UIFItemBox* box : ItemBoxes)
+	for (UIFItemInfoBox* box : ItemBoxes)
 	{
 		box->InitItemBox(false);
 	}
@@ -106,7 +109,6 @@ void UIFInventoryWidget::SetItem()
 	{
 		ItemBoxes[i].Get()->BindItemData(Items[i]);
 	}
-
 }
 
 void UIFInventoryWidget::SetCredit()
@@ -132,7 +134,8 @@ void UIFInventoryWidget::SelectItem(FVector2D Direction)
 
 	if (CurItem.GetItemType() != EItemType::None)
 	{
-		CurItemImg.Get()->SetBrushFromTexture(CurItem.GetIconTexture());
+		//CurItemImg.Get()->SetBrushFromTexture(CurItem.GetIconTexture());
+		CurItemImg.Get()->SetBrushFromTexture(UIFGameSingleton::Get().GetItemIcon(CurItem.GetID()));
 		CurItemNameText.Get()->SetText(FText::FromString(CurItem.GetItemName()));
 		CurItemExplainText.Get()->SetText(FText::FromString(CurItem.GetToolTip()));
 	}

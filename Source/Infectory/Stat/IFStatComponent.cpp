@@ -21,7 +21,7 @@ UIFStatComponent::UIFStatComponent()
 
 void UIFStatComponent::ForTest()
 {
-	MaxHp = 500;
+	MaxHp = 800;
 	SetHp(MaxHp);
 }
 
